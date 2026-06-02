@@ -63,9 +63,10 @@
 - **프레임워크**: Hono v4 (TypeScript, SSR)
 - **호스팅**: Cloudflare Pages + Workers
 - **빌드**: Vite + @hono/vite-build
-- **프론트**: Vanilla JS + Pretendard + Font Awesome (CDN), 자체 디자인 시스템 CSS
-- **인터랙션**: Intersection Observer (reveal/카운트업), 패럴랙스, 비포애프터 슬라이더
-- **디자인 토큰**: `--brand: #1763E6` (클린 블루)
+- **프론트**: Vanilla JS + Pretendard + Font Awesome (CDN), 자체 2026 시네마틱 디자인 시스템 CSS
+- **인터랙션 라이브러리**: Lenis(스무스 스크롤) + GSAP/ScrollTrigger (CDN)
+- **인터랙션**: 캔버스 파티클 히어로, 커스텀 커서, 키네틱 타이포(글자 split), sticky 가로 스크롤, 마그네틱 버튼, 3D 틸트, 퍼널 타임라인 점등, Intersection Observer(reveal/카운트업), 비포애프터 슬라이더
+- **디자인 토큰**: `--brand: #2E7DFF` (일렉트릭 블루) · `--bg: #05070F` (다크 잉크) · 글래스모피즘
 
 ## 사용자 가이드
 1. 상단 GNB로 병원소개·의료진·진료안내(메가드롭다운)·진료사례·안내 탐색
