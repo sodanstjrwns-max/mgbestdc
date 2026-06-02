@@ -26,7 +26,7 @@ export function Head(meta: SeoMeta) {
       <link rel="canonical" href="${canonical}" />
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <meta name="author" content="${CLINIC.name}" />
-      <meta name="theme-color" content="#05070F" />
+      <meta name="theme-color" content="#FFFFFF" />
 
       <!-- Open Graph -->
       <meta property="og:type" content="${meta.ogType || 'website'}" />
@@ -289,19 +289,9 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
     <html lang="ko">
       ${Head(meta)}
       <body>
-        <div class="cursor-dot" aria-hidden="true"></div>
-        <div class="cursor-ring" aria-hidden="true"></div>
         ${Header()}
         <main>${body}</main>
         ${Footer()}
-
-        <!-- 2026 interaction libs -->
-        <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-        <script>
-          if (window.gsap && window.ScrollTrigger) { window.gsap.registerPlugin(window.ScrollTrigger); }
-        </script>
         <script src="/static/app.js"></script>
       </body>
     </html>`

@@ -1,8 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS } from '../data/clinic'
 
-const PANEL_GLOW = ['rgba(46,125,255,0.5)', 'rgba(124,92,255,0.5)', 'rgba(34,224,224,0.45)']
-
 const FUNNEL = [
   { n: '01', t: '인지', d: '마곡나루역 인근에서 치과를 찾는 순간, 정확한 정보로 첫 신뢰를 만듭니다.' },
   { n: '02', t: '내원·상담', d: '서두르지 않고, 현재 상태와 가능한 치료 선택지를 충분히 설명드립니다.' },
@@ -14,18 +12,15 @@ const FUNNEL = [
 export function HomePage() {
   const d = DOCTORS[0]
   return html`
-    <!-- ============ HERO (kinetic + canvas particles) ============ -->
+    <!-- ============ HERO (clean luxury) ============ -->
     <section class="hero" id="hero">
-      <canvas id="hero-canvas"></canvas>
-      <div class="hero-glow g1"></div>
-      <div class="hero-glow g2"></div>
       <div class="container">
         <div class="hero-inner">
-          <div class="hero-text">
+          <div class="hero-text reveal in">
             <span class="hero-badge"><span class="pulse"></span> ${CLINIC.directorCredential}</span>
             <h1>
               <span class="lead-line">${CLINIC.heroLead}</span>
-              <span class="line"><span data-split data-split-delay="0.25">${CLINIC.heroMain}</span></span>
+              <span class="line">${CLINIC.heroMain}</span>
             </h1>
             <p class="hero-sub">${CLINIC.heroSub}</p>
             <div class="hero-actions">
@@ -49,7 +44,6 @@ export function HomePage() {
           </aside>
         </div>
       </div>
-      <div class="scroll-ind"><span>SCROLL</span><span class="bar"></span></div>
     </section>
 
     <!-- ============ MARQUEE ============ -->
@@ -83,21 +77,20 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ CORE TREATMENTS — HORIZONTAL SCROLL ============ -->
-    <section class="h-scroll-wrap" aria-label="핵심 진료">
-      <div class="h-scroll-pin">
+    <!-- ============ CORE TREATMENTS — 그리드 ============ -->
+    <section class="pad tone" aria-label="핵심 진료">
+      <div class="container">
+        <div class="h-intro reveal" style="text-align:center;margin-bottom:46px">
+          <span class="eyebrow" style="justify-content:center">CORE TREATMENTS</span>
+          <h2 class="section-title">가장 자신 있게,<br />가장 신중하게 다루는 진료</h2>
+          <p class="section-lead" style="margin:0 auto">정밀 진단을 바탕으로 환자분 한 분 한 분께 맞는 치료 계획을 세웁니다.</p>
+        </div>
         <div class="h-scroll-track">
-          <div class="h-intro">
-            <span class="eyebrow">CORE TREATMENTS</span>
-            <h2 class="section-title">집중하는<br />세 가지 진료</h2>
-            <p class="section-lead">우리가 가장 자신 있게, 그리고 가장 신중하게 다루는 진료입니다. 옆으로 스크롤해 둘러보세요.</p>
-          </div>
           ${raw(
             CORE_TREATMENTS.map(
               (t, i) => `
-            <article class="h-panel">
+            <article class="h-panel reveal reveal-d${i + 1}">
               <div class="h-panel-num">${String(i + 1).padStart(2, '0')}</div>
-              <div class="h-panel-glow" style="background:radial-gradient(circle, ${PANEL_GLOW[i % PANEL_GLOW.length]}, transparent 70%)"></div>
               <span class="h-ico"><i class="fa-solid ${t.icon}"></i></span>
               <div class="h-panel-body">
                 <span class="tag">${t.category}</span>
@@ -109,7 +102,6 @@ export function HomePage() {
             ).join('')
           )}
         </div>
-        <div class="h-progress"><div class="h-progress-bar"></div></div>
       </div>
     </section>
 
@@ -216,7 +208,7 @@ export function HomePage() {
     <section class="pad-sm">
       <div class="cta-band">
         <div class="cta-inner">
-          <h2 data-split data-split-scroll style="font-size:clamp(2rem,5vw,3.4rem);color:#fff;margin-bottom:18px;font-weight:900">지금, 가장 편한 시간을 알려주세요</h2>
+          <h2 style="font-size:clamp(1.9rem,4.5vw,3rem);color:#fff;margin-bottom:18px;font-weight:800">지금, 가장 편한 시간을 알려주세요</h2>
           <p style="color:rgba(255,255,255,0.9);font-size:1.1rem;max-width:560px;margin:0 auto 32px">증상이 가벼울 때 확인하는 것이 가장 좋은 치료의 시작입니다. 부담 없이 문의해 주세요.</p>
           <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
             <a href="/reservation" class="btn" style="background:#fff;color:var(--brand)"><i class="fa-solid fa-calendar-check"></i> 예약 문의하기</a>
