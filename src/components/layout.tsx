@@ -26,7 +26,7 @@ export function Head(meta: SeoMeta) {
       <link rel="canonical" href="${canonical}" />
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <meta name="author" content="${CLINIC.name}" />
-      <meta name="theme-color" content="#1763E6" />
+      <meta name="theme-color" content="#05070F" />
 
       <!-- Open Graph -->
       <meta property="og:type" content="${meta.ogType || 'website'}" />
@@ -213,7 +213,7 @@ function Header() {
         </div>
       </details>
       <div class="mobile-cta">
-        <a href="tel:${CLINIC.phoneRaw}" class="btn btn-ghost"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
+        <a href="tel:${CLINIC.phoneRaw}" class="btn btn-glass"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
         <a href="/reservation" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> 예약 문의하기</a>
       </div>
     </div>
@@ -289,9 +289,19 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
     <html lang="ko">
       ${Head(meta)}
       <body>
+        <div class="cursor-dot" aria-hidden="true"></div>
+        <div class="cursor-ring" aria-hidden="true"></div>
         ${Header()}
         <main>${body}</main>
         ${Footer()}
+
+        <!-- 2026 interaction libs -->
+        <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+        <script>
+          if (window.gsap && window.ScrollTrigger) { window.gsap.registerPlugin(window.ScrollTrigger); }
+        </script>
         <script src="/static/app.js"></script>
       </body>
     </html>`

@@ -47,10 +47,10 @@ export function MissionPage() {
       </div></div>
     </section>
 
-    <section class="cta-band pad-sm"><div class="container"><div class="reveal" style="text-align:center">
-      <h2>마곡베스트치과와 함께 시작하세요</h2><p>정직한 진료와 맞춤 치료로 환자분의 삶을 끝까지 함께하겠습니다.</p>
-      <div class="cta-actions"><a href="/reservation" class="btn btn-white btn-lg">예약 문의</a><a href="/doctors" class="btn btn-ghost btn-lg" style="background:transparent;color:#fff;border-color:rgba(255,255,255,0.4)">의료진 보기</a></div>
-    </div></div></section>
+    <section class="pad-sm"><div class="cta-band"><div class="cta-inner"><div class="reveal" style="text-align:center">
+      <h2 style="color:#fff">마곡베스트치과와 함께 시작하세요</h2><p style="color:rgba(255,255,255,0.9);max-width:560px;margin:14px auto 28px">정직한 진료와 맞춤 치료로 환자분의 삶을 끝까지 함께하겠습니다.</p>
+      <div class="cta-actions"><a href="/reservation" class="btn btn-white btn-lg">예약 문의</a><a href="/doctors" class="btn btn-glass btn-lg" style="border-color:rgba(255,255,255,0.4)">의료진 보기</a></div>
+    </div></div></div></section>
   `
 }
 
@@ -86,10 +86,10 @@ export function DirectionsPage() {
 
           <div class="reveal reveal-d1">
             <a href="https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.addressFull)}" target="_blank" rel="noopener"
-               style="display:block;aspect-ratio:4/3;border-radius:var(--radius-lg);background:linear-gradient(160deg,var(--brand-soft),#fff);border:1px solid var(--line);display:grid;place-items:center;text-align:center;text-decoration:none">
+               style="display:block;aspect-ratio:4/3;border-radius:var(--radius-lg);background:linear-gradient(160deg,var(--bg-3),var(--bg-2));border:1px solid var(--glass-border);display:grid;place-items:center;text-align:center;text-decoration:none">
               <div>
                 <i class="fa-solid fa-map-location-dot" style="font-size:3.5rem;color:var(--brand);margin-bottom:16px"></i>
-                <div style="font-weight:800;color:var(--ink);font-size:1.2rem">${CLINIC.name}</div>
+                <div style="font-weight:800;color:var(--text);font-size:1.2rem">${CLINIC.name}</div>
                 <div style="color:var(--ink-3);margin-top:6px">${CLINIC.addressShort}</div>
                 <span class="btn btn-primary" style="margin-top:18px"><i class="fa-solid fa-map"></i> 네이버 지도에서 보기</span>
               </div>
@@ -134,10 +134,10 @@ export function PricingPage() {
       </div>
     </section>
 
-    <section class="cta-band pad-sm"><div class="container"><div class="reveal" style="text-align:center">
-      <h2>정확한 비용이 궁금하시다면</h2><p>진단 후 치료 계획과 함께 투명하게 안내드립니다.</p>
+    <section class="pad-sm"><div class="cta-band"><div class="cta-inner"><div class="reveal" style="text-align:center">
+      <h2 style="color:#fff">정확한 비용이 궁금하시다면</h2><p style="color:rgba(255,255,255,0.9);max-width:560px;margin:14px auto 28px">진단 후 치료 계획과 함께 투명하게 안내드립니다.</p>
       <div class="cta-actions"><a href="/reservation" class="btn btn-white btn-lg">상담 예약하기</a></div>
-    </div></div></section>
+    </div></div></div></section>
   `
 }
 
@@ -178,7 +178,7 @@ export function FacilityPage() {
               ['진료실', '상담실', '대기 공간']
                 .map(
                   (s) => `
-              <div style="aspect-ratio:4/3;border-radius:var(--radius);background:linear-gradient(160deg,var(--brand-soft),#fff);border:1px solid var(--line);display:grid;place-items:center;color:var(--brand)">
+              <div style="aspect-ratio:4/3;border-radius:var(--radius);background:linear-gradient(160deg,var(--bg-3),var(--bg-2));border:1px solid var(--glass-border);display:grid;place-items:center;color:var(--brand-glow)">
                 <div style="text-align:center"><i class="fa-solid fa-image" style="font-size:2rem;opacity:0.4"></i><div style="margin-top:10px;color:var(--ink-3);font-weight:600;font-size:0.9rem">${s}</div></div>
               </div>`
                 )
@@ -261,20 +261,20 @@ export function ReservationPage() {
 
     <section class="pad">
       <div class="container" style="max-width:680px">
-        <div class="card reveal" style="padding:36px">
+        <div class="glass-card reveal" style="padding:36px">
           <form id="reservation-form">
             <div style="display:grid;gap:18px">
               <div>
                 <label style="font-weight:700;display:block;margin-bottom:8px">이름 *</label>
-                <input name="name" required placeholder="성함을 입력해 주세요" style="width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:12px;font-size:1rem" />
+                <input name="name" required placeholder="성함을 입력해 주세요" class="form-input" />
               </div>
               <div>
                 <label style="font-weight:700;display:block;margin-bottom:8px">연락처 *</label>
-                <input name="phone" required type="tel" placeholder="010-0000-0000" style="width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:12px;font-size:1rem" />
+                <input name="phone" required type="tel" placeholder="010-0000-0000" class="form-input" />
               </div>
               <div>
                 <label style="font-weight:700;display:block;margin-bottom:8px">희망 진료</label>
-                <select name="treatment" style="width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:12px;font-size:1rem">
+                <select name="treatment" class="form-input">
                   <option value="">선택해 주세요</option>
                   ${raw([...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => `<option value="${t.name}">${t.name}</option>`).join(''))}
                   <option value="기타">기타 / 잘 모르겠어요</option>
@@ -282,9 +282,9 @@ export function ReservationPage() {
               </div>
               <div>
                 <label style="font-weight:700;display:block;margin-bottom:8px">문의 내용</label>
-                <textarea name="message" rows="4" placeholder="궁금하신 점이나 희망 방문 시간을 적어주세요" style="width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:12px;font-size:1rem;resize:vertical"></textarea>
+                <textarea name="message" rows="4" placeholder="궁금하신 점이나 희망 방문 시간을 적어주세요" class="form-input" style="resize:vertical"></textarea>
               </div>
-              <label style="display:flex;gap:10px;align-items:flex-start;font-size:0.88rem;color:var(--ink-3)">
+              <label style="display:flex;gap:10px;align-items:flex-start;font-size:0.88rem;color:var(--text-3)">
                 <input type="checkbox" required style="margin-top:4px" />
                 <span>개인정보 수집 및 이용에 동의합니다. 수집된 정보는 예약 상담 목적으로만 사용되며, 목적 달성 후 파기됩니다.</span>
               </label>
@@ -294,8 +294,8 @@ export function ReservationPage() {
           </form>
         </div>
 
-        <div style="text-align:center;margin-top:24px;color:var(--ink-3)">
-          빠른 예약은 <a href="tel:${CLINIC.phoneRaw}" style="color:var(--brand);font-weight:700">${CLINIC.phone}</a> 으로 전화 주세요.
+        <div style="text-align:center;margin-top:24px;color:var(--text-3)">
+          빠른 예약은 <a href="tel:${CLINIC.phoneRaw}" style="color:var(--brand-glow);font-weight:700">${CLINIC.phone}</a> 으로 전화 주세요.
         </div>
       </div>
     </section>

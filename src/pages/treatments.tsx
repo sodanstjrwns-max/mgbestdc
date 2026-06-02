@@ -22,7 +22,7 @@ export function TreatmentsListPage() {
           ${raw(
             CORE_TREATMENTS.map(
               (t, i) => `
-            <a href="/treatments/${t.slug}" class="card tcard reveal reveal-d${i + 1}">
+            <a href="/treatments/${t.slug}" class="glass-card tilt reveal reveal-d${i + 1}">
               <span class="num-tag">0${i + 1}</span>
               <span class="tico"><i class="fa-solid ${t.icon}"></i></span>
               <h3>${t.name}</h3>
@@ -40,7 +40,7 @@ export function TreatmentsListPage() {
           ${raw(
             GENERAL_TREATMENTS.map(
               (t) => `
-            <a href="/treatments/${t.slug}" class="tchip reveal" style="min-height:84px">
+            <a href="/treatments/${t.slug}" class="chip reveal" style="min-height:84px">
               <i class="fa-solid ${t.icon}"></i>
               <span><span class="tn">${t.name}</span><br /><span class="td">${t.tagline}</span></span>
             </a>`
@@ -50,15 +50,15 @@ export function TreatmentsListPage() {
       </div>
     </section>
 
-    <section class="cta-band pad-sm">
-      <div class="container">
+    <section class="pad-sm"><div class="cta-band">
+      <div class="cta-inner">
         <div class="reveal" style="text-align:center">
-          <h2>어떤 진료가 필요한지 모르시겠다면</h2>
-          <p>정확한 진단으로 환자분께 맞는 치료를 안내드립니다. 부담 없이 문의해 주세요.</p>
+          <h2 style="color:#fff">어떤 진료가 필요한지 모르시겠다면</h2>
+          <p style="color:rgba(255,255,255,0.9);max-width:560px;margin:14px auto 28px">정확한 진단으로 환자분께 맞는 치료를 안내드립니다. 부담 없이 문의해 주세요.</p>
           <div class="cta-actions"><a href="/reservation" class="btn btn-white btn-lg">예약 문의하기</a></div>
         </div>
       </div>
-    </section>
+    </div></section>
   `
 }
 
@@ -144,7 +144,7 @@ export function TreatmentDetailPage(t: Treatment) {
 
             <div class="side-card">
               <h4>담당 의료진</h4>
-              <a href="/doctors/${doctor.slug}" class="tchip" style="border:none;padding:8px 0">
+              <a href="/doctors/${doctor.slug}" class="chip" style="border:none;padding:8px 0">
                 <i class="fa-solid fa-user-doctor"></i>
                 <span><span class="tn">${doctor.name} ${doctor.title}</span><br /><span class="td">${doctor.credential}</span></span>
               </a>

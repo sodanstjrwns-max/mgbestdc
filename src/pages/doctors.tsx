@@ -66,7 +66,7 @@ export function DoctorDetailPage(slug: string) {
             <p class="section-lead">${d.philosophy}</p>
             <p style="margin-top:16px;color:var(--ink-2)">${d.intro}</p>
             <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px">
-              ${raw(specialties.map((t: any) => `<a href="/treatments/${t.slug}" class="btn btn-ghost"><i class="fa-solid ${t.icon}"></i> ${t.name}</a>`).join(''))}
+              ${raw(specialties.map((t: any) => `<a href="/treatments/${t.slug}" class="btn btn-glass"><i class="fa-solid ${t.icon}"></i> ${t.name}</a>`).join(''))}
             </div>
           </div>
         </div>
@@ -80,13 +80,13 @@ export function DoctorDetailPage(slug: string) {
       </div>
     </section>
 
-    <section class="cta-band pad-sm">
-      <div class="container"><div class="reveal" style="text-align:center">
-        <h2>${d.name} 대표원장과 상담하기</h2>
-        <p>정확한 진단과 충분한 설명으로 환자분께 맞는 치료를 안내드립니다.</p>
-        <div class="cta-actions"><a href="/reservation" class="btn btn-white btn-lg">예약 문의</a><a href="tel:${CLINIC.phoneRaw}" class="btn btn-ghost btn-lg" style="background:transparent;color:#fff;border-color:rgba(255,255,255,0.4)"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a></div>
+    <section class="pad-sm"><div class="cta-band">
+      <div class="cta-inner"><div class="reveal" style="text-align:center">
+        <h2 style="color:#fff">${d.name} 대표원장과 상담하기</h2>
+        <p style="color:rgba(255,255,255,0.9);max-width:560px;margin:14px auto 28px">정확한 진단과 충분한 설명으로 환자분께 맞는 치료를 안내드립니다.</p>
+        <div class="cta-actions"><a href="/reservation" class="btn btn-white btn-lg">예약 문의</a><a href="tel:${CLINIC.phoneRaw}" class="btn btn-glass btn-lg" style="border-color:rgba(255,255,255,0.4)"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a></div>
       </div></div>
-    </section>
+    </div></section>
   `
 }
 
