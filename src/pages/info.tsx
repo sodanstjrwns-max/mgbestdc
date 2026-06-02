@@ -38,7 +38,7 @@ export function MissionPage() {
       </div>
     </section>
 
-    <section class="stats pad-sm">
+    <section class="pad-sm">
       <div class="container"><div class="stats-grid">
         <div class="stat reveal"><div class="num">${CLINIC.openedYear}</div><div class="label">마곡 개원</div></div>
         <div class="stat reveal reveal-d1"><div class="num"><span data-count="4">0</span></div><div class="label">최신 디지털 장비</div></div>
