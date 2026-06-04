@@ -9,6 +9,8 @@ import {
   MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
   ReservationPage, CasesPage, AreaPage, areaSchema
 } from './pages/info'
+import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
+import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
 
 const app = new Hono()
 
@@ -224,6 +226,68 @@ app.get('/cases', (c) =>
 )
 
 // ============================================================
+// 건강칼럼 (블로그) — AI·검색 노출용 콘텐츠
+// ============================================================
+app.get('/blog', (c) =>
+  c.html(
+    Layout(
+      {
+        title: `건강칼럼 | ${CLINIC.name} (${CLINIC.station} 도보 3분)`,
+        description: `${DOCTORS[0].name} 대표원장이 전하는 치아 건강 칼럼. 임플란트·충치치료·심미치료·구강관리 정보를 꾸준히 업데이트합니다. ${CLINIC.directions}.`,
+        path: '/blog',
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }]),
+          blogListSchema(SITE_URL)
+        ]
+      },
+      BlogListPage()
+    )
+  )
+)
+
+// 카테고리 필터
+app.get('/blog/category/:cat', (c) => {
+  const catSlug = c.req.param('cat')
+  const cat = BLOG_CATEGORIES.find((x) => x.slug === catSlug)
+  if (!cat) return c.notFound()
+  return c.html(
+    Layout(
+      {
+        title: `${cat.name} 칼럼 | ${CLINIC.name}`,
+        description: `${cat.name} 관련 건강 칼럼 모음. ${CLINIC.name}이 전하는 ${cat.name} 정보입니다.`,
+        path: `/blog/category/${catSlug}`,
+        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: cat.name, path: `/blog/category/${catSlug}` }])]
+      },
+      BlogListPage(cat.name)
+    )
+  )
+})
+
+// 칼럼 상세
+app.get('/blog/:slug', (c) => {
+  const slug = c.req.param('slug')
+  const post = getPost(slug)
+  if (!post) return c.notFound()
+  const faqSchema = blogFaqSchema(post)
+  return c.html(
+    Layout(
+      {
+        title: `${post.title} | ${CLINIC.shortName} 건강칼럼`,
+        description: post.excerpt,
+        path: `/blog/${slug}`,
+        ogType: 'article',
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: post.title, path: `/blog/${slug}` }]),
+          blogPostingSchema(post, SITE_URL),
+          ...(faqSchema ? [faqSchema] : [])
+        ]
+      },
+      BlogDetailPage(post)
+    )
+  )
+})
+
+// ============================================================
 // 지역 SEO: /area/:areaSlug-:treatmentSlug
 // ============================================================
 app.get('/area/:combo', (c) => {
@@ -279,6 +343,7 @@ app.get('/sitemap.xml', (c) => {
     { loc: '/doctors', pri: '0.8' },
     { loc: '/treatments', pri: '0.9' },
     { loc: '/cases', pri: '0.7' },
+    { loc: '/blog', pri: '0.8' },
     { loc: '/faq', pri: '0.7' },
     { loc: '/directions', pri: '0.7' },
     { loc: '/pricing', pri: '0.6' },
@@ -287,6 +352,8 @@ app.get('/sitemap.xml', (c) => {
   ]
   DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7' }))
   TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7' }))
+  BLOG_CATEGORIES.forEach((c) => urls.push({ loc: `/blog/category/${c.slug}`, pri: '0.6' }))
+  BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7' }))
   AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({ loc: `/area/${a.slug}-${ts}`, pri: '0.6' })))
 
   const today = new Date().toISOString().split('T')[0]
@@ -336,10 +403,14 @@ ${GENERAL_TREATMENTS.map((t) => `- [${t.name}](${SITE_URL}/treatments/${t.slug})
 ## 보유 장비
 ${CLINIC.equipment.map((e) => `- ${e.name}: ${e.desc}`).join('\n')}
 
+## 건강칼럼 (꾸준히 업데이트)
+${BLOG_POSTS.map((p) => `- [${p.title}](${SITE_URL}/blog/${p.slug}): ${p.excerpt}`).join('\n')}
+
 ## 주요 페이지
 - [병원소개](${SITE_URL}/mission)
 - [의료진](${SITE_URL}/doctors)
 - [오시는 길](${SITE_URL}/directions)
+- [건강칼럼](${SITE_URL}/blog)
 - [자주 묻는 질문](${SITE_URL}/faq)
 - [예약 문의](${SITE_URL}/reservation)
 `

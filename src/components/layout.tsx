@@ -1,5 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS } from '../data/clinic'
+import { BLOG_CATEGORIES } from '../data/blog'
 
 type SeoMeta = {
   title: string
@@ -170,6 +171,18 @@ function Header() {
               </div>
             </li>
             <li>
+              <a href="/blog">건강칼럼 <i class="fa-solid fa-chevron-down"></i></a>
+              <div class="mega" style="min-width:340px">
+                <div class="mega-grid" style="grid-template-columns:1fr">
+                  ${raw(
+                    BLOG_CATEGORIES.map(
+                      (cat) => `<a href="/blog/category/${cat.slug}" class="mega-item"><i class="fa-solid fa-pen-nib"></i><span><span class="mi-name">${cat.name}</span><span class="mi-desc">${cat.en}</span></span></a>`
+                    ).join('')
+                  )}
+                </div>
+              </div>
+            </li>
+            <li>
               <a href="/cases">진료사례 <i class="fa-solid fa-chevron-down"></i></a>
               <div class="mega" style="min-width:300px">
                 <div class="mega-grid" style="grid-template-columns:1fr">
@@ -206,6 +219,13 @@ function Header() {
         <summary>진료안내</summary>
         <div class="sub">
           ${raw([...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => `<a href="/treatments/${t.slug}">${t.name}</a>`).join(''))}
+        </div>
+      </details>
+      <details>
+        <summary>건강칼럼</summary>
+        <div class="sub">
+          <a href="/blog">전체 칼럼</a>
+          ${raw(BLOG_CATEGORIES.map((cat) => `<a href="/blog/category/${cat.slug}">${cat.name}</a>`).join(''))}
         </div>
       </details>
       <a href="/cases" class="top-link">진료사례</a>
@@ -250,6 +270,7 @@ function Footer() {
             <h5>바로가기</h5>
             <a href="/mission">병원소개</a>
             <a href="/doctors">의료진</a>
+            <a href="/blog">건강칼럼</a>
             <a href="/cases">진료사례</a>
             <a href="/faq">자주 묻는 질문</a>
             <a href="/reservation">예약 문의</a>
