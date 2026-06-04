@@ -26,7 +26,7 @@ export function Head(meta: SeoMeta) {
       <link rel="canonical" href="${canonical}" />
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <meta name="author" content="${CLINIC.name}" />
-      <meta name="theme-color" content="#FFFFFF" />
+      <meta name="theme-color" content="#07090F" />
 
       <!-- Open Graph -->
       <meta property="og:type" content="${meta.ogType || 'website'}" />
@@ -289,10 +289,12 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
     <html lang="ko">
       ${Head(meta)}
       <body>
+        <div class="scroll-progress"></div>
         ${Header()}
         <main>${body}</main>
         ${Footer()}
         <script src="/static/app.js"></script>
+        <script src="/static/fx.js" defer></script>
       </body>
     </html>`
 }

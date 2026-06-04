@@ -222,7 +222,7 @@ export function FaqPage() {
                 .map(
                   (f: any) => `
                 <details class="faq-item">
-                  <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>${f.q}</span><i class="fa-solid fa-chevron-down" style="color:var(--brand);font-size:0.8rem"></i></summary>
+                  <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>${f.q}</span></summary>
                   <div class="faq-a">${f.a}</div>
                 </details>`
                 )
@@ -348,7 +348,7 @@ export function CasesPage(isLoggedIn = false) {
       <div class="container">
         <div class="notice-box reveal" style="margin-bottom:32px">
           <i class="fa-solid fa-lock"></i>
-          <div>의료법에 따라 치료 후(After) 사진은 회원 로그인 후 열람하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.${isLoggedIn ? '' : ' <a href="/auth/login" style="color:var(--brand);font-weight:700">로그인하기 →</a>'}</div>
+          <div>의료법에 따라 치료 후(After) 사진은 회원 로그인 후 열람하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.${raw(isLoggedIn ? '' : ' <a href="/auth/login" style="color:var(--acc);font-weight:700">로그인하기 →</a>')}</div>
         </div>
 
         <div class="ba-grid">

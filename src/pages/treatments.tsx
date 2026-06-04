@@ -123,7 +123,7 @@ export function TreatmentDetailPage(t: Treatment) {
                     .map(
                       (f) => `
                     <details class="faq-item">
-                      <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>${f.q}</span><i class="fa-solid fa-chevron-down" style="color:var(--brand);font-size:0.8rem"></i></summary>
+                      <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>${f.q}</span></summary>
                       <div class="faq-a">${f.a}</div>
                     </details>`
                     )
