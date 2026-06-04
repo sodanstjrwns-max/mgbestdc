@@ -9,7 +9,8 @@ export function TreatmentsListPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>진료안내</span></nav>
-        <h1>진료 안내</h1>
+        <span class="eyebrow">TREATMENTS</span>
+        <h1>진료 <span class="grad">안내</span></h1>
         <p class="ph-sub">마곡베스트치과의원은 일반 진료부터 임플란트·교정·심미치료까지, 정밀 진단을 바탕으로 환자분의 구강 건강을 종합적으로 돌봅니다.</p>
       </div>
     </section>
@@ -76,7 +77,7 @@ export function TreatmentDetailPage(t: Treatment) {
           <a href="/treatments">진료안내</a><span class="sep">/</span><span>${t.name}</span>
         </nav>
         <span class="eyebrow">${t.category === 'core' ? 'CORE TREATMENT' : 'GENERAL CARE'}</span>
-        <h1>${t.name}</h1>
+        <h1><span class="grad">${t.name}</span></h1>
         <p class="ph-sub">${t.tagline} — ${t.summary}</p>
       </div>
     </section>
