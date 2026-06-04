@@ -24,7 +24,7 @@ export function HomePage() {
 
           <h1>
             <span class="l reveal-line"><span>치료가 끝나고도</span></span>
-            <span class="l"><span data-split>아무 걱정 없이.</span></span>
+            <span class="l l-grad"><span data-split>아무 걱정 없이.</span></span>
           </h1>
 
           <div class="hero-foot">

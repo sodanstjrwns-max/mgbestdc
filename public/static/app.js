@@ -129,6 +129,7 @@
     ring.className = 'cursor-ring';
     document.body.appendChild(dot);
     document.body.appendChild(ring);
+    document.body.classList.add('cursor-active');
     var mx = 0, my = 0, rx = 0, ry = 0;
     window.addEventListener('mousemove', function (e) {
       mx = e.clientX; my = e.clientY;
@@ -141,9 +142,9 @@
       requestAnimationFrame(loop);
     }
     loop();
-    document.querySelectorAll('a, button, .core-row, .chip, summary').forEach(function (el) {
-      el.addEventListener('mouseenter', function () { ring.classList.add('hover'); });
-      el.addEventListener('mouseleave', function () { ring.classList.remove('hover'); });
+    document.querySelectorAll('a, button, .core-row, .chip, summary, [data-magnetic], [data-tilt]').forEach(function (el) {
+      el.addEventListener('mouseenter', function () { ring.classList.add('hover'); dot.classList.add('hover'); });
+      el.addEventListener('mouseleave', function () { ring.classList.remove('hover'); dot.classList.remove('hover'); });
     });
   }
 

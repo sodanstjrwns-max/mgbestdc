@@ -49,9 +49,15 @@ export function Head(meta: SeoMeta) {
 
       <!-- Fonts -->
       <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link
         rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@300;400;500&display=swap"
       />
       <link
         rel="stylesheet"
@@ -289,6 +295,7 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
     <html lang="ko">
       ${Head(meta)}
       <body>
+        <div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
         <div class="scroll-progress"></div>
         ${Header()}
         <main>${body}</main>
