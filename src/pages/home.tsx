@@ -1,5 +1,5 @@
 import { html, raw } from 'hono/html'
-import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS } from '../data/clinic'
+import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS, CARE_CREED, CARE_PRINCIPLES } from '../data/clinic'
 
 const FUNNEL = [
   { n: '01', t: '인지', d: '마곡나루역 인근에서 치과를 찾는 순간, 정확한 정보로 첫 신뢰를 만듭니다.' },
@@ -78,12 +78,40 @@ export function HomePage() {
       </div>
     </section>
 
+    <!-- ============ CARE PHILOSOPHY — 원장님 진료 철학 ============ -->
+    <section class="pad" aria-label="진료 철학">
+      <div class="container">
+        <div class="creed">
+          <div class="creed-head reveal">
+            <span class="label label--line"><span class="idx">[01]</span> CARE PHILOSOPHY</span>
+          </div>
+          <div class="creed-body">
+            <h2 class="creed-headline reveal">${raw(CARE_CREED.headline.replace('끝까지 살립니다', '<span class="grad">끝까지</span> 살립니다'))}</h2>
+            <p class="creed-lead reveal reveal-d1">${CARE_CREED.body}</p>
+          </div>
+        </div>
+
+        <div class="principle-grid">
+          ${raw(
+            CARE_PRINCIPLES.map(
+              (p, i) => `
+            <article class="principle reveal reveal-d${(i % 3) + 1}">
+              <span class="pr-no">${p.no}</span>
+              <h3 class="pr-title">${p.title}</h3>
+              <p class="pr-body">${p.body}</p>
+            </article>`
+            ).join('')
+          )}
+        </div>
+      </div>
+    </section>
+
     <!-- ============ CORE — 에디토리얼 인덱스 리스트 ============ -->
     <section class="pad tone" aria-label="핵심 진료">
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[01]</span> CORE TREATMENTS</span>
+            <span class="label label--line"><span class="idx">[02]</span> CORE TREATMENTS</span>
             <h2 class="section-title">가장 <span class="thin">신중하게</span><br />다루는 진료</h2>
           </div>
           <p class="section-lead reveal reveal-d2">정밀 진단을 바탕으로, 환자분 한 분 한 분께 맞는 치료 계획을 세웁니다. 임플란트·충치·심미, 세 가지를 가장 깊게 다룹니다.</p>
@@ -116,7 +144,7 @@ export function HomePage() {
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[02]</span> ALL TREATMENTS</span>
+            <span class="label label--line"><span class="idx">[03]</span> ALL TREATMENTS</span>
             <h2 class="section-title">필요한 모든 진료를,<br /><span class="thin">한 곳에서</span></h2>
           </div>
           <p class="section-lead reveal reveal-d2">교정·턱관절·잇몸·보철·발치·예방까지. 마곡베스트치과 한 곳에서 이어집니다.</p>
@@ -140,11 +168,12 @@ export function HomePage() {
     <section class="pad tone">
       <div class="container">
         <div class="sec-head reveal" style="margin-bottom:clamp(36px,5vw,60px)">
-          <span class="label label--line"><span class="idx">[03]</span> DIRECTOR</span>
+          <span class="label label--line"><span class="idx">[04]</span> DIRECTOR</span>
         </div>
         <div class="doctor-feature">
           <div class="reveal">
-            <blockquote class="doctor-quote">처음 만난 전문의가 <em>치료의 시작부터 마무리까지</em>, 그리고 그 이후의 관리까지 직접 책임집니다.</blockquote>
+            <blockquote class="doctor-quote">저에게 <em>‘손이 좋다’</em>는 것은 빠른 치료가 아니라, 정확한 진단으로 <em>통증은 줄이고 꼼꼼하게</em> 치료하는 것입니다.</blockquote>
+            <p class="doctor-note reveal reveal-d1">처음 상담하고 치료 계획을 세운 대표원장이 사후 관리까지 직접 책임집니다. 담당 원장이 바뀌지 않아 진료 방향이 중간에 달라지지 않습니다.</p>
             <div class="doctor-sign">
               <div>
                 <div class="nm">${d.name} 대표원장</div>
@@ -154,7 +183,7 @@ export function HomePage() {
             <ul class="cred-list">
               ${raw(d.career.slice(0, 4).map((c, i) => `<li class="cred-item"><span class="n">0${i + 1}</span> ${c}</li>`).join(''))}
             </ul>
-            <a href="/doctors/${d.slug}" class="btn btn-ghost" data-magnetic>의료진 전체 소개 <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="/doctors/${d.slug}" class="btn btn-ghost" data-magnetic>대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
           </div>
           <div class="doctor-photo is-placeholder reveal reveal-d2" data-tilt>
             <span class="ph-corner meta">[ FIG.01 — DIRECTOR ]</span>
@@ -177,7 +206,7 @@ export function HomePage() {
       <div class="container">
         <div class="feature-split">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[04]</span> TECHNOLOGY</span>
+            <span class="label label--line"><span class="idx">[05]</span> TECHNOLOGY</span>
             <h2 class="section-title" style="margin-top:20px">정확한 진단을<br /><span class="thin">돕는 장비</span></h2>
             <p class="section-lead" style="margin-top:20px">진료의 시작은 정확한 데이터입니다. 구강 스캔부터 정밀 클리닝까지, 환자에게 맞는 판단을 돕는 장비를 갖췄습니다.</p>
             <div class="feature-list">
@@ -206,7 +235,7 @@ export function HomePage() {
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[05]</span> PATIENT JOURNEY</span>
+            <span class="label label--line"><span class="idx">[06]</span> PATIENT JOURNEY</span>
             <h2 class="section-title">인지부터 사후관리까지<br /><span class="thin">전 과정을 설계</span></h2>
           </div>
           <p class="section-lead reveal reveal-d2">치과를 알게 된 순간부터 치료 후 관리까지. 환자의 여정 전체를 책임지고 동행합니다.</p>
@@ -229,7 +258,7 @@ export function HomePage() {
     <section class="pad-sm">
       <div class="container">
         <div class="cta-band reveal">
-          <span class="label"><span class="idx">[06]</span> CONTACT</span>
+          <span class="label"><span class="idx">[07]</span> CONTACT</span>
           <h2>지금, 가장 편한<br /><em>시간</em>을 알려주세요</h2>
           <p>증상이 가벼울 때 확인하는 것이 가장 좋은 치료의 시작입니다. 부담 없이 문의해 주세요.</p>
           <div class="cta-actions">

@@ -1,5 +1,5 @@
 import { html, raw } from 'hono/html'
-import { CLINIC, DOCTORS, TREATMENTS, getTreatment } from '../data/clinic'
+import { CLINIC, DOCTORS, TREATMENTS, getTreatment, GOOD_HANDS, DIRECTOR_STORY, PATIENT_VOICES } from '../data/clinic'
 
 export function DoctorsListPage() {
   return html`
@@ -80,6 +80,48 @@ export function DoctorDetailPage(slug: string) {
         </div>
       </div>
     </section>
+
+    ${slug === 'kim-min' ? html`
+    <!-- '손이 좋다'의 의미 — 원장님 육성 -->
+    <section class="pad tone">
+      <div class="container narrow">
+        <div class="reveal">
+          <span class="eyebrow">${GOOD_HANDS.label}</span>
+          <h2 class="story-quote">${raw(GOOD_HANDS.title.replace('빠른 치료', '<span class="grad">빠른 치료</span>'))}</h2>
+          <p class="story-body">${GOOD_HANDS.body}</p>
+          <div class="voice-chips">
+            ${raw(PATIENT_VOICES.map((v) => `<span class="voice-chip">${v}</span>`).join(''))}
+          </div>
+          <p class="story-attr">— ${GOOD_HANDS.attribution}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 원장님 육성 스토리 3편 -->
+    <section class="pad">
+      <div class="container">
+        <div class="story-grid">
+          <article class="story-card reveal">
+            <span class="sc-label">${DIRECTOR_STORY.hometown.label}</span>
+            <h3>${DIRECTOR_STORY.hometown.title}</h3>
+            <p>${DIRECTOR_STORY.hometown.body}</p>
+            <p class="sc-close">${DIRECTOR_STORY.hometown.closing}</p>
+          </article>
+          <article class="story-card reveal reveal-d1">
+            <span class="sc-label">${DIRECTOR_STORY.responsibility.label}</span>
+            <h3>${DIRECTOR_STORY.responsibility.title}</h3>
+            <p>${DIRECTOR_STORY.responsibility.body}</p>
+            <p class="sc-close">${DIRECTOR_STORY.responsibility.closing}</p>
+          </article>
+          <article class="story-card reveal reveal-d2">
+            <span class="sc-label">${DIRECTOR_STORY.meaning.label}</span>
+            <h3>${DIRECTOR_STORY.meaning.title}</h3>
+            <p>${DIRECTOR_STORY.meaning.body}</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    ` : ''}
 
     <section class="pad-sm"><div class="cta-band">
       <div class="cta-inner"><div class="reveal" style="text-align:center">
