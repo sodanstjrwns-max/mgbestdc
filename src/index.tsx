@@ -402,7 +402,7 @@ app.get('/admin', async (c) => {
   }
 
   const STATUS_LABEL: Record<string, string> = { new: '신규', contacted: '연락완료', done: '예약확정', canceled: '취소' }
-  const STATUS_COLOR: Record<string, string> = { new: '#1E4D3E', contacted: '#A9805A', done: '#2563EB', canceled: '#9CA3AF' }
+  const STATUS_COLOR: Record<string, string> = { new: '#1656C8', contacted: '#3E8EF0', done: '#16A34A', canceled: '#9CA3AF' }
 
   return c.html(
     Layout(

@@ -28,7 +28,7 @@ export function Head(meta: SeoMeta) {
       <link rel="canonical" href="${canonical}" />
       <meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}" />
       <meta name="author" content="${CLINIC.name}" />
-      <meta name="theme-color" content="#FAF8F4" />
+      <meta name="theme-color" content="#F7F9FC" />
 
       <!-- Open Graph -->
       <meta property="og:type" content="${meta.ogType || 'website'}" />
