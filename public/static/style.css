@@ -345,19 +345,14 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 /* ============================================================
    STATS
    ============================================================ */
-.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-.stat {
-  padding: clamp(24px, 3vw, 38px) clamp(20px, 2.4vw, 32px);
-  background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius-lg);
-  box-shadow: var(--sh-sm); transition: all 0.4s var(--ease);
+.fact-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 2px solid var(--dark); border-bottom: 1px solid var(--line);
 }
-.stat:hover { transform: translateY(-4px); box-shadow: var(--sh-md); }
-.stat .num {
-  font-family: var(--sans); font-size: clamp(2rem, 3.2vw, 2.8rem); font-weight: 800;
-  color: var(--pine); line-height: 1; letter-spacing: -0.02em;
-}
-.stat .suf { font-size: 0.5em; color: var(--bronze-2); margin-left: 3px; font-family: var(--sans); font-weight: 700; }
-.stat .label { margin-top: 12px; font-size: 0.68rem; color: var(--ink-3); }
+.fact { padding: 26px 24px 26px 0; }
+.fact + .fact { padding-left: 24px; border-left: 1px solid var(--line); }
+.fact strong { display: block; font-size: 1.05rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.fact span { display: block; margin-top: 6px; font-size: 0.85rem; color: var(--ink-3); }
 
 /* ============================================================
    CREED (진료 철학)
@@ -718,16 +713,15 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   padding: 10px 20px; background: #fff; border: 1px solid var(--line-3);
   border-radius: 999px; font-size: 0.88rem; color: var(--ink-2); box-shadow: var(--sh-sm);
 }
-.story-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.story-card {
-  background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius-lg);
-  padding: 30px 28px; box-shadow: var(--sh-sm); transition: all 0.4s var(--ease);
+.story-flow { border-top: 2px solid var(--dark); }
+.story-item {
+  display: grid; grid-template-columns: 240px 1fr; gap: clamp(24px, 4vw, 60px);
+  padding: clamp(32px, 4vw, 48px) 0; border-bottom: 1px solid var(--line);
 }
-.story-card:hover { transform: translateY(-4px); box-shadow: var(--sh-md); }
-.sc-label { font-size: 0.82rem; font-weight: 700; color: var(--pine); }
-.story-card h3 { font-size: 1.2rem; margin: 14px 0 12px; }
-.story-card p { font-size: 0.9rem; color: var(--ink-2); line-height: 1.8; }
-.sc-close { margin-top: 12px; color: var(--pine) !important; font-weight: 600; }
+.si-label { font-size: 0.85rem; font-weight: 700; color: var(--pine); }
+.si-head h3 { font-size: 1.3rem; margin-top: 10px; line-height: 1.4; letter-spacing: -0.02em; }
+.si-body p { font-size: 0.98rem; color: var(--ink-2); line-height: 1.95; }
+.si-close { margin-top: 14px; color: var(--pine) !important; font-weight: 600; }
 
 /* ============================================================
    비포·애프터
@@ -944,7 +938,12 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .footer-top { grid-template-columns: 1fr 1fr; }
   .doc-card { grid-template-columns: 1fr; }
   .dc-photo { max-width: 340px; }
-  .story-grid { grid-template-columns: 1fr; }
+  .story-item { grid-template-columns: 1fr; gap: 14px; }
+  .fact-strip { grid-template-columns: 1fr 1fr; }
+  .fact { padding: 20px 16px 20px 0; }
+  .fact + .fact { padding-left: 0; border-left: none; }
+  .fact:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--line); }
+  .fact:nth-child(n+3) { border-top: 1px solid var(--line); }
   .blog-feature { grid-template-columns: 1fr; }
   .bf-visual { min-height: 220px; }
   .cpc-desc { max-height: none; opacity: 1; }
@@ -957,7 +956,7 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .hero-foot { flex-direction: column; align-items: stretch; }
   .hero-info { min-width: 0; }
   .sec-head { flex-direction: column; align-items: flex-start; gap: 14px; }
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+
   
   .core-photo-grid { grid-template-columns: 1fr; }
   .core-photo-card { aspect-ratio: 4/3.4; }

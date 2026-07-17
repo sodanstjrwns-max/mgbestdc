@@ -55,11 +55,11 @@ export function HomePage() {
     <!-- ============ STATS ============ -->
     <section class="pad-sm" aria-label="핵심 지표">
       <div class="container">
-        <div class="stats-grid reveal">
-          <div class="stat"><div class="num"><span data-count="3"></span><span class="suf">분</span></div><div class="label">마곡나루역 1번 출구 도보</div></div>
-          <div class="stat"><div class="num"><span data-count="1"></span><span class="suf">인</span></div><div class="label">대표원장 책임 진료</div></div>
-          <div class="stat"><div class="num"><span data-count="4"></span><span class="suf">대</span></div><div class="label">정밀 진단·치료 장비</div></div>
-          <div class="stat"><div class="num">365<span class="suf">일</span></div><div class="label">치료 후 정기 관리</div></div>
+        <div class="fact-strip reveal">
+          <div class="fact"><strong>마곡나루역 도보 3분</strong><span>1번 출구 바로 앞</span></div>
+          <div class="fact"><strong>대표원장 1인 진료</strong><span>상담부터 치료까지 직접</span></div>
+          <div class="fact"><strong>정밀 진단 장비</strong><span>CT·구강스캐너 상시 운용</span></div>
+          <div class="fact"><strong>치료 후 정기 관리</strong><span>끝난 뒤에도 챙깁니다</span></div>
         </div>
       </div>
     </section>

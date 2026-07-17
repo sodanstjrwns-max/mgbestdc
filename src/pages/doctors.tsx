@@ -99,24 +99,19 @@ export function DoctorDetailPage(slug: string) {
 
     <!-- 원장님 육성 스토리 3편 -->
     <section class="pad">
-      <div class="container">
-        <div class="story-grid">
-          <article class="story-card reveal">
-            <span class="sc-label">${DIRECTOR_STORY.hometown.label}</span>
-            <h3>${DIRECTOR_STORY.hometown.title}</h3>
-            <p>${DIRECTOR_STORY.hometown.body}</p>
-            <p class="sc-close">${DIRECTOR_STORY.hometown.closing}</p>
+      <div class="container narrow">
+        <div class="story-flow">
+          <article class="story-item reveal">
+            <div class="si-head"><span class="si-label">${DIRECTOR_STORY.hometown.label}</span><h3>${DIRECTOR_STORY.hometown.title}</h3></div>
+            <div class="si-body"><p>${DIRECTOR_STORY.hometown.body}</p><p class="si-close">${DIRECTOR_STORY.hometown.closing}</p></div>
           </article>
-          <article class="story-card reveal reveal-d1">
-            <span class="sc-label">${DIRECTOR_STORY.responsibility.label}</span>
-            <h3>${DIRECTOR_STORY.responsibility.title}</h3>
-            <p>${DIRECTOR_STORY.responsibility.body}</p>
-            <p class="sc-close">${DIRECTOR_STORY.responsibility.closing}</p>
+          <article class="story-item reveal">
+            <div class="si-head"><span class="si-label">${DIRECTOR_STORY.responsibility.label}</span><h3>${DIRECTOR_STORY.responsibility.title}</h3></div>
+            <div class="si-body"><p>${DIRECTOR_STORY.responsibility.body}</p><p class="si-close">${DIRECTOR_STORY.responsibility.closing}</p></div>
           </article>
-          <article class="story-card reveal reveal-d2">
-            <span class="sc-label">${DIRECTOR_STORY.meaning.label}</span>
-            <h3>${DIRECTOR_STORY.meaning.title}</h3>
-            <p>${DIRECTOR_STORY.meaning.body}</p>
+          <article class="story-item reveal">
+            <div class="si-head"><span class="si-label">${DIRECTOR_STORY.meaning.label}</span><h3>${DIRECTOR_STORY.meaning.title}</h3></div>
+            <div class="si-body"><p>${DIRECTOR_STORY.meaning.body}</p></div>
           </article>
         </div>
       </div>

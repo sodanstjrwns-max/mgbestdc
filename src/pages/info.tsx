@@ -39,11 +39,11 @@ export function MissionPage() {
     </section>
 
     <section class="pad-sm">
-      <div class="container"><div class="stats-grid">
-        <div class="stat reveal"><div class="num">${CLINIC.openedYear}</div><div class="label">마곡 개원</div></div>
-        <div class="stat reveal reveal-d1"><div class="num"><span data-count="4">0</span></div><div class="label">정밀 디지털 장비</div></div>
-        <div class="stat reveal reveal-d2"><div class="num"><span data-count="3">0</span><span class="suf">개사</span></div><div class="label">임플란트 자문위원</div></div>
-        <div class="stat reveal reveal-d3"><div class="num"><span data-count="11">0</span><span class="suf">+</span></div><div class="label">진료 항목</div></div>
+      <div class="container"><div class="fact-strip reveal">
+        <div class="fact"><strong>${CLINIC.openedYear}년 마곡 개원</strong><span>지역에서 꾸준히 진료합니다</span></div>
+        <div class="fact"><strong>정밀 디지털 장비</strong><span>CT·구강스캐너 상시 운용</span></div>
+        <div class="fact"><strong>임플란트 자문위원</strong><span>국내 임플란트사 3곳</span></div>
+        <div class="fact"><strong>전 과목 진료</strong><span>보존·보철·교정·임플란트</span></div>
       </div></div>
     </section>
 
