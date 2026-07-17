@@ -4,6 +4,15 @@ import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, type Treatment
 // ============================================================
 // 진료 전체 목록
 // ============================================================
+const TX_PREVIEW: Record<string, string> = {
+  ortho: '/static/img/tx-ortho.webp',
+  tmj: '/static/img/doctor-care.webp',
+  gum: '/static/img/consult.webp',
+  prosthesis: '/static/img/tx-cosmetic.webp',
+  extraction: '/static/img/facility-room.webp',
+  preventive: '/static/img/life-smile.webp'
+}
+
 const LIST_IMG: Record<string, string> = {
   implant: '/static/img/tx-implant.webp',
   cavity: '/static/img/consult.webp',
@@ -45,11 +54,11 @@ export function TreatmentsListPage() {
 
         <span class="eyebrow reveal" style="margin-top:64px;display:inline-block">일반 진료</span>
         <h2 class="section-title reveal" style="margin-bottom:32px">일반 진료</h2>
-        <div class="tx-index reveal">
+        <div class="tx-index reveal" data-tx-index>
           ${raw(
             GENERAL_TREATMENTS.map(
               (t) => `
-            <a href="/treatments/${t.slug}" class="tx-row">
+            <a href="/treatments/${t.slug}" class="tx-row" data-preview="${TX_PREVIEW[t.slug] || '/static/img/consult.webp'}">
               <span class="tx-name">${t.name}</span>
               <span class="tx-desc">${t.tagline}</span>
               <span class="tx-go" aria-hidden="true">자세히 보기</span>

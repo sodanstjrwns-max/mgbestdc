@@ -58,7 +58,7 @@ export function DoctorDetailPage(slug: string) {
     <section class="pad">
       <div class="container">
         <div class="doctor-feature">
-          <div class="doctor-photo reveal">
+          <div class="doctor-photo reveal reveal-wipe">
             <img src="/static/img/doctor-care.webp" alt="${d.name} ${d.title} 진료 모습" />
             <div class="ph-label"><span class="pn">${d.name} ${d.title}</span><br /><span class="pc">${d.credential}</span></div>
           </div>

@@ -15,6 +15,16 @@ const CORE_IMG: Record<string, string> = {
   cosmetic: '/static/img/tx-cosmetic.webp'
 }
 
+// tx-index 호버 시 커서 옆에 뜨는 프리뷰 이미지
+const TX_PREVIEW: Record<string, string> = {
+  ortho: '/static/img/tx-ortho.webp',
+  tmj: '/static/img/doctor-care.webp',
+  gum: '/static/img/consult.webp',
+  prosthesis: '/static/img/tx-cosmetic.webp',
+  extraction: '/static/img/facility-room.webp',
+  preventive: '/static/img/life-smile.webp'
+}
+
 export function HomePage() {
   const d = DOCTORS[0]
   return html`
@@ -78,7 +88,7 @@ export function HomePage() {
         </div>
 
         <div class="principle-flow">
-          <div class="pf-photo reveal">
+          <div class="pf-photo reveal reveal-wipe">
             <img src="/static/img/consult.webp" alt="치료 계획을 설명하는 상담 모습" loading="lazy" />
           </div>
           <div class="pf-list reveal reveal-d1">
@@ -136,11 +146,11 @@ export function HomePage() {
           </div>
           <p class="section-lead reveal reveal-d2">교정·턱관절·잇몸·보철·발치·예방까지. 마곡베스트치과 한 곳에서 이어집니다.</p>
         </div>
-        <div class="tx-index reveal">
+        <div class="tx-index reveal" data-tx-index>
           ${raw(
             GENERAL_TREATMENTS.map(
               (t) => `
-            <a href="/treatments/${t.slug}" class="tx-row">
+            <a href="/treatments/${t.slug}" class="tx-row" data-preview="${TX_PREVIEW[t.slug] || '/static/img/consult.webp'}">
               <span class="tx-name">${t.name}</span>
               <span class="tx-desc">${t.tagline}</span>
               <span class="tx-go" aria-hidden="true">자세히 보기</span>
@@ -172,7 +182,7 @@ export function HomePage() {
             </ul>
             <a href="/doctors/${d.slug}" class="btn btn-ghost">대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
           </div>
-          <div class="doctor-photo reveal reveal-d2">
+          <div class="doctor-photo reveal reveal-wipe">
             <img src="/static/img/doctor-care.webp" alt="${d.name} 대표원장 진료 모습" loading="lazy" />
             <div class="ph-label">
               <div class="pn">${d.name} 대표원장</div>
