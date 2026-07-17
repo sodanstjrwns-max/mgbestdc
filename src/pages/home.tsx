@@ -136,14 +136,14 @@ export function HomePage() {
           </div>
           <p class="section-lead reveal reveal-d2">교정·턱관절·잇몸·보철·발치·예방까지. 마곡베스트치과 한 곳에서 이어집니다.</p>
         </div>
-        <div class="chip-grid">
+        <div class="tx-index reveal">
           ${raw(
             GENERAL_TREATMENTS.map(
               (t) => `
-            <a href="/treatments/${t.slug}" class="chip reveal">
-              <i class="fa-solid ${t.icon}"></i>
-              <span><span class="tn">${t.name}</span><span class="td">${t.tagline}</span></span>
-              <i class="chip-arrow fa-solid fa-arrow-right"></i>
+            <a href="/treatments/${t.slug}" class="tx-row">
+              <span class="tx-name">${t.name}</span>
+              <span class="tx-desc">${t.tagline}</span>
+              <span class="tx-go" aria-hidden="true">자세히 보기</span>
             </a>`
             ).join('')
           )}

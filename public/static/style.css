@@ -429,22 +429,17 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 /* ============================================================
    CHIPS (일반 진료)
    ============================================================ */
-.chip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.chip {
-  display: flex; align-items: center; gap: 16px; padding: 20px 22px;
-  background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius);
-  box-shadow: var(--sh-sm); transition: all 0.35s var(--ease);
+.tx-index { border-top: 2px solid var(--dark); }
+.tx-row {
+  display: grid; grid-template-columns: 200px 1fr auto; gap: clamp(16px, 3vw, 48px);
+  align-items: baseline; padding: 24px 4px; border-bottom: 1px solid var(--line);
+  transition: background 0.25s var(--ease), padding 0.25s var(--ease);
 }
-.chip:hover { transform: translateY(-3px); box-shadow: var(--sh-md); border-color: rgba(22,86,200,0.25); }
-.chip > i:first-child {
-  width: 44px; height: 44px; flex: none; border-radius: 13px;
-  background: var(--pine-soft); color: var(--pine);
-  display: grid; place-items: center; font-size: 1rem;
-}
-.chip .tn { display: block; font-weight: 750; color: var(--ink); font-size: 0.98rem; }
-.chip .td { display: block; font-size: 0.8rem; color: var(--ink-3); margin-top: 1px; }
-.chip-arrow { margin-left: auto; color: var(--ink-4); font-size: 0.8rem; transition: all 0.3s; }
-.chip:hover .chip-arrow { color: var(--pine); transform: translateX(3px); }
+.tx-row:hover { background: rgba(22, 86, 200, 0.035); padding-left: 14px; padding-right: 0; }
+.tx-name { font-weight: 750; color: var(--text); font-size: clamp(1.05rem, 1.6vw, 1.25rem); letter-spacing: -0.02em; }
+.tx-desc { color: var(--ink-3); font-size: 0.92rem; }
+.tx-go { font-size: 0.82rem; font-weight: 700; color: var(--ink-4); white-space: nowrap; transition: color 0.25s; }
+.tx-row:hover .tx-go { color: var(--pine); }
 
 /* ============================================================
    DOCTOR 섹션
@@ -960,7 +955,8 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   
   .core-photo-grid { grid-template-columns: 1fr; }
   .core-photo-card { aspect-ratio: 4/3.4; }
-  .chip-grid { grid-template-columns: 1fr; }
+  .tx-row { grid-template-columns: 1fr; gap: 4px; padding: 18px 4px; }
+  .tx-go { display: none; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .doctor-feature, .feature-split { grid-template-columns: 1fr; gap: 32px; }
   .journey-row { grid-template-columns: 1fr; gap: 6px; }

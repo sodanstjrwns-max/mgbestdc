@@ -45,13 +45,14 @@ export function TreatmentsListPage() {
 
         <span class="eyebrow reveal" style="margin-top:64px;display:inline-block">일반 진료</span>
         <h2 class="section-title reveal" style="margin-bottom:32px">일반 진료</h2>
-        <div class="grid-3">
+        <div class="tx-index reveal">
           ${raw(
             GENERAL_TREATMENTS.map(
               (t) => `
-            <a href="/treatments/${t.slug}" class="chip reveal" style="min-height:84px">
-              <i class="fa-solid ${t.icon}"></i>
-              <span><span class="tn">${t.name}</span><br /><span class="td">${t.tagline}</span></span>
+            <a href="/treatments/${t.slug}" class="tx-row">
+              <span class="tx-name">${t.name}</span>
+              <span class="tx-desc">${t.tagline}</span>
+              <span class="tx-go" aria-hidden="true">자세히 보기</span>
             </a>`
             ).join('')
           )}
@@ -163,9 +164,9 @@ export function TreatmentDetailPage(t: Treatment) {
 
             <div class="side-card">
               <h4>담당 의료진</h4>
-              <a href="/doctors/${doctor.slug}" class="chip" style="border:none;padding:8px 0">
-                <i class="fa-solid fa-user-doctor"></i>
-                <span><span class="tn">${doctor.name} ${doctor.title}</span><br /><span class="td">${doctor.credential}</span></span>
+              <a href="/doctors/${doctor.slug}" style="display:block;padding:6px 0">
+                <strong style="display:block;color:var(--text);font-size:0.98rem">${doctor.name} ${doctor.title}</strong>
+                <span style="display:block;color:var(--ink-3);font-size:0.82rem;margin-top:2px">${doctor.credential}</span>
               </a>
             </div>
 
