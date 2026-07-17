@@ -10,7 +10,7 @@ export function MissionPage() {
     <section class="page-hero" style="text-align:center">
       <div class="container">
         <nav class="breadcrumb" style="justify-content:center"><a href="/">홈</a><span class="sep">/</span><span>병원소개</span></nav>
-        <span class="eyebrow" style="display:inline-flex">OUR MISSION</span>
+        <span class="eyebrow" style="display:inline-flex">우리의 약속</span>
         <h1 style="font-size:clamp(2.2rem,6vw,3.6rem);max-width:900px;margin:0 auto 18px">${CLINIC.mission}</h1>
         <p class="ph-sub" style="margin:0 auto">${CLINIC.vision}를 향해, 마곡베스트치과의원이 환자 한 분 한 분과 함께합니다.</p>
       </div>
@@ -20,7 +20,7 @@ export function MissionPage() {
       <div class="container">
         <div class="feature-split">
           <div class="reveal">
-            <span class="eyebrow">WHY WE STARTED</span>
+            <span class="eyebrow">개원 이야기</span>
             <h2 class="section-title">고향에서 시작한 치과</h2>
             <p class="section-lead">${d.philosophy}</p>
             <p style="margin-top:18px;color:var(--ink-2)">단순히 치료만 하는 곳이 아니라, 환자분이 진료를 마치고 문을 나설 때 어떠한 불편도 최소화할 수 있도록. 그것이 마곡베스트치과가 가장 중요하게 생각하는 가치입니다.</p>
@@ -62,7 +62,7 @@ export function DirectionsPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>오시는 길</span></nav>
-        <span class="eyebrow">DIRECTIONS</span>
+        <span class="eyebrow">오시는 길</span>
         <h1>오시는 <span class="grad">길</span></h1>
         <p class="ph-sub">${CLINIC.directions}. 편하게 찾아오실 수 있도록 안내드립니다.</p>
       </div>
@@ -112,7 +112,7 @@ export function PricingPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>비용 안내</span></nav>
-        <span class="eyebrow">PRICING</span>
+        <span class="eyebrow">비용 안내</span>
         <h1>비용 <span class="grad">안내</span></h1>
         <p class="ph-sub">의료법에 따라 비급여 진료비는 내원 시 정확하게 고지해 드립니다. 진료비는 환자분의 구강 상태와 치료 범위에 따라 달라집니다.</p>
       </div>
@@ -153,7 +153,7 @@ export function FacilityPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>시설 둘러보기</span></nav>
-        <span class="eyebrow">FACILITY</span>
+        <span class="eyebrow">시설 안내</span>
         <h1>시설 및 <span class="grad">장비</span></h1>
         <p class="ph-sub">집중도 높은 컴팩트한 진료 공간과 정기적으로 리뉴얼하는 정밀 디지털 장비로 정밀한 진료를 제공합니다.</p>
       </div>
@@ -161,7 +161,7 @@ export function FacilityPage() {
 
     <section class="pad">
       <div class="container">
-        <span class="eyebrow reveal">EQUIPMENT</span>
+        <span class="eyebrow reveal">보유 장비</span>
         <h2 class="section-title reveal" style="margin-bottom:32px">보유 장비</h2>
         <div class="grid-2">
           ${raw(
@@ -178,7 +178,7 @@ export function FacilityPage() {
         </div>
 
         <div class="reveal" style="margin-top:64px">
-          <span class="eyebrow">SPACE</span>
+          <span class="eyebrow">공간 안내</span>
           <h2 class="section-title" style="margin-bottom:32px">진료 공간</h2>
           <div class="grid-3">
             ${raw(
@@ -217,7 +217,7 @@ export function FaqPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>자주 묻는 질문</span></nav>
-        <span class="eyebrow">FAQ</span>
+        <span class="eyebrow">자주 묻는 질문</span>
         <h1>자주 묻는 <span class="grad">질문</span></h1>
         <p class="ph-sub">환자분들이 자주 궁금해하시는 내용을 진료별로 정리했습니다. 더 궁금한 점은 언제든 문의해 주세요.</p>
       </div>
@@ -268,7 +268,7 @@ export function ReservationPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>예약 문의</span></nav>
-        <span class="eyebrow">RESERVATION</span>
+        <span class="eyebrow">예약 문의</span>
         <h1>예약 <span class="grad">문의</span></h1>
         <p class="ph-sub">아래 양식을 작성해 주시면 확인 후 연락드립니다. 빠른 예약은 전화로 문의해 주세요.</p>
       </div>
@@ -354,7 +354,7 @@ export function CasesPage(isLoggedIn = false) {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>진료사례</span></nav>
-        <span class="eyebrow">CASES</span>
+        <span class="eyebrow">진료 사례</span>
         <h1>비포 · <span class="grad">애프터</span></h1>
         <p class="ph-sub">실제 진료 사례를 통해 마곡베스트치과의 진료를 확인하실 수 있습니다.</p>
       </div>

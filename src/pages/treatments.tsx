@@ -15,7 +15,7 @@ export function TreatmentsListPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>진료안내</span></nav>
-        <span class="eyebrow">TREATMENTS</span>
+        <span class="eyebrow">진료 안내</span>
         <h1>진료 <span class="grad">안내</span></h1>
         <p class="ph-sub">마곡베스트치과의원은 일반 진료부터 임플란트·교정·심미치료까지, 정밀 진단을 바탕으로 환자분의 구강 건강을 종합적으로 돌봅니다.</p>
       </div>
@@ -23,7 +23,7 @@ export function TreatmentsListPage() {
 
     <section class="pad">
       <div class="container">
-        <span class="eyebrow reveal">CORE TREATMENTS</span>
+        <span class="eyebrow reveal">중점 진료</span>
         <h2 class="section-title reveal" style="margin-bottom:32px">핵심 진료</h2>
         <div class="core-photo-grid">
           ${raw(
@@ -33,7 +33,7 @@ export function TreatmentsListPage() {
               <span class="cpc-img"><img src="${LIST_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
               <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
               <span class="cpc-body">
-                <span class="cpc-idx">TREATMENT / ${String(i + 1).padStart(2, '0')}</span>
+                <span class="cpc-idx">중점 진료 ${String(i + 1).padStart(2, '0')}</span>
                 <span class="cpc-title" style="display:block">${t.name}</span>
                 <span class="cpc-tag">${t.tagline}</span>
                 <span class="cpc-desc" style="display:block">${t.summary.slice(0, 92)}…</span>
@@ -43,7 +43,7 @@ export function TreatmentsListPage() {
           )}
         </div>
 
-        <span class="eyebrow reveal" style="margin-top:64px;display:inline-block">GENERAL CARE</span>
+        <span class="eyebrow reveal" style="margin-top:64px;display:inline-block">일반 진료</span>
         <h2 class="section-title reveal" style="margin-bottom:32px">일반 진료</h2>
         <div class="grid-3">
           ${raw(
@@ -93,7 +93,7 @@ export function TreatmentDetailPage(t: Treatment) {
           <a href="/">홈</a><span class="sep">/</span>
           <a href="/treatments">진료안내</a><span class="sep">/</span><span>${t.name}</span>
         </nav>
-        <span class="eyebrow">${t.category === 'core' ? 'CORE TREATMENT' : 'GENERAL CARE'}</span>
+        <span class="eyebrow">${t.category === 'core' ? '중점 진료' : '일반 진료'}</span>
         <h1><span class="grad">${t.name}</span></h1>
         <p class="ph-sub">${t.tagline} — ${t.summary}</p>
       </div>

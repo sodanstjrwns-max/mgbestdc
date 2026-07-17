@@ -59,7 +59,7 @@ export function Head(meta: SeoMeta) {
       />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&family=Noto+Serif+KR:wght@400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap"
       />
       <link
         rel="stylesheet"
@@ -177,7 +177,7 @@ function Header() {
                 <div class="mega-grid" style="grid-template-columns:1fr">
                   ${raw(
                     BLOG_CATEGORIES.map(
-                      (cat) => `<a href="/blog/category/${cat.slug}" class="mega-item"><i class="fa-solid fa-pen-nib"></i><span><span class="mi-name">${cat.name}</span><span class="mi-desc">${cat.en}</span></span></a>`
+                      (cat) => `<a href="/blog/category/${cat.slug}" class="mega-item"><i class="fa-solid fa-pen-nib"></i><span><span class="mi-name">${cat.name}</span></span></a>`
                     ).join('')
                   )}
                 </div>

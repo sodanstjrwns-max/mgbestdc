@@ -6,7 +6,7 @@ export function DoctorsListPage() {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>의료진</span></nav>
-        <span class="eyebrow">OUR DOCTORS</span>
+        <span class="eyebrow">의료진 소개</span>
         <h1>의료진 <span class="grad">소개</span></h1>
         <p class="ph-sub">진단부터 치료, 사후 관리까지 한 분의 원장이 책임지는 1인 책임 진료. 마곡베스트치과의원을 이끄는 의료진을 소개합니다.</p>
       </div>

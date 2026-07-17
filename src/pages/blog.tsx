@@ -16,7 +16,7 @@ export function BlogListPage(activeCat?: string) {
     <section class="page-hero">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>건강칼럼</span></nav>
-        <span class="eyebrow">DENTAL JOURNAL</span>
+        <span class="eyebrow">건강 칼럼</span>
         <h1>건강 <span class="grad">칼럼</span></h1>
         <p class="ph-sub">${DOCTORS[0].name} 대표원장이 전하는 치아 건강 이야기. 임플란트·충치치료·심미치료부터 일상 속 구강 관리까지, 정확하고 도움이 되는 정보를 꾸준히 업데이트합니다.</p>
       </div>
@@ -41,7 +41,7 @@ export function BlogListPage(activeCat?: string) {
         <a href="/blog/${featured.slug}" class="blog-feature reveal">
           <div class="bf-visual"><i class="fa-solid ${featured.icon}"></i></div>
           <div class="bf-body">
-            <span class="bf-cat">${featured.categoryEn}</span>
+            <span class="bf-cat">${featured.category}</span>
             <h2>${featured.title}</h2>
             <p>${featured.excerpt}</p>
             <div class="bf-meta">
@@ -62,7 +62,7 @@ export function BlogListPage(activeCat?: string) {
                 (p, i) => `
             <a href="/blog/${p.slug}" class="blog-card reveal reveal-d${(i % 3) + 1}">
               <span class="bc-ico"><i class="fa-solid ${p.icon}"></i></span>
-              <span class="bc-cat">${p.categoryEn}</span>
+              <span class="bc-cat">${p.category}</span>
               <h3>${p.title}</h3>
               <p>${p.excerpt.slice(0, 92)}…</p>
               <div class="bc-meta">
@@ -85,7 +85,7 @@ export function BlogListPage(activeCat?: string) {
 
     <section class="pad-sm"><div class="cta-band">
       <div class="reveal" style="text-align:center">
-        <span class="label" style="font-family:var(--mono);font-size:0.72rem;letter-spacing:0.16em"><span class="idx">[ JOURNAL ]</span> ASK US</span>
+        <span class="label">궁금한 점이 있으신가요?</span>
         <h2>궁금한 점이 있으신가요?</h2>
         <p>칼럼에서 다루지 못한 궁금증은 진료실에서 직접 안내해 드립니다. 부담 없이 문의해 주세요.</p>
         <div class="cta-actions">
@@ -110,7 +110,7 @@ export function BlogDetailPage(post: BlogPost) {
       <section class="page-hero">
         <div class="container">
           <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/blog">건강칼럼</a><span class="sep">/</span><span>${post.category}</span></nav>
-          <span class="eyebrow">${post.categoryEn}</span>
+          <span class="eyebrow">${post.category}</span>
           <h1 style="max-width:880px">${post.title}</h1>
           <div class="post-meta">
             <span><i class="fa-solid fa-user-doctor"></i> ${doctor.name} ${doctor.title}</span>

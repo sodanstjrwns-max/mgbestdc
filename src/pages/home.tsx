@@ -26,12 +26,12 @@ export function HomePage() {
       <div class="container">
         <div class="hero-meta">
           <span class="badge"><span class="dot"></span> ${CLINIC.directorCredential}</span>
-          <span class="coord meta">37.5670°N&nbsp;&nbsp;126.8295°E<br />MAGOK · SEOUL · EST.${CLINIC.openedYear}</span>
+          <span class="coord meta">${CLINIC.station} 1번 출구 도보 3분</span>
         </div>
 
         <h1>
-          <span class="l"><span>치료가 끝나고도</span></span>
-          <span class="l l-grad"><span>아무 걱정 없이.</span></span>
+          <span class="l"><span>살릴 수 있는 치아는</span></span>
+          <span class="l l-grad"><span>끝까지 살립니다.</span></span>
         </h1>
 
         <div class="hero-foot">
@@ -43,43 +43,23 @@ export function HomePage() {
             </div>
           </div>
           <div class="hero-info">
-            <div class="row"><span class="k">DIRECTOR</span><span class="v">${d.name} 대표원장</span></div>
-            <div class="row"><span class="k">LOCATION</span><span class="v">${CLINIC.station} · 도보 3분</span></div>
-            <div class="row"><span class="k">FOCUS</span><span class="v acc">임플란트 · 충치 · 심미</span></div>
-            <div class="row"><span class="k">CALL</span><span class="v"><a href="tel:${CLINIC.phoneRaw}">${CLINIC.phone}</a></span></div>
+            <div class="row"><span class="k">진료 시간</span><span class="v">월·목 야간 20:30까지</span></div>
+            <div class="row"><span class="k">토요일</span><span class="v">09:30 ~ 14:30 진료</span></div>
+            <div class="row"><span class="k">중점 진료</span><span class="v acc">임플란트 · 충치 · 심미</span></div>
+            <div class="row"><span class="k">전화 예약</span><span class="v"><a href="tel:${CLINIC.phoneRaw}">${CLINIC.phone}</a></span></div>
           </div>
         </div>
       </div>
-      <div class="scroll-hint"><span class="bar"></span> SCROLL</div>
     </section>
-
-    <!-- ============ MARQUEE ============ -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        ${raw(
-          [...Array(2)]
-            .map(
-              () => `
-          <span class="marquee-item"><i class="fa-solid fa-circle"></i> IMPLANT 임플란트</span>
-          <span class="marquee-item"><i class="fa-solid fa-circle"></i> CAVITY 충치치료</span>
-          <span class="marquee-item"><i class="fa-solid fa-circle"></i> COSMETIC 심미치료</span>
-          <span class="marquee-item"><i class="fa-solid fa-circle"></i> 1인 책임 진료</span>
-          <span class="marquee-item"><i class="fa-solid fa-circle"></i> 마곡나루역 3분</span>
-          <span class="marquee-item"><i class="fa-solid fa-circle"></i> 통합치의학과 전문의</span>`
-            )
-            .join('')
-        )}
-      </div>
-    </div>
 
     <!-- ============ STATS ============ -->
     <section class="pad-sm" aria-label="핵심 지표">
       <div class="container">
         <div class="stats-grid reveal">
-          <div class="stat"><div class="num"><span data-count="3"></span><span class="suf">분</span></div><div class="label" data-scramble="MAGOKNARU STATION"></div></div>
-          <div class="stat"><div class="num"><span data-count="1"></span><span class="suf">인</span></div><div class="label" data-scramble="RESPONSIBLE CARE"></div></div>
-          <div class="stat"><div class="num"><span data-count="4"></span><span class="suf">대</span></div><div class="label" data-scramble="CORE EQUIPMENT"></div></div>
-          <div class="stat"><div class="num">365<span class="suf">일</span></div><div class="label" data-scramble="AFTERCARE"></div></div>
+          <div class="stat"><div class="num"><span data-count="3"></span><span class="suf">분</span></div><div class="label">마곡나루역 1번 출구 도보</div></div>
+          <div class="stat"><div class="num"><span data-count="1"></span><span class="suf">인</span></div><div class="label">대표원장 책임 진료</div></div>
+          <div class="stat"><div class="num"><span data-count="4"></span><span class="suf">대</span></div><div class="label">정밀 진단·치료 장비</div></div>
+          <div class="stat"><div class="num">365<span class="suf">일</span></div><div class="label">치료 후 정기 관리</div></div>
         </div>
       </div>
     </section>
@@ -89,10 +69,10 @@ export function HomePage() {
       <div class="container">
         <div class="creed">
           <div class="creed-head reveal">
-            <span class="label label--line"><span class="idx">[01]</span> CARE PHILOSOPHY</span>
+            <span class="label">진료 철학</span>
           </div>
           <div class="creed-body">
-            <h2 class="creed-headline reveal">${raw(CARE_CREED.headline.replace('끝까지 살립니다', '<span class="grad">끝까지</span> 살립니다'))}</h2>
+            <h2 class="creed-headline reveal">무리한 치료를<br /><span class="grad">권하지 않습니다.</span></h2>
             <p class="creed-lead reveal reveal-d1">${CARE_CREED.body}</p>
           </div>
         </div>
@@ -117,7 +97,7 @@ export function HomePage() {
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[02]</span> CORE TREATMENTS</span>
+            <span class="label">중점 진료</span>
             <h2 class="section-title">가장 <span class="grad">신중하게</span><br />다루는 진료</h2>
           </div>
           <p class="section-lead reveal reveal-d2">정밀 진단을 바탕으로, 환자분 한 분 한 분께 맞는 치료 계획을 세웁니다. 임플란트·충치·심미, 세 가지를 가장 깊게 다룹니다.</p>
@@ -131,7 +111,7 @@ export function HomePage() {
               <span class="cpc-img"><img src="${CORE_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
               <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
               <span class="cpc-body">
-                <span class="cpc-idx">TREATMENT / ${String(i + 1).padStart(2, '0')}</span>
+                <span class="cpc-idx">중점 진료 ${String(i + 1).padStart(2, '0')}</span>
                 <span class="cpc-title" style="display:block">${t.name}</span>
                 <span class="cpc-tag">${t.tagline}</span>
                 <span class="cpc-desc" style="display:block">${t.summary.slice(0, 92)}…</span>
@@ -148,7 +128,7 @@ export function HomePage() {
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[03]</span> ALL TREATMENTS</span>
+            <span class="label">전체 진료 안내</span>
             <h2 class="section-title">필요한 모든 진료를,<br /><span class="thin">한 곳에서</span></h2>
           </div>
           <p class="section-lead reveal reveal-d2">교정·턱관절·잇몸·보철·발치·예방까지. 마곡베스트치과 한 곳에서 이어집니다.</p>
@@ -172,7 +152,7 @@ export function HomePage() {
     <section class="pad tone" aria-label="대표원장" id="doctor-section">
       <div class="container">
         <div class="sec-head reveal" style="margin-bottom:clamp(36px,5vw,60px)">
-          <span class="label label--line"><span class="idx">[04]</span> DIRECTOR</span>
+          <span class="label">대표원장 인사</span>
         </div>
         <div class="doctor-feature">
           <div class="reveal">
@@ -190,7 +170,6 @@ export function HomePage() {
             <a href="/doctors/${d.slug}" class="btn btn-ghost">대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
           </div>
           <div class="doctor-photo reveal reveal-d2">
-            <span class="ph-corner meta">[ FIG.01 — DIRECTOR ]</span>
             <img src="/static/img/doctor-care.webp" alt="${d.name} 대표원장 진료 모습" loading="lazy" />
             <div class="ph-label">
               <div class="pn">${d.name} 대표원장</div>
@@ -206,7 +185,7 @@ export function HomePage() {
       <div class="container">
         <div class="feature-split">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[05]</span> TECHNOLOGY</span>
+            <span class="label">진단 장비</span>
             <h2 class="section-title" style="margin-top:20px">정확한 진단을<br /><span class="thin">돕는 장비</span></h2>
             <p class="section-lead" style="margin-top:20px">진료의 시작은 정확한 데이터입니다. 구강 스캔부터 정밀 클리닝까지, 환자에게 맞는 판단을 돕는 장비를 갖췄습니다.</p>
             <div class="feature-list">
@@ -236,7 +215,7 @@ export function HomePage() {
         <div class="life-band reveal">
           <span class="lb-img"><img src="/static/img/life-smile.webp" alt="" loading="lazy" /></span>
           <div class="lb-body">
-            <span class="eyebrow">BEYOND TREATMENT</span>
+            <span class="eyebrow" style="color:#BCD5FA">치료, 그 이후</span>
             <h2>치료의 완성은,<br /><em>다시 웃는 일상</em>입니다</h2>
             <p>임플란트 치료는 단순히 치아를 만드는 것이 아니라, 한 사람의 식생활과 건강, 삶의 질과 연결됩니다. 치료가 끝난 뒤에도 오래 건강하게 쓰실 수 있도록 끝까지 함께 관리해 드립니다.</p>
             <a href="/mission" class="btn btn-glass">마곡베스트치과 이야기 <i class="fa-solid fa-arrow-right"></i></a>
@@ -250,7 +229,7 @@ export function HomePage() {
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
-            <span class="label label--line"><span class="idx">[06]</span> PATIENT JOURNEY</span>
+            <span class="label">진료 과정</span>
             <h2 class="section-title">인지부터 사후관리까지<br /><span class="thin">전 과정을 설계</span></h2>
           </div>
           <p class="section-lead reveal reveal-d2">치과를 알게 된 순간부터 치료 후 관리까지. 환자의 여정 전체를 책임지고 동행합니다.</p>
@@ -273,7 +252,7 @@ export function HomePage() {
     <section class="pad-sm" aria-label="예약 안내">
       <div class="container">
         <div class="cta-band reveal">
-          <span class="label"><span class="idx">[07]</span> CONTACT</span>
+          <span class="label" style="justify-content:center">예약 안내</span>
           <h2>지금, 가장 편한<br /><em>시간</em>을 알려주세요</h2>
           <p>증상이 가벼울 때 확인하는 것이 가장 좋은 치료의 시작입니다. 부담 없이 문의해 주세요.</p>
           <div class="cta-actions">
