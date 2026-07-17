@@ -41,7 +41,7 @@ export function MissionPage() {
     <section class="pad-sm">
       <div class="container"><div class="stats-grid">
         <div class="stat reveal"><div class="num">${CLINIC.openedYear}</div><div class="label">마곡 개원</div></div>
-        <div class="stat reveal reveal-d1"><div class="num"><span data-count="4">0</span></div><div class="label">최신 디지털 장비</div></div>
+        <div class="stat reveal reveal-d1"><div class="num"><span data-count="4">0</span></div><div class="label">정밀 디지털 장비</div></div>
         <div class="stat reveal reveal-d2"><div class="num"><span data-count="3">0</span><span class="suf">개사</span></div><div class="label">임플란트 자문위원</div></div>
         <div class="stat reveal reveal-d3"><div class="num"><span data-count="11">0</span><span class="suf">+</span></div><div class="label">진료 항목</div></div>
       </div></div>
@@ -153,7 +153,7 @@ export function FacilityPage() {
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>시설 둘러보기</span></nav>
         <span class="eyebrow">FACILITY</span>
         <h1>시설 및 <span class="grad">장비</span></h1>
-        <p class="ph-sub">집중도 높은 컴팩트한 진료 공간과 정기적으로 리뉴얼하는 최신 디지털 장비로 정밀한 진료를 제공합니다.</p>
+        <p class="ph-sub">집중도 높은 컴팩트한 진료 공간과 정기적으로 리뉴얼하는 정밀 디지털 장비로 정밀한 진료를 제공합니다.</p>
       </div>
     </section>
 
@@ -354,7 +354,7 @@ export function CasesPage(isLoggedIn = false) {
       <div class="container">
         <div class="notice-box reveal" style="margin-bottom:32px">
           <i class="fa-solid fa-lock"></i>
-          <div>의료법에 따라 치료 후(After) 사진은 회원 로그인 후 열람하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.${raw(isLoggedIn ? '' : ' <a href="/auth/login" style="color:var(--acc);font-weight:700">로그인하기 →</a>')}</div>
+          <div>의료법에 따라 치료 후(After) 사진은 병원 방문 상담 시 직접 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.${raw(isLoggedIn ? '' : ` <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a>`)}</div>
         </div>
 
         <div class="ba-grid">
