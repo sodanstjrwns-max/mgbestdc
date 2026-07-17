@@ -33,7 +33,7 @@ export function TreatmentsListPage() {
               <span class="cpc-img"><img src="${LIST_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
               <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
               <span class="cpc-body">
-                <span class="cpc-idx">중점 진료 ${String(i + 1).padStart(2, '0')}</span>
+                
                 <span class="cpc-title" style="display:block">${t.name}</span>
                 <span class="cpc-tag">${t.tagline}</span>
                 <span class="cpc-desc" style="display:block">${t.summary.slice(0, 92)}…</span>

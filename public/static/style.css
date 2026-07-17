@@ -58,7 +58,7 @@
 
   /* ---- 타이포 ---- */
   --sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --serif: 'Noto Serif KR', Georgia, serif;
+  --serif: var(--sans);
   --display: 'Pretendard Variable', 'Pretendard', sans-serif;
   --mono: var(--sans);
 
@@ -136,11 +136,8 @@ h1, h2, h3, h4 { color: var(--ink); font-weight: 750; letter-spacing: -0.03em; l
 .section-title .thin { font-weight: 350; color: var(--ink-3); }
 .section-lead { max-width: 460px; color: var(--ink-3); font-size: 1.02rem; }
 
-.grad {
-  font-family: var(--serif); font-style: normal; font-weight: 700;
-  color: var(--pine); letter-spacing: -0.02em;
-}
-em, .doctor-quote em { font-family: var(--serif); font-style: normal; color: var(--pine); font-weight: 700; }
+.grad { color: var(--pine); }
+em, .doctor-quote em { font-style: normal; color: var(--pine); }
 
 .sec-head {
   display: flex; justify-content: space-between; align-items: flex-end; gap: 40px;
@@ -303,9 +300,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .hero h1 .l > span { display: inline-block; transform: translateY(110%); animation: lineUp 1s var(--ease) forwards; }
 .hero h1 .l:nth-child(2) > span { animation-delay: 0.14s; }
 @keyframes lineUp { to { transform: translateY(0); } }
-.hero h1 .l-grad > span, .hero h1 .l-grad [data-split] {
-  font-family: var(--serif); font-style: normal; font-weight: 700; color: #BCD5FA;
-}
+.hero h1 .l-grad > span, .hero h1 .l-grad [data-split] { color: #A8CBF9; }
 
 .hero-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; flex-wrap: wrap; }
 .hero-sub { max-width: 500px; color: rgba(255,255,255,0.86); font-size: 1.04rem; line-height: 1.75; margin-bottom: 22px; }
@@ -373,21 +368,17 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 }
 .creed-lead { max-width: 620px; font-size: 1.08rem; color: var(--ink-2); }
 
-.principle-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-.principle {
-  padding: 30px 26px; background: #fff; border: 1px solid var(--line-3);
-  border-radius: var(--radius-lg); box-shadow: var(--sh-sm);
-  transition: all 0.4s var(--ease); position: relative; overflow: hidden;
-}
-.principle::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--pine), var(--bronze)); opacity: 0; transition: opacity 0.4s;
-}
-.principle:hover { transform: translateY(-5px); box-shadow: var(--sh-md); }
-.principle:hover::before { opacity: 1; }
-.pr-no { font-family: var(--sans); font-size: 0.9rem; color: var(--pine); font-weight: 800; letter-spacing: 0.04em; }
-.pr-title { font-size: 1.06rem; margin: 14px 0 10px; }
-.pr-body { font-size: 0.88rem; color: var(--ink-3); line-height: 1.75; }
+/* 진료 원칙 — 사진 + 흐르는 목록 (카드 그리드 아님) */
+.principle-flow { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(36px, 6vw, 80px); align-items: center; }
+.pf-photo { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--sh-md); }
+.pf-photo img { width: 100%; height: 100%; min-height: 420px; object-fit: cover; display: block; }
+.pf-list { display: flex; flex-direction: column; }
+.pf-item { padding: 26px 0; border-bottom: 1px solid var(--line); }
+.pf-item:first-child { padding-top: 0; }
+.pf-item:last-child { border-bottom: none; padding-bottom: 0; }
+.pf-item h3 { font-size: 1.12rem; margin-bottom: 8px; }
+.pf-item h3 b { color: var(--pine); font-weight: inherit; }
+.pf-item p { font-size: 0.95rem; color: var(--ink-3); line-height: 1.8; max-width: 560px; }
 
 /* ============================================================
    CORE — 포토 카드
@@ -528,23 +519,13 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 /* ============================================================
    FUNNEL — 환자 여정
    ============================================================ */
-.funnel-timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; position: relative; }
-.f-step {
-  position: relative; padding: 26px 22px 24px; background: #fff;
-  border: 1px solid var(--line-3); border-radius: var(--radius-lg);
-  box-shadow: var(--sh-sm); transition: all 0.4s var(--ease);
+.journey { border-top: 1px solid var(--line); }
+.journey-row {
+  display: grid; grid-template-columns: 150px 1fr; gap: clamp(20px, 4vw, 60px);
+  padding: 26px 0; border-bottom: 1px solid var(--line); align-items: baseline;
 }
-.f-step:hover { transform: translateY(-5px); box-shadow: var(--sh-md); }
-.f-step.lit { border-color: rgba(22,86,200,0.3); }
-.f-step.lit .f-num { background: var(--pine); color: #fff; }
-.f-num {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: var(--pine-soft); color: var(--pine);
-  display: grid; place-items: center; font-family: var(--sans); font-weight: 800;
-  font-weight: 600; font-size: 1.02rem; margin-bottom: 16px; transition: all 0.4s;
-}
-.f-step h4 { font-size: 1.02rem; margin-bottom: 8px; }
-.f-step p { font-size: 0.83rem; color: var(--ink-3); line-height: 1.7; }
+.journey-row .jt { font-weight: 750; font-size: 1.05rem; color: var(--ink); }
+.journey-row .jd { font-size: 0.95rem; color: var(--ink-3); line-height: 1.8; max-width: 640px; }
 
 /* ============================================================
    LIFE 섹션 (풀블리드 포토 밴드)
@@ -954,9 +935,10 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .menu-toggle { display: flex; }
   .btn-call { display: none; }
   .creed { grid-template-columns: 1fr; gap: 18px; }
-  .principle-grid { grid-template-columns: 1fr 1fr; }
+  .principle-flow { grid-template-columns: 1fr; }
+  .pf-photo img { min-height: 300px; }
   .core-photo-grid { grid-template-columns: 1fr 1fr; }
-  .funnel-timeline { grid-template-columns: repeat(2, 1fr); }
+  .journey-row { grid-template-columns: 120px 1fr; }
   .t-detail-grid { grid-template-columns: 1fr; }
   .t-sidebar { position: static; }
   .footer-top { grid-template-columns: 1fr 1fr; }
@@ -976,13 +958,13 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .hero-info { min-width: 0; }
   .sec-head { flex-direction: column; align-items: flex-start; gap: 14px; }
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .principle-grid { grid-template-columns: 1fr; }
+  
   .core-photo-grid { grid-template-columns: 1fr; }
   .core-photo-card { aspect-ratio: 4/3.4; }
   .chip-grid { grid-template-columns: 1fr; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .doctor-feature, .feature-split { grid-template-columns: 1fr; gap: 32px; }
-  .funnel-timeline { grid-template-columns: 1fr; }
+  .journey-row { grid-template-columns: 1fr; gap: 6px; }
   .ba-grid { grid-template-columns: 1fr; }
   .blog-grid { grid-template-columns: 1fr; }
   .proc-grid { grid-template-columns: 1fr; }

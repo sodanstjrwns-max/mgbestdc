@@ -77,17 +77,21 @@ export function HomePage() {
           </div>
         </div>
 
-        <div class="principle-grid">
-          ${raw(
-            CARE_PRINCIPLES.map(
-              (p, i) => `
-            <article class="principle reveal reveal-d${(i % 3) + 1}">
-              <span class="pr-no">${p.no}</span>
-              <h3 class="pr-title">${p.title}</h3>
-              <p class="pr-body">${p.body}</p>
-            </article>`
-            ).join('')
-          )}
+        <div class="principle-flow">
+          <div class="pf-photo reveal">
+            <img src="/static/img/consult.webp" alt="치료 계획을 설명하는 상담 모습" loading="lazy" />
+          </div>
+          <div class="pf-list reveal reveal-d1">
+            ${raw(
+              CARE_PRINCIPLES.map(
+                (p) => `
+              <div class="pf-item">
+                <h3>${p.title}</h3>
+                <p>${p.body}</p>
+              </div>`
+              ).join('')
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -111,7 +115,6 @@ export function HomePage() {
               <span class="cpc-img"><img src="${CORE_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
               <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
               <span class="cpc-body">
-                <span class="cpc-idx">중점 진료 ${String(i + 1).padStart(2, '0')}</span>
                 <span class="cpc-title" style="display:block">${t.name}</span>
                 <span class="cpc-tag">${t.tagline}</span>
                 <span class="cpc-desc" style="display:block">${t.summary.slice(0, 92)}…</span>
@@ -165,7 +168,7 @@ export function HomePage() {
               </div>
             </div>
             <ul class="cred-list">
-              ${raw(d.career.slice(0, 4).map((c, i) => `<li class="cred-item"><span class="n">0${i + 1}</span> ${c}</li>`).join(''))}
+              ${raw(d.career.slice(0, 4).map((c) => `<li class="cred-item">${c}</li>`).join(''))}
             </ul>
             <a href="/doctors/${d.slug}" class="btn btn-ghost">대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
           </div>
@@ -199,7 +202,7 @@ export function HomePage() {
               ${raw(
                 CLINIC.equipment
                   .map(
-                    (e, i) => `<div class="equip-row"><span class="en-idx">0${i + 1}</span><div><div class="en">${e.name}</div><div class="ed">${e.desc}</div></div></div>`
+                    (e) => `<div class="equip-row"><div><div class="en">${e.name}</div><div class="ed">${e.desc}</div></div></div>`
                   )
                   .join('')
               )}
@@ -234,13 +237,13 @@ export function HomePage() {
           </div>
           <p class="section-lead reveal reveal-d2">치과를 알게 된 순간부터 치료 후 관리까지. 환자의 여정 전체를 책임지고 동행합니다.</p>
         </div>
-        <div class="funnel-timeline">
+        <div class="journey reveal">
           ${raw(
             FUNNEL.map(
               (f) => `
-            <div class="f-step">
-              <div class="f-num">${f.n}</div>
-              <div><h4>${f.t}</h4><p>${f.d}</p></div>
+            <div class="journey-row">
+              <span class="jt">${f.t}</span>
+              <span class="jd">${f.d}</span>
             </div>`
             ).join('')
           )}
