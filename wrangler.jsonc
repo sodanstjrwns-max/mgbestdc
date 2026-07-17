@@ -5,5 +5,14 @@
   "pages_build_output_dir": "./dist",
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  // D1 데이터베이스 — 예약 문의 저장
+  // 프로덕션 배포 전 `npx wrangler d1 create magok-best-dental-production` 후 database_id 교체 필요
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "magok-best-dental-production",
+      "database_id": "local-placeholder"
+    }
   ]
 }

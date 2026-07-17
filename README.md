@@ -4,94 +4,75 @@
 - **병원명**: 마곡베스트치과의원
 - **대표원장**: 김민 (보건복지부 인증 통합치의학과 전문의)
 - **위치**: 서울 강서구 마곡중앙5로 1길 20 보타닉비즈타워 310호 (마곡나루역 1번 출구 도보 3분)
-- **목표**: bdbddc.com(비디치과)급을 뛰어넘는 하이엔드 풀스택 치과 홈페이지. SEO·AEO·퍼널 골격은 벤치마크하되, 디자인은 **클린 럭셔리 화이트**(순백 베이스 + 넓은 여백 + 절제된 일렉트릭 블루 + 부드러운 프리미엄 그림자)로 차별화 — Apple/프리미엄 의료 브랜드 무드의 깔끔하고 고급스러운 톤.
+- **목표**: 하이엔드 풀스택 치과 홈페이지 — SEO·AEO·퍼널 설계 + 프리미엄 포토 중심 디자인 + D1 예약 시스템
 
-## 디자인 시스템 (Clean Luxury White)
-- **테마**: 순백/오프화이트(#FFFFFF) 베이스 + 절제된 일렉트릭 블루(#1763E6) 포인트 + 부드러운 그림자
-- **레이아웃**: 넓은 여백, 정돈된 그리드(핵심진료 3-col 카드), 소프트 라운드 카드, 단 하나의 다크 액센트 섹션(#0B1220 — 보유장비 + 푸터)
-- **인터랙션**: 과한 효과 전면 제거 → 은은한 fade-up reveal · 부드러운 호버 리프트 · 카운트업 · 퍼널 타임라인 점등 · 비포애프터 슬라이더 (커스텀 커서·캔버스 파티클·가로스크롤·Lenis·GSAP·마그네틱·3D틸트 모두 제거)
-- **접근성**: `prefers-reduced-motion` 대응, IntersectionObserver 기반 reveal
-- **핵심 철학**: "정직한 진료와 맞춤 치료로 환자의 삶을 끝까지 함께하겠습니다" — 1인 책임 진료
+## 디자인 시스템 — PORCELAIN & OAK (v2 슈퍼 업그레이드)
+- **테마**: 포슬린 아이보리(#FAF8F4) 라이트 베이스 + 딥 파인 그린(#1E4D3E) 프라이머리 + 브론즈(#A9805A) 디테일 + 다크 파인(#17201C) 인버트 섹션
+- **타이포**: Cormorant Garamond(디스플레이 세리프) + Noto Serif KR(이탤릭 강조 `.grad`/`em`) + Noto Sans KR(본문) + JetBrains Mono(메타 라벨)
+- **포토 퍼스트**: AI 생성 프리미엄 클리닉 이미지 8종(webp 최적화, 총 ~560KB) — 히어로/진료/의료진/시설/라이프 전 영역 실사진 적용
+- **인터랙션**: fade-up reveal, 카운트업, 퍼널 타임라인 점등, 비포애프터 슬라이더, 스크롤 진행바, 히어로 슬로우 줌
+- **접근성**: `prefers-reduced-motion` 대응, 시맨틱 마크업, IntersectionObserver reveal
 
-## 라이브 URL (Sandbox)
-- 개발 서버: PM2로 포트 3000 구동 중 (`wrangler pages dev dist`)
-- 배포 예정 도메인: `magok-best-dental.pages.dev` (Cloudflare Pages)
+## 라이브 URL
+- **Sandbox 개발 서버**: https://3000-i50w91je75opr4ah1l78s-5634da27.sandbox.novita.ai
+- **배포 예정**: Cloudflare Pages (`magok-best-dental`)
 
-## 완성된 기능 (1차)
+## 완성된 기능
 | 구분 | 경로 | 설명 |
 |---|---|---|
-| 메인 | `/` | 풀스크린 히어로 + 스크롤 reveal + 카운트업 통계 + 핵심진료 + 환자여정 퍼널 + 강점/장비 + 의료진 + CTA |
-| 병원소개 | `/mission` | 미션/비전 히어로, 가치, 통계 카운트업 |
-| 의료진 목록 | `/doctors` | 의료진 카드 + 전문 진료 인링크 |
-| 의료진 상세 | `/doctors/:slug` | 학력·경력 전체, Physician 스키마, 진료 인링크 (예: `/doctors/kim-min`) |
-| 진료 목록 | `/treatments` | 핵심 TOP3 + 일반진료 전체 |
-| 진료 상세 | `/treatments/:slug` | 1,500자+ 상세(임플란트 약 3,000자), 세부진료, 진료별 FAQ, MedicalProcedure+FAQPage 스키마, sticky 사이드바 인링크 |
-| 통합 FAQ | `/faq` | 병원이용 + 진료별 FAQ 통합, FAQPage 스키마 |
-| 진료사례 | `/cases` | 비포·애프터 게이팅 골격 (After 사진 로그인 게이팅 UI) |
-| 오시는 길 | `/directions` | 주소·교통·진료시간·주차, 네이버 지도 링크 |
-| 비용 안내 | `/pricing` | 비급여 진료비 고지 (금액·이벤트 미표기, 의료법 준수) |
-| 시설 둘러보기 | `/facility` | 보유 장비 4종 + 공간 갤러리 골격 |
-| 예약 문의 | `/reservation` | 예약 폼 + `/api/reservation` POST 처리 (개인정보 동의 포함) |
-| 지역 SEO | `/area/:area-:treatment` | 8개 지역 × 4개 핵심진료 = 32개 조합 (예: `/area/magok-implant`) |
-| 약관 | `/privacy`, `/terms` | 개인정보처리방침, 이용약관 |
-| SEO 파일 | `/sitemap.xml`, `/robots.txt`, `/llms.txt` | 전 페이지 사이트맵, AI 크롤러 허용, LLM 최적화 |
-| 404 | (custom) | 커스텀 404 페이지 |
-
-## §B 의료광고법 자동 필터 적용 내역
-- "불편 요소도 없게" → "불편을 최소화하는 진료 환경"
-- "손이 좋다" 자랑 → 프로필 미사용, "정밀하고 꼼꼼한 진료"
-- Q29 약점(1인진료 한계) → 강점 리프레이밍("1인 책임 진료")
-- Q31 약점(병원 작음) → "컴팩트하고 동선이 짧은 진료 공간"
-- 비급여 금액·이벤트 → 전면 미표기
-- 사실관계(전문의·자문위원·연수) → 신청서 원문 그대로 (창작 금지)
+| 메인 | `/` | 포토 히어로 + 철학 + 핵심진료 포토카드 + 의료진 실사진 + LIFE 밴드 + 환자여정 퍼널 + CTA |
+| 병원소개 | `/mission` | 미션/비전, 가치, 통계 카운트업 |
+| 의료진 | `/doctors`, `/doctors/kim-min` | 실사진 프로필, 학력·경력, '손이 좋다' 육성 스토리 3편, Physician 스키마 |
+| 진료 목록 | `/treatments` | 핵심 TOP3 포토카드 + 일반진료 6종 |
+| 진료 상세 | `/treatments/:slug` | 히어로 이미지 + 확장 상세(전 진료 섹션·시술·FAQ 보강), MedicalProcedure+FAQPage 스키마 |
+| 통합 FAQ | `/faq` | 병원이용 + 진료별 FAQ, FAQPage 스키마 |
+| 진료사례 | `/cases` | 비포·애프터 게이팅 골격 (의료법 준수) |
+| 오시는 길 | `/directions` | 주소·교통·진료시간, 포토 지도 카드 |
+| 비용 안내 | `/pricing` | 비급여 고지 (금액·이벤트 미표기, 의료법 준수) |
+| 시설 | `/facility` | 장비 4종 + 실사진 공간 갤러리 |
+| 예약 문의 | `/reservation` | 폼 → `POST /api/reservation` → **D1 저장** |
+| **관리자** | `/admin?key=…` | 예약 문의 조회 + 상태 관리(신규/연락완료/예약확정/취소), noindex |
+| 건강칼럼 | `/blog`, `/blog/:slug` | **9편** (임플란트/충치/심미/스케일링/첫방문/사랑니/투명교정/잇몸출혈/야간진료), BlogPosting 스키마 |
+| 지역 SEO | `/area/:area-:treatment` | 8지역 × 4진료 = 32페이지 |
+| 퍼널 장치 | 전 페이지 | 데스크톱 플로팅 CTA(카톡/예약/탑) + 모바일 스티키바(전화/카톡/예약) |
+| SEO 파일 | `/sitemap.xml`, `/robots.txt`, `/llms.txt` | 전 페이지 + 블로그 자동 포함 |
 
 ## 데이터 아키텍처
-- **데이터 모델**: `src/data/clinic.ts` 단일 소스 (병원정보/진료/의료진/지역/FAQ)
-- **현재 저장**: 정적 데이터 (SSR). 예약은 `/api/reservation`에서 수신
-- **예정 저장 서비스**: Cloudflare R2(케이스/회원/예약/칼럼), D1(조회수)
-- **데이터 흐름**: clinic.ts → 페이지 컴포넌트(Hono JSX) → SSR HTML + JSON-LD
+- **데이터 모델**: `src/data/clinic.ts`(병원/진료/의료진/지역/FAQ/스토리), `src/data/blog.ts`(칼럼 9편)
+- **저장 서비스**: **Cloudflare D1** — `reservations` 테이블 (`migrations/0001_reservations.sql`)
+  - 필드: name, phone, treatment, message, status(new/contacted/done/canceled), created_at(KST)
+- **관리자 인증**: `?key=` 쿼리 (기본 `magok2026`, 프로덕션은 `ADMIN_KEY` 환경변수로 교체 권장)
+- **카카오톡 채널**: `CLINIC.social.kakao`에 URL 입력 시 전 CTA 연동 (현재 미입력 → 전화 폴백)
 
-## 적용된 구조화 데이터 (JSON-LD)
-- Dentist / LocalBusiness (병원·주소·영업시간·좌표)
-- Physician (대표원장 학력·경력)
-- MedicalProcedure (진료별)
-- FAQPage (FAQ·진료 상세)
-- BreadcrumbList (전 페이지)
-- MedicalClinic + AdministrativeArea (지역 SEO)
-- WebSite (검색 액션)
+## §B 의료광고법 자동 필터 적용 내역
+- 효과 단정·보장 표현 금지 → "도움이 될 수 있습니다" 순화
+- 비급여 금액·이벤트 → 전면 미표기
+- 사실관계(전문의·자문위원·연수) → 신청서 원문 그대로 (창작 금지)
+- 비포·애프터 After 사진 → 내원 상담 게이팅
+- 약점 리프레이밍: 1인진료 → "1인 책임 진료", 소규모 → "컴팩트한 진료 공간"
+
+## 개발 명령어
+```bash
+npm run build                # Vite 빌드
+pm2 start ecosystem.config.cjs  # 개발 서버 (D1 --local 포함)
+npm run db:migrate:local     # D1 로컬 마이그레이션
+npm run db:migrate:prod      # D1 프로덕션 마이그레이션 (배포 시)
+npm run db:console:local     # 로컬 DB 콘솔
+```
+
+## 배포 (Cloudflare Pages)
+1. `npx wrangler d1 create magok-best-dental-production` → `wrangler.jsonc`의 `database_id` 교체
+2. `npm run db:migrate:prod`
+3. `npm run build && npx wrangler pages deploy dist --project-name magok-best-dental`
+4. (권장) `ADMIN_KEY` 환경변수 설정으로 관리자 키 교체
+
+## 미구현 / 다음 단계
+- 실제 병원 사진 교체 (현재 AI 생성 이미지)
+- 카카오톡 채널 URL 연동 (`CLINIC.social.kakao`)
+- 예약 접수 알림 (이메일/카카오 알림톡)
+- 진료사례 실사진 업로드 관리
 
 ## 기술 스택
-- **프레임워크**: Hono v4 (TypeScript, SSR)
-- **호스팅**: Cloudflare Pages + Workers
-- **빌드**: Vite + @hono/vite-build
-- **프론트**: Vanilla JS + Pretendard + Font Awesome (CDN), 자체 클린 럭셔리 화이트 디자인 시스템 CSS (외부 인터랙션 라이브러리 없음 — 경량 바닐라)
-- **인터랙션**: IntersectionObserver(fade-up reveal/카운트업/퍼널 점등), 부드러운 호버, 비포애프터 슬라이더, 모바일 햄버거 메뉴 (app.js 약 5KB)
-- **디자인 토큰**: `--brand: #1763E6` (일렉트릭 블루) · `--bg: #FFFFFF` (순백) · `--ink: #0B1220` · `--brand-soft: #EAF1FE` · 다크 액센트 `--dark: #0B1220`
-
-## 사용자 가이드
-1. 상단 GNB로 병원소개·의료진·진료안내(메가드롭다운)·진료사례·안내 탐색
-2. 진료안내 메뉴에서 핵심진료(임플란트·충치치료·심미치료) 및 일반진료 확인
-3. 예약 문의는 우측 상단 버튼 또는 `/reservation`에서 폼 작성
-4. 모바일은 햄버거 메뉴 → 아코디언 네비게이션
-
-## 아직 구현되지 않은 기능 (후속 단계)
-- 회원가입/로그인 (Google OAuth + HMAC 세션)
-- 관리자 패널 (회원/케이스/예약/공지/원장칼럼 CRUD, 조회수)
-- 비포애프터 실제 업로드 (R2, 4장, 지역 자동완성, 로그인 게이팅 3중 보호)
-- 원장 칼럼 (SEO 에디터, 인링크)
-- 백과사전 500+ 용어 + 자동 인링크
-- 공지사항
-- Resend 이메일 알림 연동
-- IndexNow / Google Ping 자동 제출
-
-## 권장 다음 단계
-1. Cloudflare Pages 배포 + 커스텀 도메인 연결
-2. R2 버킷 + D1 DB 생성 → 예약/케이스 영속화
-3. 회원 인증 → 비포애프터 게이팅 실동작
-4. 관리자 패널 → 원장님이 직접 콘텐츠 관리
-5. 원장 칼럼 + 백과사전으로 SEO 콘텐츠 축적
-
-## 배포
-- **플랫폼**: Cloudflare Pages
-- **상태**: 🔧 로컬 개발 완료 (배포 대기)
-- **최종 업데이트**: 2026-06-02 (클린 럭셔리 화이트 전면 재설계)
+- Hono + TypeScript + Vite + Cloudflare Pages + D1 (SQLite)
+- TailwindCSS 미사용 — 커스텀 디자인 시스템 CSS (PORCELAIN & OAK)
+- **최종 업데이트**: 2026-07-17

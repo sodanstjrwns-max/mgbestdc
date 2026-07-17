@@ -18,7 +18,7 @@ export function DoctorsListPage() {
           DOCTORS.map(
             (d) => `
           <div class="doc-card reveal">
-            <div class="dc-photo"><i class="fa-solid fa-user-doctor"></i></div>
+            <div class="dc-photo"><img src="/static/img/doctor-care.webp" alt="${d.name} ${d.title} 진료 모습" loading="lazy" /></div>
             <div>
               <h3>${d.name} <span style="font-size:1rem;color:var(--ink-3)">${d.title}</span></h3>
               <div class="dc-title">${d.credential}</div>
@@ -59,7 +59,7 @@ export function DoctorDetailPage(slug: string) {
       <div class="container">
         <div class="doctor-feature">
           <div class="doctor-photo reveal">
-            <i class="fa-solid fa-user-doctor ph-icon"></i>
+            <img src="/static/img/doctor-care.webp" alt="${d.name} ${d.title} 진료 모습" />
             <div class="ph-label"><span class="pn">${d.name} ${d.title}</span><br /><span class="pc">${d.credential}</span></div>
           </div>
           <div class="reveal reveal-d1">

@@ -12,7 +12,12 @@ import {
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
 
-const app = new Hono()
+type Bindings = {
+  DB: D1Database
+  ADMIN_KEY?: string
+}
+
+const app = new Hono<{ Bindings: Bindings }>()
 
 // ============================================================
 // 메인
@@ -324,12 +329,166 @@ app.get('/area/:combo', (c) => {
 app.post('/api/reservation', async (c) => {
   try {
     const body = await c.req.json()
-    if (!body.name || !body.phone) return c.json({ ok: false, error: 'missing fields' }, 400)
-    // 1차: 접수 확인 응답 (R2/Resend 연동은 후속 단계)
-    console.log('[예약문의]', JSON.stringify(body))
+    const name = String(body.name || '').trim().slice(0, 50)
+    const phone = String(body.phone || '').trim().slice(0, 30)
+    const treatment = String(body.treatment || '').trim().slice(0, 50)
+    const message = String(body.message || '').trim().slice(0, 1000)
+    if (!name || !phone) return c.json({ ok: false, error: 'missing fields' }, 400)
+
+    // D1 저장 (바인딩 없으면 로그 폴백 — 접수 자체는 성공 처리)
+    try {
+      if (c.env?.DB) {
+        await c.env.DB.prepare(
+          'INSERT INTO reservations (name, phone, treatment, message) VALUES (?, ?, ?, ?)'
+        ).bind(name, phone, treatment, message).run()
+      } else {
+        console.log('[예약문의/no-db]', JSON.stringify({ name, phone, treatment, message }))
+      }
+    } catch (dbErr) {
+      console.log('[예약문의/db-error]', String(dbErr), JSON.stringify({ name, phone, treatment, message }))
+    }
+
     return c.json({ ok: true, message: '예약 문의가 접수되었습니다.' })
   } catch {
     return c.json({ ok: false, error: 'invalid request' }, 400)
+  }
+})
+
+// ============================================================
+// 관리자 — 예약 문의 조회 (간단한 키 인증)
+// ============================================================
+const DEFAULT_ADMIN_KEY = 'magok2026'
+
+function adminAuthed(c: any): boolean {
+  const key = c.req.query('key') || ''
+  const expected = c.env?.ADMIN_KEY || DEFAULT_ADMIN_KEY
+  return key === expected
+}
+
+app.get('/admin', async (c) => {
+  if (!adminAuthed(c)) {
+    return c.html(
+      Layout(
+        { title: `관리자 로그인 | ${CLINIC.name}`, description: '관리자 페이지', path: '/admin', noindex: true },
+        html`
+          <section class="pad" style="min-height:60vh;display:grid;place-items:center">
+            <div class="glass-card" style="padding:40px;max-width:420px;width:100%;text-align:center">
+              <i class="fa-solid fa-lock" style="font-size:2rem;color:var(--brand);margin-bottom:16px"></i>
+              <h1 style="font-size:1.4rem;margin-bottom:8px">관리자 로그인</h1>
+              <p style="color:var(--ink-3);font-size:0.9rem;margin-bottom:20px">예약 문의 내역을 확인하려면 관리자 키를 입력하세요.</p>
+              <form method="get" action="/admin">
+                <input name="key" type="password" placeholder="관리자 키" class="form-input" style="margin-bottom:12px" />
+                <button type="submit" class="btn btn-primary" style="width:100%">로그인</button>
+              </form>
+            </div>
+          </section>
+        `
+      )
+    )
+  }
+
+  const key = c.req.query('key')
+  let rows: any[] = []
+  let dbError = ''
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare('SELECT * FROM reservations ORDER BY created_at DESC LIMIT 200').all()
+      rows = res.results || []
+    } else {
+      dbError = 'D1 데이터베이스가 연결되지 않았습니다. (로컬: --d1 플래그 / 프로덕션: wrangler.jsonc d1_databases 설정 필요)'
+    }
+  } catch (e) {
+    dbError = `DB 오류: ${String(e)}`
+  }
+
+  const STATUS_LABEL: Record<string, string> = { new: '신규', contacted: '연락완료', done: '예약확정', canceled: '취소' }
+  const STATUS_COLOR: Record<string, string> = { new: '#1E4D3E', contacted: '#A9805A', done: '#2563EB', canceled: '#9CA3AF' }
+
+  return c.html(
+    Layout(
+      { title: `예약 관리 | ${CLINIC.name}`, description: '예약 문의 관리', path: '/admin', noindex: true },
+      html`
+        <section class="pad">
+          <div class="container">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:28px">
+              <div>
+                <span class="eyebrow">ADMIN</span>
+                <h1 style="font-size:1.8rem">예약 문의 관리</h1>
+              </div>
+              <div style="color:var(--ink-3);font-size:0.9rem">총 <strong style="color:var(--brand)">${rows.length}</strong>건 (최근 200건)</div>
+            </div>
+            ${dbError ? html`<div class="notice-box" style="margin-bottom:24px"><i class="fa-solid fa-triangle-exclamation"></i><div>${dbError}</div></div>` : ''}
+            <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--glass-border);background:#fff">
+              <table style="width:100%;border-collapse:collapse;font-size:0.9rem;min-width:760px">
+                <thead>
+                  <tr style="background:var(--bg-2);text-align:left">
+                    <th style="padding:12px 16px">#</th>
+                    <th style="padding:12px 16px">접수일시</th>
+                    <th style="padding:12px 16px">이름</th>
+                    <th style="padding:12px 16px">연락처</th>
+                    <th style="padding:12px 16px">희망 진료</th>
+                    <th style="padding:12px 16px">문의 내용</th>
+                    <th style="padding:12px 16px">상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.length === 0 && !dbError
+                    ? html`<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--ink-3)">아직 접수된 예약 문의가 없습니다.</td></tr>`
+                    : ''}
+                  ${rows.map(
+                    (r: any) => html`
+                      <tr style="border-top:1px solid var(--glass-border)">
+                        <td style="padding:12px 16px;color:var(--ink-3)">${r.id}</td>
+                        <td style="padding:12px 16px;white-space:nowrap">${r.created_at}</td>
+                        <td style="padding:12px 16px;font-weight:700">${r.name}</td>
+                        <td style="padding:12px 16px"><a href="tel:${r.phone}" style="color:var(--brand);font-weight:600">${r.phone}</a></td>
+                        <td style="padding:12px 16px">${r.treatment || '-'}</td>
+                        <td style="padding:12px 16px;max-width:280px">${r.message || '-'}</td>
+                        <td style="padding:12px 16px">
+                          <select onchange="updateStatus(${r.id}, this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--glass-border);font-weight:600;color:${STATUS_COLOR[r.status] || '#333'}">
+                            ${['new', 'contacted', 'done', 'canceled'].map(
+                              (s) => html`<option value="${s}" ${r.status === s ? 'selected' : ''}>${STATUS_LABEL[s]}</option>`
+                            )}
+                          </select>
+                        </td>
+                      </tr>
+                    `
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <script>
+              const ADMIN_KEY = ${JSON.stringify(key)};
+              async function updateStatus(id, status) {
+                try {
+                  const res = await fetch('/api/admin/reservation/' + id + '/status?key=' + encodeURIComponent(ADMIN_KEY), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                  });
+                  const j = await res.json();
+                  if (!j.ok) alert('상태 변경 실패: ' + (j.error || ''));
+                } catch (e) { alert('상태 변경 중 오류가 발생했습니다.'); }
+              }
+            </script>
+          </div>
+        </section>
+      `
+    )
+  )
+})
+
+app.post('/api/admin/reservation/:id/status', async (c) => {
+  if (!adminAuthed(c)) return c.json({ ok: false, error: 'unauthorized' }, 401)
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  try {
+    const id = Number(c.req.param('id'))
+    const { status } = await c.req.json()
+    if (!['new', 'contacted', 'done', 'canceled'].includes(status)) return c.json({ ok: false, error: 'invalid status' }, 400)
+    await c.env.DB.prepare('UPDATE reservations SET status = ? WHERE id = ?').bind(status, id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
   }
 })
 

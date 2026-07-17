@@ -8,6 +8,7 @@ type SeoMeta = {
   path: string
   ogType?: string
   jsonLd?: object[]
+  noindex?: boolean
 }
 
 const SITE_URL = 'https://magok-best-dental.pages.dev'
@@ -25,9 +26,9 @@ export function Head(meta: SeoMeta) {
       <title>${meta.title}</title>
       <meta name="description" content="${meta.description}" />
       <link rel="canonical" href="${canonical}" />
-      <meta name="robots" content="index, follow, max-image-preview:large" />
+      <meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}" />
       <meta name="author" content="${CLINIC.name}" />
-      <meta name="theme-color" content="#07090F" />
+      <meta name="theme-color" content="#FAF8F4" />
 
       <!-- Open Graph -->
       <meta property="og:type" content="${meta.ogType || 'website'}" />
@@ -58,7 +59,7 @@ export function Head(meta: SeoMeta) {
       />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@300;400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400..700;1,400..700&family=Noto+Serif+KR:wght@400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap"
       />
       <link
         rel="stylesheet"
@@ -309,6 +310,31 @@ function Footer() {
 }
 
 // ============================================================
+// 퍼널 장치: 플로팅 CTA (데스크톱) + 스티키 바 (모바일)
+// ============================================================
+function FloatingCta() {
+  const kakao = CLINIC.social.kakao || `tel:${CLINIC.phoneRaw}`
+  const kakaoIsLink = !!CLINIC.social.kakao
+  return html`
+    <nav class="float-cta" aria-label="빠른 상담">
+      <a href="${kakao}" class="fc-kakao" ${raw(kakaoIsLink ? 'target="_blank" rel="noopener"' : '')} id="float-kakao">
+        <i class="fa-solid fa-comment"></i> 카톡 상담
+      </a>
+      <a href="/reservation" class="fc-reserve" id="float-reserve">
+        <i class="fa-solid fa-calendar-check"></i> 예약 문의
+      </a>
+      <a href="#" class="fc-top" id="btn-top" aria-label="맨 위로"><i class="fa-solid fa-arrow-up"></i></a>
+    </nav>
+
+    <nav class="sticky-bar" aria-label="모바일 빠른 상담">
+      <a href="tel:${CLINIC.phoneRaw}" class="sb-call"><i class="fa-solid fa-phone"></i> 전화</a>
+      <a href="${kakao}" class="sb-kakao" ${raw(kakaoIsLink ? 'target="_blank" rel="noopener"' : '')}><i class="fa-solid fa-comment"></i> 카톡</a>
+      <a href="/reservation" class="sb-reserve"><i class="fa-solid fa-calendar-check"></i> 예약 문의</a>
+    </nav>
+  `
+}
+
+// ============================================================
 // 전체 페이지 래퍼
 // ============================================================
 export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
@@ -321,8 +347,8 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
         ${Header()}
         <main>${body}</main>
         ${Footer()}
+        ${FloatingCta()}
         <script src="/static/app.js"></script>
-        <script src="/static/fx.js" defer></script>
       </body>
     </html>`
 }

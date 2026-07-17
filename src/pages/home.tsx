@@ -9,38 +9,44 @@ const FUNNEL = [
   { n: '05', t: '사후 관리', d: '치료 후에도 정기 검진과 전문 클리닝으로 건강을 오래 함께 지킵니다.' },
 ]
 
+const CORE_IMG: Record<string, string> = {
+  implant: '/static/img/tx-implant.webp',
+  cavity: '/static/img/consult.webp',
+  cosmetic: '/static/img/tx-cosmetic.webp'
+}
+
 export function HomePage() {
   const d = DOCTORS[0]
   return html`
-    <!-- ============ HERO — 에디토리얼 ============ -->
+    <!-- ============ HERO — 풀블리드 포토 ============ -->
     <section class="hero" id="hero">
-      <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
+      <div class="hero-bg" aria-hidden="true">
+        <img src="/static/img/hero-clinic.webp" alt="" fetchpriority="high" />
+      </div>
       <div class="container">
-        <div class="hero-inner">
-          <div class="hero-meta">
-            <span class="badge"><span class="dot"></span> ${CLINIC.directorCredential}</span>
-            <span class="coord meta">37.5670°N&nbsp;&nbsp;126.8295°E<br />MAGOK · SEOUL · EST.${CLINIC.openedYear}</span>
+        <div class="hero-meta">
+          <span class="badge"><span class="dot"></span> ${CLINIC.directorCredential}</span>
+          <span class="coord meta">37.5670°N&nbsp;&nbsp;126.8295°E<br />MAGOK · SEOUL · EST.${CLINIC.openedYear}</span>
+        </div>
+
+        <h1>
+          <span class="l"><span>치료가 끝나고도</span></span>
+          <span class="l l-grad"><span>아무 걱정 없이.</span></span>
+        </h1>
+
+        <div class="hero-foot">
+          <div>
+            <p class="hero-sub">${CLINIC.heroSub}</p>
+            <div class="hero-actions">
+              <a href="/reservation" class="btn btn-primary">예약 문의하기 <i class="fa-solid fa-arrow-right"></i></a>
+              <a href="/treatments" class="btn btn-ghost">진료안내</a>
+            </div>
           </div>
-
-          <h1>
-            <span class="l reveal-line"><span>치료가 끝나고도</span></span>
-            <span class="l l-grad"><span data-split>아무 걱정 없이.</span></span>
-          </h1>
-
-          <div class="hero-foot">
-            <div class="reveal reveal-d2">
-              <p class="hero-sub">${CLINIC.heroSub}</p>
-              <div class="hero-actions">
-                <a href="/reservation" class="btn btn-primary" data-magnetic>예약 문의하기 <i class="fa-solid fa-arrow-right"></i></a>
-                <a href="/treatments" class="btn btn-ghost" data-magnetic>진료안내</a>
-              </div>
-            </div>
-            <div class="hero-info reveal reveal-d3">
-              <div class="row"><span class="k">DIRECTOR</span><span class="v">${d.name} 대표원장</span></div>
-              <div class="row"><span class="k">LOCATION</span><span class="v">${CLINIC.station} · 도보 3분</span></div>
-              <div class="row"><span class="k">FOCUS</span><span class="v acc">임플란트 · 충치 · 심미</span></div>
-              <div class="row"><span class="k">CALL</span><span class="v"><a href="tel:${CLINIC.phoneRaw}">${CLINIC.phone}</a></span></div>
-            </div>
+          <div class="hero-info">
+            <div class="row"><span class="k">DIRECTOR</span><span class="v">${d.name} 대표원장</span></div>
+            <div class="row"><span class="k">LOCATION</span><span class="v">${CLINIC.station} · 도보 3분</span></div>
+            <div class="row"><span class="k">FOCUS</span><span class="v acc">임플란트 · 충치 · 심미</span></div>
+            <div class="row"><span class="k">CALL</span><span class="v"><a href="tel:${CLINIC.phoneRaw}">${CLINIC.phone}</a></span></div>
           </div>
         </div>
       </div>
@@ -67,19 +73,19 @@ export function HomePage() {
     </div>
 
     <!-- ============ STATS ============ -->
-    <section class="pad-sm">
+    <section class="pad-sm" aria-label="핵심 지표">
       <div class="container">
         <div class="stats-grid reveal">
-          <div class="stat" data-spotlight><div class="num"><span data-count="3"></span></div><div class="label" data-scramble="MAGOKNARU · MIN"></div></div>
-          <div class="stat" data-spotlight><div class="num"><span data-count="1"></span><span class="suf">인</span></div><div class="label" data-scramble="RESPONSIBLE CARE"></div></div>
-          <div class="stat" data-spotlight><div class="num"><span data-count="4"></span><span class="suf">대</span></div><div class="label" data-scramble="CORE EQUIPMENT"></div></div>
-          <div class="stat" data-spotlight><div class="num">365<span class="suf">일</span></div><div class="label" data-scramble="AFTERCARE"></div></div>
+          <div class="stat"><div class="num"><span data-count="3"></span><span class="suf">분</span></div><div class="label" data-scramble="MAGOKNARU STATION"></div></div>
+          <div class="stat"><div class="num"><span data-count="1"></span><span class="suf">인</span></div><div class="label" data-scramble="RESPONSIBLE CARE"></div></div>
+          <div class="stat"><div class="num"><span data-count="4"></span><span class="suf">대</span></div><div class="label" data-scramble="CORE EQUIPMENT"></div></div>
+          <div class="stat"><div class="num">365<span class="suf">일</span></div><div class="label" data-scramble="AFTERCARE"></div></div>
         </div>
       </div>
     </section>
 
-    <!-- ============ CARE PHILOSOPHY — 원장님 진료 철학 ============ -->
-    <section class="pad" aria-label="진료 철학">
+    <!-- ============ CARE PHILOSOPHY ============ -->
+    <section class="pad" aria-label="진료 철학" id="philosophy-section">
       <div class="container">
         <div class="creed">
           <div class="creed-head reveal">
@@ -106,32 +112,30 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ CORE — 에디토리얼 인덱스 리스트 ============ -->
-    <section class="pad tone" aria-label="핵심 진료">
+    <!-- ============ CORE — 포토 카드 ============ -->
+    <section class="pad tone" aria-label="핵심 진료" id="core-section">
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
             <span class="label label--line"><span class="idx">[02]</span> CORE TREATMENTS</span>
-            <h2 class="section-title">가장 <span class="thin">신중하게</span><br />다루는 진료</h2>
+            <h2 class="section-title">가장 <span class="grad">신중하게</span><br />다루는 진료</h2>
           </div>
           <p class="section-lead reveal reveal-d2">정밀 진단을 바탕으로, 환자분 한 분 한 분께 맞는 치료 계획을 세웁니다. 임플란트·충치·심미, 세 가지를 가장 깊게 다룹니다.</p>
         </div>
 
-        <div class="core-list">
+        <div class="core-photo-grid">
           ${raw(
             CORE_TREATMENTS.map(
               (t, i) => `
-            <a href="/treatments/${t.slug}" class="core-row reveal reveal-d${i + 1}">
-              <span class="cr-idx">/ ${String(i + 1).padStart(2, '0')}</span>
-              <span class="cr-main">
-                <i class="cr-ico fa-solid ${t.icon}"></i>
-                <span class="cr-title">${t.name}</span>
+            <a href="/treatments/${t.slug}" class="core-photo-card reveal reveal-d${i + 1}" id="core-${t.slug}">
+              <span class="cpc-img"><img src="${CORE_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
+              <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+              <span class="cpc-body">
+                <span class="cpc-idx">TREATMENT / ${String(i + 1).padStart(2, '0')}</span>
+                <span class="cpc-title" style="display:block">${t.name}</span>
+                <span class="cpc-tag">${t.tagline}</span>
+                <span class="cpc-desc" style="display:block">${t.summary.slice(0, 92)}…</span>
               </span>
-              <span class="cr-desc-wrap">
-                <span class="cr-tag">${t.tagline}</span>
-                <span class="cr-desc">${t.summary}</span>
-              </span>
-              <span class="cr-arrow"><i class="fa-solid fa-arrow-right"></i></span>
             </a>`
             ).join('')
           )}
@@ -139,8 +143,8 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ GENERAL — 라인 그리드 ============ -->
-    <section class="pad">
+    <!-- ============ GENERAL ============ -->
+    <section class="pad" aria-label="일반 진료">
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
@@ -153,7 +157,7 @@ export function HomePage() {
           ${raw(
             GENERAL_TREATMENTS.map(
               (t) => `
-            <a href="/treatments/${t.slug}" class="chip reveal" data-spotlight>
+            <a href="/treatments/${t.slug}" class="chip reveal">
               <i class="fa-solid ${t.icon}"></i>
               <span><span class="tn">${t.name}</span><span class="td">${t.tagline}</span></span>
               <i class="chip-arrow fa-solid fa-arrow-right"></i>
@@ -164,8 +168,8 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ DOCTOR — 인용형 ============ -->
-    <section class="pad tone">
+    <!-- ============ DOCTOR ============ -->
+    <section class="pad tone" aria-label="대표원장" id="doctor-section">
       <div class="container">
         <div class="sec-head reveal" style="margin-bottom:clamp(36px,5vw,60px)">
           <span class="label label--line"><span class="idx">[04]</span> DIRECTOR</span>
@@ -183,15 +187,11 @@ export function HomePage() {
             <ul class="cred-list">
               ${raw(d.career.slice(0, 4).map((c, i) => `<li class="cred-item"><span class="n">0${i + 1}</span> ${c}</li>`).join(''))}
             </ul>
-            <a href="/doctors/${d.slug}" class="btn btn-ghost" data-magnetic>대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="/doctors/${d.slug}" class="btn btn-ghost">대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
           </div>
-          <div class="doctor-photo is-placeholder reveal reveal-d2" data-tilt>
+          <div class="doctor-photo reveal reveal-d2">
             <span class="ph-corner meta">[ FIG.01 — DIRECTOR ]</span>
-            <div class="ph-center" data-parallax="0.05">
-              <i class="ph-icon fa-solid fa-user-doctor"></i>
-              <span class="ph-note">IMAGE&nbsp;PENDING</span>
-              <span class="ph-dim">1080 × 1350</span>
-            </div>
+            <img src="/static/img/doctor-care.webp" alt="${d.name} 대표원장 진료 모습" loading="lazy" />
             <div class="ph-label">
               <div class="pn">${d.name} 대표원장</div>
               <div class="pc">${d.credential}</div>
@@ -201,8 +201,8 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ EQUIPMENT — 데이터 테이블 ============ -->
-    <section class="pad">
+    <!-- ============ EQUIPMENT ============ -->
+    <section class="pad" aria-label="보유 장비">
       <div class="container">
         <div class="feature-split">
           <div class="reveal">
@@ -230,8 +230,23 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ FUNNEL — 스크롤 드로우 ============ -->
-    <section class="pad tone">
+    <!-- ============ LIFE — 풀블리드 포토 밴드 ============ -->
+    <section class="pad-sm" aria-label="치료 그 이후의 삶">
+      <div class="container">
+        <div class="life-band reveal">
+          <span class="lb-img"><img src="/static/img/life-smile.webp" alt="" loading="lazy" /></span>
+          <div class="lb-body">
+            <span class="eyebrow">BEYOND TREATMENT</span>
+            <h2>치료의 완성은,<br /><em>다시 웃는 일상</em>입니다</h2>
+            <p>임플란트 치료는 단순히 치아를 만드는 것이 아니라, 한 사람의 식생활과 건강, 삶의 질과 연결됩니다. 치료가 끝난 뒤에도 오래 건강하게 쓰실 수 있도록 끝까지 함께 관리해 드립니다.</p>
+            <a href="/mission" class="btn btn-glass">마곡베스트치과 이야기 <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FUNNEL ============ -->
+    <section class="pad tone" aria-label="환자 여정" id="journey-section">
       <div class="container">
         <div class="sec-head">
           <div class="reveal">
@@ -254,16 +269,16 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ CTA — 반전 종이 ============ -->
-    <section class="pad-sm">
+    <!-- ============ CTA ============ -->
+    <section class="pad-sm" aria-label="예약 안내">
       <div class="container">
         <div class="cta-band reveal">
           <span class="label"><span class="idx">[07]</span> CONTACT</span>
           <h2>지금, 가장 편한<br /><em>시간</em>을 알려주세요</h2>
           <p>증상이 가벼울 때 확인하는 것이 가장 좋은 치료의 시작입니다. 부담 없이 문의해 주세요.</p>
           <div class="cta-actions">
-            <a href="/reservation" class="btn btn-primary" data-magnetic>예약 문의하기 <i class="fa-solid fa-arrow-right"></i></a>
-            <a href="tel:${CLINIC.phoneRaw}" class="btn btn-ghost" data-magnetic>${CLINIC.phone}</a>
+            <a href="/reservation" class="btn btn-primary">예약 문의하기 <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="tel:${CLINIC.phoneRaw}" class="btn btn-ghost"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
           </div>
         </div>
       </div>

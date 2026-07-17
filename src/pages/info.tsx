@@ -87,12 +87,14 @@ export function DirectionsPage() {
 
           <div class="reveal reveal-d1">
             <a href="https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.addressFull)}" target="_blank" rel="noopener"
-               style="display:block;aspect-ratio:4/3;border-radius:var(--radius-lg);background:linear-gradient(160deg,var(--bg-3),var(--bg-2));border:1px solid var(--glass-border);display:grid;place-items:center;text-align:center;text-decoration:none">
-              <div>
-                <i class="fa-solid fa-map-location-dot" style="font-size:3.5rem;color:var(--brand);margin-bottom:16px"></i>
-                <div style="font-weight:800;color:var(--text);font-size:1.2rem">${CLINIC.name}</div>
-                <div style="color:var(--ink-3);margin-top:6px">${CLINIC.addressShort}</div>
-                <span class="btn btn-primary" style="margin-top:18px"><i class="fa-solid fa-map"></i> 네이버 지도에서 보기</span>
+               style="display:block;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--sh-md);position:relative;text-decoration:none">
+              <img src="/static/img/hero-clinic.webp" alt="${CLINIC.name} 진료 공간" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block" />
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(23,32,28,0.82));display:flex;align-items:flex-end;padding:26px">
+                <div>
+                  <div style="font-weight:800;color:#fff;font-size:1.2rem">${CLINIC.name}</div>
+                  <div style="color:rgba(255,255,255,0.8);margin-top:4px;font-size:0.9rem">${CLINIC.addressShort}</div>
+                  <span class="btn btn-primary" style="margin-top:14px"><i class="fa-solid fa-map"></i> 네이버 지도에서 보기</span>
+                </div>
               </div>
             </a>
           </div>
@@ -175,20 +177,28 @@ export function FacilityPage() {
           )}
         </div>
 
-        <div class="reveal" style="margin-top:48px">
+        <div class="reveal" style="margin-top:64px">
+          <span class="eyebrow">SPACE</span>
+          <h2 class="section-title" style="margin-bottom:32px">진료 공간</h2>
           <div class="grid-3">
             ${raw(
-              ['진료실', '상담실', '대기 공간']
+              [
+                { src: '/static/img/facility-room.webp', label: '진료실', desc: '집중도 높은 컴팩트한 진료 공간' },
+                { src: '/static/img/consult.webp', label: '상담실', desc: '충분한 설명을 위한 독립 상담 공간' },
+                { src: '/static/img/hero-clinic.webp', label: '대기 공간', desc: '편안하게 기다리실 수 있는 공간' }
+              ]
                 .map(
                   (s) => `
-              <div style="aspect-ratio:4/3;border-radius:var(--radius);background:linear-gradient(160deg,var(--bg-3),var(--bg-2));border:1px solid var(--glass-border);display:grid;place-items:center;color:var(--brand-glow)">
-                <div style="text-align:center"><i class="fa-solid fa-image" style="font-size:2rem;opacity:0.4"></i><div style="margin-top:10px;color:var(--ink-3);font-weight:600;font-size:0.9rem">${s}</div></div>
-              </div>`
+              <figure style="margin:0">
+                <div style="aspect-ratio:4/3;border-radius:var(--radius);overflow:hidden;box-shadow:var(--sh-md)">
+                  <img src="${s.src}" alt="${CLINIC.name} ${s.label}" loading="lazy" style="width:100%;height:100%;object-fit:cover" />
+                </div>
+                <figcaption style="margin-top:12px"><strong style="color:var(--text)">${s.label}</strong><span style="color:var(--ink-3);font-size:0.88rem;display:block;margin-top:2px">${s.desc}</span></figcaption>
+              </figure>`
                 )
                 .join('')
             )}
           </div>
-          <p style="text-align:center;color:var(--ink-3);margin-top:20px;font-size:0.9rem"><i class="fa-solid fa-camera"></i> 실제 병원 사진은 추후 업데이트될 예정입니다.</p>
         </div>
       </div>
     </section>

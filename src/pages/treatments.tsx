@@ -4,6 +4,12 @@ import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, type Treatment
 // ============================================================
 // 진료 전체 목록
 // ============================================================
+const LIST_IMG: Record<string, string> = {
+  implant: '/static/img/tx-implant.webp',
+  cavity: '/static/img/consult.webp',
+  cosmetic: '/static/img/tx-cosmetic.webp'
+}
+
 export function TreatmentsListPage() {
   return html`
     <section class="page-hero">
@@ -19,17 +25,19 @@ export function TreatmentsListPage() {
       <div class="container">
         <span class="eyebrow reveal">CORE TREATMENTS</span>
         <h2 class="section-title reveal" style="margin-bottom:32px">핵심 진료</h2>
-        <div class="grid-3">
+        <div class="core-photo-grid">
           ${raw(
             CORE_TREATMENTS.map(
               (t, i) => `
-            <a href="/treatments/${t.slug}" class="glass-card tilt reveal reveal-d${i + 1}">
-              <span class="num-tag">0${i + 1}</span>
-              <span class="tico"><i class="fa-solid ${t.icon}"></i></span>
-              <h3>${t.name}</h3>
-              <span class="tag">${t.tagline}</span>
-              <p>${t.summary.slice(0, 100)}…</p>
-              <span class="more">자세히 보기 <i class="fa-solid fa-arrow-right"></i></span>
+            <a href="/treatments/${t.slug}" class="core-photo-card reveal reveal-d${i + 1}">
+              <span class="cpc-img"><img src="${LIST_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
+              <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+              <span class="cpc-body">
+                <span class="cpc-idx">TREATMENT / ${String(i + 1).padStart(2, '0')}</span>
+                <span class="cpc-title" style="display:block">${t.name}</span>
+                <span class="cpc-tag">${t.tagline}</span>
+                <span class="cpc-desc" style="display:block">${t.summary.slice(0, 92)}…</span>
+              </span>
             </a>`
             ).join('')
           )}
@@ -66,9 +74,18 @@ export function TreatmentsListPage() {
 // ============================================================
 // 진료 상세 (1,500자+ / MedicalProcedure 스키마 / 인링크)
 // ============================================================
+const TX_IMG: Record<string, { src: string; alt: string }> = {
+  implant: { src: '/static/img/tx-implant.webp', alt: '임플란트 정밀 진료 모습' },
+  cavity: { src: '/static/img/consult.webp', alt: '충치치료 상담 모습' },
+  cosmetic: { src: '/static/img/tx-cosmetic.webp', alt: '심미치료 결과 미소' },
+  ortho: { src: '/static/img/tx-ortho.webp', alt: '교정 치료 모습' },
+  preventive: { src: '/static/img/facility-room.webp', alt: '예방 진료 공간' }
+}
+
 export function TreatmentDetailPage(t: Treatment) {
   const related = TREATMENTS.filter((x) => x.slug !== t.slug).slice(0, 5)
   const doctor = DOCTORS[0]
+  const heroImg = TX_IMG[t.slug]
   return html`
     <section class="page-hero">
       <div class="container">
@@ -84,6 +101,7 @@ export function TreatmentDetailPage(t: Treatment) {
 
     <section class="pad">
       <div class="container">
+        ${heroImg ? html`<div class="t-hero-img reveal"><img src="${heroImg.src}" alt="${heroImg.alt}" loading="lazy" /></div>` : ''}
         <div class="t-detail-grid">
           <article>
             ${raw(

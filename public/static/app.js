@@ -1,7 +1,7 @@
 /* ============================================================
-   마곡베스트치과 — DARK EDITORIAL Interactions (2026)
-   헤더 · 마스크 리빌 · 카운트업 · 퍼널 스크롤드로우
-   커스텀 커서 · 마그네틱 · 비포애프터 · 앵커
+   마곡베스트치과 — PORCELAIN & OAK Interactions (2026)
+   헤더 · 리빌 · 카운트업 · 퍼널 점등 · 비포애프터 슬라이더
+   플로팅 CTA · 맨위로 · 앵커
    ============================================================ */
 (function () {
   'use strict';
@@ -22,37 +22,22 @@
     if (toggle && nav) {
       toggle.addEventListener('click', function () {
         var open = nav.classList.toggle('open');
-        toggle.classList.toggle('active', open);
+        toggle.classList.toggle('open', open);
         document.body.style.overflow = open ? 'hidden' : '';
       });
       nav.querySelectorAll('a').forEach(function (a) {
         a.addEventListener('click', function () {
           nav.classList.remove('open');
-          toggle.classList.remove('active');
+          toggle.classList.remove('open');
           document.body.style.overflow = '';
         });
       });
     }
   }
 
-  /* ---- 키네틱 마스크 리빌 (line by line) ---- */
-  function initRevealLines() {
-    var lines = document.querySelectorAll('.reveal-line');
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      lines.forEach(function (l) { l.classList.add('in'); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.2 });
-    lines.forEach(function (l) { io.observe(l); });
-  }
-
-  /* ---- 일반 reveal (fade-up) ---- */
+  /* ---- reveal (fade-up) ---- */
   function initReveal() {
-    var items = document.querySelectorAll('.reveal');
+    var items = document.querySelectorAll('.reveal, .reveal-line');
     if (reduceMotion || !('IntersectionObserver' in window)) {
       items.forEach(function (i) { i.classList.add('in'); });
       return;
@@ -93,191 +78,71 @@
     nums.forEach(function (n) { io.observe(n); });
   }
 
-  /* ---- 퍼널 타임라인 + 스크롤 드로우 라인 ---- */
+  /* ---- 퍼널 스텝 점등 ---- */
   function initFunnel() {
-    var timeline = document.querySelector('.funnel-timeline');
     var steps = document.querySelectorAll('.f-step');
     if (!steps.length) return;
     if (reduceMotion || !('IntersectionObserver' in window)) {
-      steps.forEach(function (s) { s.classList.add('in'); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('in'); });
-    }, { threshold: 0.5 });
-    steps.forEach(function (s) { io.observe(s); });
-
-    if (timeline) {
-      var onScroll = function () {
-        var r = timeline.getBoundingClientRect();
-        var vh = window.innerHeight;
-        var prog = (vh * 0.6 - r.top) / r.height;
-        prog = Math.max(0, Math.min(1, prog));
-        timeline.style.setProperty('--draw', (prog * 100) + '%');
-      };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
-    }
-  }
-
-  /* ---- 커스텀 커서 (포인터 기기) ---- */
-  function initCursor() {
-    if (reduceMotion || window.matchMedia('(hover: none)').matches || window.innerWidth < 900) return;
-    var dot = document.createElement('div');
-    var ring = document.createElement('div');
-    dot.className = 'cursor-dot';
-    ring.className = 'cursor-ring';
-    document.body.appendChild(dot);
-    document.body.appendChild(ring);
-    document.body.classList.add('cursor-active');
-    var mx = 0, my = 0, rx = 0, ry = 0;
-    window.addEventListener('mousemove', function (e) {
-      mx = e.clientX; my = e.clientY;
-      dot.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)';
-    });
-    function loop() {
-      rx += (mx - rx) * 0.18;
-      ry += (my - ry) * 0.18;
-      ring.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)';
-      requestAnimationFrame(loop);
-    }
-    loop();
-    document.querySelectorAll('a, button, .core-row, .chip, summary, [data-magnetic], [data-tilt]').forEach(function (el) {
-      el.addEventListener('mouseenter', function () { ring.classList.add('hover'); dot.classList.add('hover'); });
-      el.addEventListener('mouseleave', function () { ring.classList.remove('hover'); dot.classList.remove('hover'); });
-    });
-  }
-
-  /* ---- 마그네틱 버튼 ---- */
-  function initMagnetic() {
-    if (reduceMotion || window.matchMedia('(hover: none)').matches) return;
-    document.querySelectorAll('[data-magnetic]').forEach(function (el) {
-      el.addEventListener('mousemove', function (e) {
-        var r = el.getBoundingClientRect();
-        var x = e.clientX - r.left - r.width / 2;
-        var y = e.clientY - r.top - r.height / 2;
-        el.style.transform = 'translate(' + x * 0.25 + 'px,' + y * 0.3 + 'px)';
-      });
-      el.addEventListener('mouseleave', function () { el.style.transform = ''; });
-    });
-  }
-
-  /* ---- 비포·애프터 슬라이더 ---- */
-  function initBeforeAfter() {
-    document.querySelectorAll('.ba-card').forEach(function (card) {
-      var handle = card.querySelector('.ba-handle');
-      var after = card.querySelector('.ba-after');
-      if (!handle || !after) return;
-      var dragging = false;
-      function move(clientX) {
-        var r = card.getBoundingClientRect();
-        var pct = Math.max(0, Math.min(100, ((clientX - r.left) / r.width) * 100));
-        after.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
-        handle.style.left = pct + '%';
-      }
-      handle.addEventListener('mousedown', function () { dragging = true; });
-      window.addEventListener('mouseup', function () { dragging = false; });
-      window.addEventListener('mousemove', function (e) { if (dragging) move(e.clientX); });
-      card.addEventListener('touchmove', function (e) { move(e.touches[0].clientX); }, { passive: true });
-    });
-  }
-
-  /* ---- 글자단위 스플릿 키네틱 리빌 ---- */
-  function initSplitText() {
-    var els = document.querySelectorAll('[data-split]');
-    if (!els.length) return;
-    els.forEach(function (el) {
-      var text = el.textContent;
-      el.setAttribute('aria-label', text);
-      el.innerHTML = '';
-      var frag = document.createDocumentFragment();
-      text.split('').forEach(function (ch, i) {
-        var s = document.createElement('span');
-        s.className = 'split-ch';
-        s.textContent = ch === ' ' ? '\u00A0' : ch;
-        s.style.transitionDelay = (i * 0.028) + 's';
-        s.setAttribute('aria-hidden', 'true');
-        frag.appendChild(s);
-      });
-      el.appendChild(frag);
-    });
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      els.forEach(function (e) { e.classList.add('in'); });
+      steps.forEach(function (s) { s.classList.add('lit'); });
       return;
     }
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+        if (e.isIntersecting) {
+          setTimeout(function () { e.target.classList.add('lit'); },
+            Array.prototype.indexOf.call(steps, e.target) * 120);
+          io.unobserve(e.target);
+        }
       });
-    }, { threshold: 0.3 });
-    els.forEach(function (e) { io.observe(e); });
+    }, { threshold: 0.4 });
+    steps.forEach(function (s) { io.observe(s); });
   }
 
-  /* ---- 스포트라이트 호버 (커서 따라가는 라디얼 글로우) ---- */
-  function initSpotlight() {
-    if (window.matchMedia('(hover: none)').matches) return;
-    document.querySelectorAll('[data-spotlight]').forEach(function (el) {
-      el.addEventListener('mousemove', function (e) {
-        var r = el.getBoundingClientRect();
-        el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
-        el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
-      });
+  /* ---- 비포·애프터 슬라이더 (.ba-slider) ---- */
+  function initBaSlider() {
+    document.querySelectorAll('.ba-slider').forEach(function (slider) {
+      var handle = slider.querySelector('.handle');
+      var afterWrap = slider.querySelector('.after-wrap');
+      if (!handle || !afterWrap) return;
+      var dragging = false;
+      function move(clientX) {
+        var r = slider.getBoundingClientRect();
+        var pct = Math.max(2, Math.min(98, ((clientX - r.left) / r.width) * 100));
+        afterWrap.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
+        handle.style.left = pct + '%';
+      }
+      move; // init default at 50 via CSS/inline
+      handle.addEventListener('mousedown', function (e) { dragging = true; e.preventDefault(); });
+      window.addEventListener('mouseup', function () { dragging = false; });
+      window.addEventListener('mousemove', function (e) { if (dragging) move(e.clientX); });
+      slider.addEventListener('touchstart', function (e) { move(e.touches[0].clientX); }, { passive: true });
+      slider.addEventListener('touchmove', function (e) { move(e.touches[0].clientX); }, { passive: true });
+      slider.addEventListener('click', function (e) { move(e.clientX); });
     });
   }
 
-  /* ---- 3D 틸트 (포인터 반응) ---- */
-  function initTilt() {
-    if (reduceMotion || window.matchMedia('(hover: none)').matches) return;
-    document.querySelectorAll('[data-tilt]').forEach(function (el) {
-      el.style.transformStyle = 'preserve-3d';
-      el.addEventListener('mousemove', function (e) {
-        var r = el.getBoundingClientRect();
-        var px = (e.clientX - r.left) / r.width - 0.5;
-        var py = (e.clientY - r.top) / r.height - 0.5;
-        el.style.transform = 'perspective(900px) rotateY(' + (px * 7) + 'deg) rotateX(' + (-py * 7) + 'deg)';
-      });
-      el.addEventListener('mouseleave', function () {
-        el.style.transform = 'perspective(900px) rotateY(0) rotateX(0)';
-      });
-    });
-  }
-
-  /* ---- 패럴랙스 (스크롤 연동) ---- */
-  function initParallax() {
-    if (reduceMotion) return;
-    var els = document.querySelectorAll('[data-parallax]');
-    if (!els.length) return;
-    var ticking = false;
-    function update() {
-      var vh = window.innerHeight;
-      els.forEach(function (el) {
-        var speed = parseFloat(el.dataset.parallax) || 0.15;
-        var r = el.getBoundingClientRect();
-        var center = r.top + r.height / 2 - vh / 2;
-        el.style.transform = 'translate3d(0,' + (-center * speed) + 'px,0)';
-      });
-      ticking = false;
-    }
-    window.addEventListener('scroll', function () {
-      if (!ticking) { requestAnimationFrame(update); ticking = true; }
-    }, { passive: true });
-    update();
-  }
-
-  /* ---- 스크롤 진행바 ---- */
-  function initScrollProgress() {
+  /* ---- 스크롤 진행바 + 맨위로 버튼 ---- */
+  function initScrollUx() {
     var bar = document.querySelector('.scroll-progress');
-    if (!bar) return;
+    var topBtn = document.getElementById('btn-top');
     var onScroll = function () {
-      var h = document.documentElement.scrollHeight - window.innerHeight;
-      var p = h > 0 ? (window.scrollY / h) * 100 : 0;
-      bar.style.width = p + '%';
+      if (bar) {
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+      }
+      if (topBtn) topBtn.classList.toggle('show', window.scrollY > 600);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+    if (topBtn) {
+      topBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+      });
+    }
   }
 
-  /* ---- 스크램블 텍스트 (모노 라벨 디코드 효과) ---- */
+  /* ---- 스크램블 텍스트 ---- */
   function initScramble() {
     var els = document.querySelectorAll('[data-scramble]');
     if (!els.length) return;
@@ -313,6 +178,7 @@
   /* ---- 부드러운 앵커 스크롤 ---- */
   function initAnchors() {
     document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      if (a.id === 'btn-top') return;
       a.addEventListener('click', function (e) {
         var id = a.getAttribute('href');
         if (id && id.length > 1) {
@@ -329,19 +195,12 @@
 
   function init() {
     initHeader();
-    initRevealLines();
-    initSplitText();
     initReveal();
     initCountUp();
     initFunnel();
-    initCursor();
-    initMagnetic();
-    initSpotlight();
-    initTilt();
-    initParallax();
-    initScrollProgress();
+    initBaSlider();
+    initScrollUx();
     initScramble();
-    initBeforeAfter();
     initAnchors();
   }
 
