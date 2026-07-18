@@ -9,14 +9,22 @@
 ## 디자인 시스템 — PORCELAIN & SAPPHIRE (v2.1 — 신청서 Q25 컬러 반영)
 - **테마**: 쿨 포슬린 화이트(#F7F9FC) 라이트 베이스 + 로고 블루/사파이어(#1656C8) 프라이머리 + 스카이 블루(#3E8EF0) 디테일 + 딥 네이비(#0E1B2E) 인버트 섹션
 - **컬러 근거**: 제작 신청서 Q25 "치과 로고색인 파란색" — 김민 원장님 명시 요청
-- **타이포**: Cormorant Garamond(디스플레이 세리프) + Noto Serif KR(이탤릭 강조 `.grad`/`em`) + Noto Sans KR(본문) + JetBrains Mono(메타 라벨)
-- **포토 퍼스트**: AI 생성 프리미엄 클리닉 이미지 8종(webp 최적화, 총 ~560KB) — 히어로/진료/의료진/시설/라이프 전 영역 실사진 적용
-- **인터랙션**: fade-up reveal, 카운트업, 퍼널 타임라인 점등, 비포애프터 슬라이더, 스크롤 진행바, 히어로 슬로우 줌
+- **타이포**: Pretendard 단일 서체 (세리프/모노 혼용 폐기 — AI 티 제거, `text-wrap: balance/pretty`)
+- **레이아웃 원칙(AI 패턴 배제)**: 번호 카드 그리드·아이콘 알약 카드·카운트업 stat 금지 → 에디토리얼 목록(principle-flow, story-flow), 팩트 스트립, 디렉토리형 진료 색인(tx-index)
+- **포토 퍼스트**: 다큐멘터리풍 클리닉 이미지 8종(webp 최적화) — 히어로/진료/의료진/시설/라이프 전 영역
+- **인터랙션(최신 기술)**: 커서 팔로우 이미지 프리뷰(lerp), 크로스 도큐먼트 View Transitions, CSS scroll() 타임라인 진행바, 히어로 패럴랙스, 마그네틱 CTA, 사진 클립패스 와이프 리빌 — 전부 reduced-motion·터치 가드
 - **접근성**: `prefers-reduced-motion` 대응, 시맨틱 마크업, IntersectionObserver reveal
 
 ## 라이브 URL
+- **✅ 프로덕션**: https://magok-best-dental.pages.dev (Cloudflare Pages, BYOK)
 - **Sandbox 개발 서버**: https://3000-i50w91je75opr4ah1l78s-5634da27.sandbox.novita.ai
-- **배포 예정**: Cloudflare Pages (`magok-best-dental`)
+
+## 배포 정보
+- **플랫폼**: Cloudflare Pages (사용자 계정 BYOK) — 프로젝트명 `magok-best-dental`, 프로덕션 브랜치 `main`
+- **D1**: `magok-best-dental-production` (id: fbcb5d25-f1a5-4d98-8f21-060299aa12a3), 마이그레이션 0001 적용 완료, 예약 API 실동작 검증 완료
+- **ADMIN_KEY**: Pages Secret으로 설정 완료 (기본키 `magok2026`는 프로덕션에서 차단 확인) — 실제 키는 별도 전달
+- **재배포**: `npm run build && npx wrangler pages deploy dist --project-name magok-best-dental --branch main`
+- **SEO 후속(수동)**: 네이버 서치어드바이저·구글 서치콘솔에 `https://magok-best-dental.pages.dev/sitemap.xml` 제출, 네이버 스마트플레이스·구글 비즈니스 프로필 등록
 
 ## 완성된 기능
 | 구분 | 경로 | 설명 |
