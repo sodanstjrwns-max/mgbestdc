@@ -1,5 +1,5 @@
 import { html, raw } from 'hono/html'
-import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS } from '../data/clinic'
+import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, AREAS } from '../data/clinic'
 import { BLOG_CATEGORIES } from '../data/blog'
 
 type SeoMeta = {
@@ -30,6 +30,12 @@ export function Head(meta: SeoMeta) {
       <meta name="author" content="${CLINIC.name}" />
       <meta name="theme-color" content="#F7F9FC" />
 
+      <!-- 지역 SEO: geo 메타 (마곡·강서구) -->
+      <meta name="geo.region" content="KR-11" />
+      <meta name="geo.placename" content="서울특별시 강서구 마곡동" />
+      <meta name="geo.position" content="${CLINIC.geo.lat};${CLINIC.geo.lng}" />
+      <meta name="ICBM" content="${CLINIC.geo.lat}, ${CLINIC.geo.lng}" />
+
       <!-- Open Graph -->
       <meta property="og:type" content="${meta.ogType || 'website'}" />
       <meta property="og:site_name" content="${CLINIC.name}" />
@@ -37,13 +43,16 @@ export function Head(meta: SeoMeta) {
       <meta property="og:description" content="${meta.description}" />
       <meta property="og:url" content="${canonical}" />
       <meta property="og:locale" content="ko_KR" />
-      <meta property="og:image" content="${SITE_URL}/static/img/og.svg" />
+      <meta property="og:image" content="${SITE_URL}/static/img/og.png" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content="${CLINIC.name} — ${CLINIC.directions}" />
 
       <!-- Twitter -->
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="${meta.title}" />
       <meta name="twitter:description" content="${meta.description}" />
-      <meta name="twitter:image" content="${SITE_URL}/static/img/og.svg" />
+      <meta name="twitter:image" content="${SITE_URL}/static/img/og.png" />
 
       <!-- Favicon -->
       <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg" />
@@ -90,7 +99,7 @@ export function organizationSchema() {
     url: SITE_URL,
     telephone: CLINIC.phone,
     email: CLINIC.email,
-    image: SITE_URL + '/static/img/og.svg',
+    image: SITE_URL + '/static/img/og.png',
     priceRange: '₩₩',
     address: {
       '@type': 'PostalAddress',
@@ -101,6 +110,7 @@ export function organizationSchema() {
       addressCountry: 'KR'
     },
     geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
+    hasMap: `https://map.naver.com/p/search/${encodeURIComponent(CLINIC.name)}`,
     openingHoursSpecification: CLINIC.hoursSchema.map((h) => ({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: h.days,
@@ -108,12 +118,25 @@ export function organizationSchema() {
       closes: h.closes
     })),
     medicalSpecialty: 'Dentistry',
+    // 지역 SEO 핵심: 진료권 명시 (마곡 중심 강서구 일대)
+    areaServed: AREAS.map((a) => ({ '@type': 'AdministrativeArea', name: a.full })),
+    knowsAbout: [...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => t.name).concat(['마곡 치과', '마곡나루역 치과', '강서구 치과']),
+    founder: {
+      '@type': 'Person',
+      name: CLINIC.director,
+      jobTitle: CLINIC.directorTitle,
+      description: CLINIC.directorCredential
+    },
     availableService: [...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => ({
       '@type': 'MedicalProcedure',
-      name: t.name
-    }))
+      name: t.name,
+      url: SITE_URL + '/treatments/' + t.slug
+    })),
+    sameAs: []
   }
 }
+
+
 
 export function breadcrumbSchema(items: { name: string; path: string }[]) {
   return {

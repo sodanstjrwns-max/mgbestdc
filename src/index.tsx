@@ -1,13 +1,13 @@
 import { Hono } from 'hono'
 import { html } from 'hono/html'
 import { Layout, organizationSchema, breadcrumbSchema, SITE_URL } from './components/layout'
-import { CLINIC, TREATMENTS, getTreatment, DOCTORS, AREAS, AREA_TREATMENTS, CORE_TREATMENTS, GENERAL_TREATMENTS } from './data/clinic'
+import { CLINIC, TREATMENTS, getTreatment, DOCTORS, AREAS, AREA_TREATMENTS, CORE_TREATMENTS, GENERAL_TREATMENTS, GENERAL_FAQS } from './data/clinic'
 import { HomePage } from './pages/home'
 import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema } from './pages/treatments'
 import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors'
 import {
   MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
-  ReservationPage, CasesPage, AreaPage, areaSchema
+  ReservationPage, CasesPage, AreaPage, areaSchema, areaFaqSchema
 } from './pages/info'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
@@ -26,8 +26,8 @@ app.get('/', (c) =>
   c.html(
     Layout(
       {
-        title: `${CLINIC.name} | ${CLINIC.directions} 임플란트·교정·심미치료`,
-        description: `${CLINIC.directions}, ${CLINIC.directorCredential}가 책임지는 1인 책임 진료. 임플란트·충치치료·심미치료·투명교정. ${CLINIC.mission}`,
+        title: `${CLINIC.name} | 마곡 치과, ${CLINIC.directions} — 임플란트·교정·심미치료`,
+        description: `마곡·마곡나루 치과를 찾으신다면 — ${CLINIC.directions}, ${CLINIC.directorCredential}가 상담부터 치료까지 책임지는 1인 책임 진료. 임플란트·충치치료·심미치료·투명교정. 월·목 야간 20:30, 토요일 진료.`,
         path: '/',
         jsonLd: [
           organizationSchema(),
@@ -307,15 +307,17 @@ app.get('/area/:combo', (c) => {
   const area = AREAS.find((a) => a.slug === areaSlug)!
   const t = getTreatment(treatmentSlug)!
   const schema = areaSchema(areaSlug, treatmentSlug, SITE_URL)
+  const faqSchema = areaFaqSchema(areaSlug, treatmentSlug, SITE_URL)
   return c.html(
     Layout(
       {
-        title: `${area.name} ${t.name} | ${CLINIC.name}`,
-        description: `${area.full} 인근 ${t.name}. ${CLINIC.directions}, ${CLINIC.name}에서 정밀 진단 후 안내드립니다.`,
+        title: `${area.name} ${t.name} 치과 | 마곡나루역 도보 3분 ${CLINIC.name}`,
+        description: `${area.full}에서 가까운 ${t.name} 치과를 찾으신다면 — ${CLINIC.directions}, ${CLINIC.directorCredential} 대표원장이 직접 진료하는 ${CLINIC.name}. 야간·토요일 진료.`,
         path: `/area/${combo}`,
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: t.name, path: `/treatments/${t.slug}` }, { name: area.name, path: `/area/${combo}` }]),
-          ...(schema ? [schema] : [])
+          ...(schema ? [schema] : []),
+          ...(faqSchema ? [faqSchema] : [])
         ]
       },
       body
@@ -496,7 +498,7 @@ app.post('/api/admin/reservation/:id/status', async (c) => {
 // SEO 기술 파일
 // ============================================================
 app.get('/sitemap.xml', (c) => {
-  const urls: { loc: string; pri: string }[] = [
+  const urls: { loc: string; pri: string; mod?: string }[] = [
     { loc: '/', pri: '1.0' },
     { loc: '/mission', pri: '0.8' },
     { loc: '/doctors', pri: '0.8' },
@@ -512,13 +514,13 @@ app.get('/sitemap.xml', (c) => {
   DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7' }))
   TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7' }))
   BLOG_CATEGORIES.forEach((c) => urls.push({ loc: `/blog/category/${c.slug}`, pri: '0.6' }))
-  BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7' }))
+  BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: p.updated || p.date }))
   AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({ loc: `/area/${a.slug}-${ts}`, pri: '0.6' })))
 
   const today = new Date().toISOString().split('T')[0]
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE_URL}${u.loc}</loc><lastmod>${today}</lastmod><priority>${u.pri}</priority></url>`).join('\n')}
+${urls.map((u) => `  <url><loc>${SITE_URL}${u.loc}</loc><lastmod>${(u as any).mod || today}</lastmod><priority>${u.pri}</priority></url>`).join('\n')}
 </urlset>`
   return c.body(xml, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
 })
@@ -564,6 +566,22 @@ ${CLINIC.equipment.map((e) => `- ${e.name}: ${e.desc}`).join('\n')}
 
 ## 건강칼럼 (꾸준히 업데이트)
 ${BLOG_POSTS.map((p) => `- [${p.title}](${SITE_URL}/blog/${p.slug}): ${p.excerpt}`).join('\n')}
+
+## 진료권 (지역 안내)
+마곡베스트치과의원은 서울 강서구 마곡동에 위치하며, 다음 지역에서 내원하기 편리합니다:
+${AREAS.map((a) => `- ${a.full} → [${a.name} 임플란트](${SITE_URL}/area/${a.slug}-implant) · [${a.name} 교정](${SITE_URL}/area/${a.slug}-ortho) · [${a.name} 충치치료](${SITE_URL}/area/${a.slug}-cavity)`).join('\n')}
+
+## 자주 묻는 질문 (요약 답변)
+${GENERAL_FAQS.map((f) => `Q. ${f.q}\nA. ${f.a}`).join('\n\n')}
+
+## 핵심 팩트 (AI 인용용)
+- 병원명: ${CLINIC.name} (${CLINIC.nameEn})
+- 위치: ${CLINIC.addressFull} — 마곡나루역(9호선·공항철도) 1번 출구 도보 3분
+- 대표원장: ${DOCTORS[0].name} (${CLINIC.directorCredential})
+- 진료 원칙: 1인 책임 진료 (상담한 원장이 치료·사후관리까지 직접), 무리한 치료를 권하지 않음
+- 야간 진료: 월·목 20:30까지 / 토요일 진료: 09:30~14:30 / 일·공휴일 휴진
+- 예약: 전화 ${CLINIC.phone} 또는 ${SITE_URL}/reservation
+- 주차: 건물 내 주차 가능
 
 ## 주요 페이지
 - [병원소개](${SITE_URL}/mission)

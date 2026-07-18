@@ -134,11 +134,19 @@ export function personSchema(slug: string, siteUrl: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Physician',
+    '@id': `${siteUrl}/doctors/${d.slug}/#physician`,
     name: d.name,
     jobTitle: d.title,
+    description: d.credential,
+    image: `${siteUrl}/static/img/doctor-care.webp`,
     url: `${siteUrl}/doctors/${d.slug}`,
     medicalSpecialty: 'Dentistry',
-    worksFor: { '@type': 'Dentist', name: CLINIC.name, url: siteUrl },
+    worksFor: { '@id': `${siteUrl}/#organization` },
+    workLocation: {
+      '@type': 'Place',
+      name: CLINIC.name,
+      address: { '@type': 'PostalAddress', streetAddress: CLINIC.addressShort, addressLocality: '강서구', addressRegion: '서울특별시', addressCountry: 'KR' }
+    },
     knowsAbout: d.specialties.map((s) => getTreatment(s)?.name).filter(Boolean),
     hasCredential: d.career.map((c) => ({ '@type': 'EducationalOccupationalCredential', name: c }))
   }
