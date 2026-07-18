@@ -19,6 +19,15 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
+// 보안 헤더 (동적 HTML 응답 — 정적 자산은 public/_headers)
+app.use('*', async (c, next) => {
+  await next()
+  c.header('X-Content-Type-Options', 'nosniff')
+  c.header('X-Frame-Options', 'SAMEORIGIN')
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
+  c.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+})
+
 // ============================================================
 // 메인
 // ============================================================
