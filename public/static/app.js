@@ -50,76 +50,8 @@
     items.forEach(function (i) { io.observe(i); });
   }
 
-  /* ---- 카운트업 ---- */
-  function initCountUp() {
-    var nums = document.querySelectorAll('[data-count]');
-    if (!nums.length) return;
-    function run(el) {
-      var raw = el.dataset.count;
-      var target = parseFloat(raw);
-      var dec = raw.indexOf('.') > -1 ? 1 : 0;
-      var dur = 1600, start = performance.now();
-      function step(now) {
-        var p = Math.min((now - start) / dur, 1);
-        var eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = (target * eased).toFixed(dec);
-        if (p < 1) requestAnimationFrame(step);
-        else el.textContent = target.toFixed(dec);
-      }
-      requestAnimationFrame(step);
-    }
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      nums.forEach(function (n) { n.textContent = n.dataset.count; });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { run(e.target); io.unobserve(e.target); } });
-    }, { threshold: 0.6 });
-    nums.forEach(function (n) { io.observe(n); });
-  }
 
-  /* ---- 퍼널 스텝 점등 ---- */
-  function initFunnel() {
-    var steps = document.querySelectorAll('.f-step');
-    if (!steps.length) return;
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      steps.forEach(function (s) { s.classList.add('lit'); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) {
-          setTimeout(function () { e.target.classList.add('lit'); },
-            Array.prototype.indexOf.call(steps, e.target) * 120);
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    steps.forEach(function (s) { io.observe(s); });
-  }
 
-  /* ---- 비포·애프터 슬라이더 (.ba-slider) ---- */
-  function initBaSlider() {
-    document.querySelectorAll('.ba-slider').forEach(function (slider) {
-      var handle = slider.querySelector('.handle');
-      var afterWrap = slider.querySelector('.after-wrap');
-      if (!handle || !afterWrap) return;
-      var dragging = false;
-      function move(clientX) {
-        var r = slider.getBoundingClientRect();
-        var pct = Math.max(2, Math.min(98, ((clientX - r.left) / r.width) * 100));
-        afterWrap.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
-        handle.style.left = pct + '%';
-      }
-      move; // init default at 50 via CSS/inline
-      handle.addEventListener('mousedown', function (e) { dragging = true; e.preventDefault(); });
-      window.addEventListener('mouseup', function () { dragging = false; });
-      window.addEventListener('mousemove', function (e) { if (dragging) move(e.clientX); });
-      slider.addEventListener('touchstart', function (e) { move(e.touches[0].clientX); }, { passive: true });
-      slider.addEventListener('touchmove', function (e) { move(e.touches[0].clientX); }, { passive: true });
-      slider.addEventListener('click', function (e) { move(e.clientX); });
-    });
-  }
 
   /* ---- 스크롤 진행바 + 맨위로 버튼 ---- */
   function initScrollUx() {
@@ -144,38 +76,6 @@
     }
   }
 
-  /* ---- 스크램블 텍스트 ---- */
-  function initScramble() {
-    var els = document.querySelectorAll('[data-scramble]');
-    if (!els.length) return;
-    var chars = '!<>-_\\/[]{}=+*^?#________';
-    function run(el) {
-      var target = el.dataset.scramble;
-      var len = target.length;
-      var frame = 0;
-      var dur = 36;
-      function tick() {
-        var out = '';
-        for (var i = 0; i < len; i++) {
-          if (i < (frame / dur) * len) out += target[i];
-          else out += chars[Math.floor(Math.random() * chars.length)];
-        }
-        el.textContent = out;
-        frame++;
-        if (frame <= dur) requestAnimationFrame(tick);
-        else el.textContent = target;
-      }
-      tick();
-    }
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      els.forEach(function (e) { e.textContent = e.dataset.scramble; });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { run(e.target); io.unobserve(e.target); } });
-    }, { threshold: 0.6 });
-    els.forEach(function (e) { io.observe(e); });
-  }
 
   /* ---- 진료 색인: 커서 팔로우 이미지 프리뷰 (lerp) ---- */
   function initTxPreview() {
@@ -288,11 +188,7 @@
   function init() {
     initHeader();
     initReveal();
-    initCountUp();
-    initFunnel();
-    initBaSlider();
     initScrollUx();
-    initScramble();
     initAnchors();
     initTxPreview();
     initParallax();

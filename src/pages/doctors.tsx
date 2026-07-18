@@ -59,7 +59,7 @@ export function DoctorDetailPage(slug: string) {
       <div class="container">
         <div class="doctor-feature">
           <div class="doctor-photo reveal reveal-wipe">
-            <img src="/static/img/doctor-care.webp" alt="${d.name} ${d.title} 진료 모습" />
+            <img src="/static/img/doctor-care.webp" alt="${d.name} ${d.title} 진료 모습" width="1045" height="1400" loading="lazy" decoding="async" />
             <div class="ph-label"><span class="pn">${d.name} ${d.title}</span><br /><span class="pc">${d.credential}</span></div>
           </div>
           <div class="reveal reveal-d1">

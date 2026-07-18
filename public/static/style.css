@@ -856,7 +856,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .form-input {
   width: 100%; padding: 14px 18px; border-radius: 13px;
   border: 1.5px solid var(--line-2); background: #fff; color: var(--ink);
-  font-family: var(--sans); font-size: 0.95rem; transition: all 0.25s; outline: none;
+  font-family: var(--sans); font-size: 1rem; transition: all 0.25s; outline: none; /* 16px 이상 — iOS 자동확대 방지 */
 }
 .form-input:focus { border-color: var(--pine); box-shadow: 0 0 0 4px rgba(22,86,200,0.1); }
 .form-input::placeholder { color: var(--ink-4); }
@@ -1008,4 +1008,19 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .life-band { min-height: 420px; }
   .core-row { grid-template-columns: 1fr; gap: 10px; }
   .cred-list[style] { grid-template-columns: 1fr !important; }
+
+  /* 모바일 터치·가독성 보강 */
+  .btn { min-height: 48px; }                                /* 터치 타깃 48px 확보 */
+  .tx-row { min-height: 56px; align-content: center; }
+  .hero h1 { font-size: clamp(2.1rem, 9.5vw, 2.8rem); }     /* 작은 폰 줄밀림 방지 */
+  .hero-info { backdrop-filter: none; background: rgba(14,27,46,0.55); } /* 모바일 GPU 부하 절감 */
+  .fact strong { font-size: 0.95rem; }
+  .si-head h3 { font-size: 1.15rem; }
+  .journey-row { padding: 16px 0; }
+  .pf-photo img { min-height: 240px; }
+  .aurora { display: none; }                                 /* 모바일 blur 렌더 비용 제거 */
+  .float-cta, .tx-preview { display: none; }
 }
+
+/* 가로 스크롤 방지 (전역) */
+html, body { overflow-x: clip; }

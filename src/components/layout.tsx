@@ -58,23 +58,21 @@ export function Head(meta: SeoMeta) {
       <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg" />
       <link rel="apple-touch-icon" href="/static/img/favicon.svg" />
 
-      <!-- Fonts -->
+      <!-- Fonts (Pretendard 단일 서체 — Noto Serif 제거로 요청 1개 절감) -->
       <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
       />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap"
-      />
-      <link
-        rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css"
+        media="print"
+        onload="this.media='all'"
       />
+      <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
       <link rel="stylesheet" href="/static/style.css" />
+      ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-clinic.webp" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->
       ${raw(
@@ -371,7 +369,7 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
         <main>${body}</main>
         ${Footer()}
         ${FloatingCta()}
-        <script src="/static/app.js"></script>
+        <script src="/static/app.js" defer></script>
       </body>
     </html>`
 }
