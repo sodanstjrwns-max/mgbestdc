@@ -1,5 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, DOCTORS, TREATMENTS, getTreatment, GOOD_HANDS, DIRECTOR_STORY, PATIENT_VOICES } from '../data/clinic'
+import { srcset, SIZES } from '../components/img'
 
 export function DoctorsListPage() {
   return html`
@@ -18,7 +19,7 @@ export function DoctorsListPage() {
           DOCTORS.map(
             (d) => `
           <div class="doc-card reveal">
-            <div class="dc-photo"><img src="/static/img/doctor-care.webp" alt="${d.name} ${d.title} 진료 모습" loading="lazy" /></div>
+            <div class="dc-photo"><img src="/static/img/doctor-care.webp" srcset="${srcset('/static/img/doctor-care.webp', 1045)}" sizes="${SIZES.card}" alt="${d.name} ${d.title} 진료 모습" loading="lazy" decoding="async" /></div>
             <div>
               <h3>${d.name} <span style="font-size:1rem;color:var(--ink-3)">${d.title}</span></h3>
               <div class="dc-title">${d.credential}</div>
@@ -59,7 +60,7 @@ export function DoctorDetailPage(slug: string) {
       <div class="container">
         <div class="doctor-feature">
           <div class="doctor-photo reveal reveal-wipe">
-            <img src="/static/img/doctor-care.webp" alt="${d.name} ${d.title} 진료 모습" width="1045" height="1400" loading="lazy" decoding="async" />
+            <img src="/static/img/doctor-care.webp" srcset="${srcset('/static/img/doctor-care.webp', 1045)}" sizes="${SIZES.half}" alt="${d.name} ${d.title} 진료 모습" width="1045" height="1400" loading="lazy" decoding="async" />
             <div class="ph-label"><span class="pn">${d.name} ${d.title}</span><br /><span class="pc">${d.credential}</span></div>
           </div>
           <div class="reveal reveal-d1">

@@ -72,7 +72,7 @@ export function Head(meta: SeoMeta) {
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
       <link rel="stylesheet" href="/static/style.css" />
-      ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-clinic.webp" fetchpriority="high" />') : ''}
+      ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-clinic.webp" imagesrcset="/static/img/hero-clinic-720.webp 720w, /static/img/hero-clinic.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->
       ${raw(
@@ -229,12 +229,12 @@ function Header() {
         <div class="header-cta">
           <a href="tel:${CLINIC.phoneRaw}" class="btn-call"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
           <a href="/reservation" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> 예약문의</a>
-          <button class="menu-toggle" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+          <button class="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
         </div>
       </div>
     </header>
 
-    <div class="mobile-nav">
+    <div class="mobile-nav" id="mobile-nav">
       <a href="/mission" class="top-link">병원소개</a>
       <a href="/doctors" class="top-link">의료진</a>
       <details>

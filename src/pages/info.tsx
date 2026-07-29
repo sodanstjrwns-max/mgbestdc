@@ -1,5 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, GENERAL_FAQS, AREAS, AREA_TREATMENTS, getTreatment, DOCTORS } from '../data/clinic'
+import { srcset, SIZES } from '../components/img'
 
 // ============================================================
 // 병원소개 / 미션
@@ -88,7 +89,7 @@ export function DirectionsPage() {
           <div class="reveal reveal-d1">
             <a href="https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.addressFull)}" target="_blank" rel="noopener"
                style="display:block;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--sh-md);position:relative;text-decoration:none">
-              <img src="/static/img/hero-clinic.webp" alt="${CLINIC.name} 진료 공간" loading="lazy" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block" />
+              <img src="/static/img/hero-clinic.webp" srcset="${srcset('/static/img/hero-clinic.webp', 1920)}" sizes="${SIZES.half}" alt="${CLINIC.name} 진료 공간" loading="lazy" decoding="async" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block" />
               <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(23,32,28,0.82));display:flex;align-items:flex-end;padding:26px">
                 <div>
                   <div style="font-weight:800;color:#fff;font-size:1.2rem">${CLINIC.name}</div>
@@ -191,7 +192,7 @@ export function FacilityPage() {
                   (s) => `
               <figure style="margin:0">
                 <div style="aspect-ratio:4/3;border-radius:var(--radius);overflow:hidden;box-shadow:var(--sh-md)">
-                  <img src="${s.src}" alt="${CLINIC.name} ${s.label}" loading="lazy" style="width:100%;height:100%;object-fit:cover" />
+                  <img src="${s.src}" srcset="${srcset(s.src)}" sizes="${SIZES.third}" alt="${CLINIC.name} ${s.label}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover" />
                 </div>
                 <figcaption style="margin-top:12px"><strong style="color:var(--text)">${s.label}</strong><span style="color:var(--ink-3);font-size:0.88rem;display:block;margin-top:2px">${s.desc}</span></figcaption>
               </figure>`
@@ -281,11 +282,11 @@ export function ReservationPage() {
             <div style="display:grid;gap:18px">
               <div>
                 <label style="font-weight:700;display:block;margin-bottom:8px">이름 *</label>
-                <input name="name" required placeholder="성함을 입력해 주세요" class="form-input" />
+                <input name="name" required placeholder="성함을 입력해 주세요" class="form-input" autocomplete="name" enterkeyhint="next" />
               </div>
               <div>
                 <label style="font-weight:700;display:block;margin-bottom:8px">연락처 *</label>
-                <input name="phone" required type="tel" placeholder="010-0000-0000" class="form-input" />
+                <input name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" class="form-input" enterkeyhint="next" />
               </div>
               <div>
                 <label style="font-weight:700;display:block;margin-bottom:8px">희망 진료</label>
@@ -300,7 +301,7 @@ export function ReservationPage() {
                 <textarea name="message" rows="4" placeholder="궁금하신 점이나 희망 방문 시간을 적어주세요" class="form-input" style="resize:vertical"></textarea>
               </div>
               <label style="display:flex;gap:10px;align-items:flex-start;font-size:0.88rem;color:var(--text-3)">
-                <input type="checkbox" required style="margin-top:4px" />
+                <input type="checkbox" required style="margin-top:4px;width:20px;height:20px;flex-shrink:0;accent-color:var(--brand)" />
                 <span>개인정보 수집 및 이용에 동의합니다. 수집된 정보는 예약 상담 목적으로만 사용되며, 목적 달성 후 파기됩니다.</span>
               </label>
               <button type="submit" class="btn btn-primary btn-lg" style="width:100%"><i class="fa-solid fa-paper-plane"></i> 예약 문의 보내기</button>

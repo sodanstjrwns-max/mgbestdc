@@ -1,5 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, type Treatment, DOCTORS, AREAS } from '../data/clinic'
+import { srcset, SIZES } from '../components/img'
 
 // ============================================================
 // 진료 전체 목록
@@ -39,7 +40,7 @@ export function TreatmentsListPage() {
             CORE_TREATMENTS.map(
               (t, i) => `
             <a href="/treatments/${t.slug}" class="core-photo-card reveal reveal-d${i + 1}">
-              <span class="cpc-img"><img src="${LIST_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
+              <span class="cpc-img"><img src="${LIST_IMG[t.slug] || '/static/img/facility-room.webp'}" srcset="${srcset(LIST_IMG[t.slug] || '/static/img/facility-room.webp')}" sizes="${SIZES.third}" alt="${t.name}" loading="lazy" decoding="async" /></span>
               <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
               <span class="cpc-body">
                 
@@ -111,7 +112,7 @@ export function TreatmentDetailPage(t: Treatment) {
 
     <section class="pad">
       <div class="container">
-        ${heroImg ? html`<div class="t-hero-img reveal"><img src="${heroImg.src}" alt="${heroImg.alt}" loading="lazy" /></div>` : ''}
+        ${heroImg ? html`<div class="t-hero-img reveal"><img src="${heroImg.src}" srcset="${srcset(heroImg.src)}" sizes="${SIZES.card}" alt="${heroImg.alt}" loading="lazy" decoding="async" /></div>` : ''}
         <div class="t-detail-grid">
           <article>
             ${raw(

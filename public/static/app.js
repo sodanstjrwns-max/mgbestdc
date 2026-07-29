@@ -23,6 +23,7 @@
       toggle.addEventListener('click', function () {
         var open = nav.classList.toggle('open');
         toggle.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         document.body.style.overflow = open ? 'hidden' : '';
       });
       nav.querySelectorAll('a').forEach(function (a) {

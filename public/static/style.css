@@ -895,6 +895,7 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
 .sticky-bar a {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   padding: 13px 8px; border-radius: 13px; font-size: 0.86rem; font-weight: 750;
+  min-height: 48px;
 }
 .sb-call { background: var(--bg-1); color: var(--ink); }
 .sb-kakao { background: #FEE500; color: #191919; }
@@ -1020,7 +1021,13 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .pf-photo img { min-height: 240px; }
   .aurora { display: none; }                                 /* 모바일 blur 렌더 비용 제거 */
   .float-cta, .tx-preview { display: none; }
+  .sticky-bar { backdrop-filter: none; background: rgba(255,255,255,0.97); } /* 스크롤 중 blur 재계산 제거 */
+  .glass-card { backdrop-filter: none; }
 }
 
 /* 가로 스크롤 방지 (전역) */
 html, body { overflow-x: clip; }
+
+/* 터치 반응 정리: 더블탭 확대 방지 + iOS 회색 하이라이트 제거 */
+a, button, .btn, input, select, textarea, summary { touch-action: manipulation; }
+a, button, summary { -webkit-tap-highlight-color: transparent; }

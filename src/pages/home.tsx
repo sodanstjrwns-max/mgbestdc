@@ -1,5 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS, CARE_CREED, CARE_PRINCIPLES } from '../data/clinic'
+import { srcset, SIZES } from '../components/img'
 
 const FUNNEL = [
   { n: '01', t: '인지', d: '마곡나루역 인근에서 치과를 찾는 순간, 정확한 정보로 첫 신뢰를 만듭니다.' },
@@ -31,7 +32,7 @@ export function HomePage() {
     <!-- ============ HERO — 풀블리드 포토 ============ -->
     <section class="hero" id="hero">
       <div class="hero-bg" aria-hidden="true">
-        <img src="/static/img/hero-clinic.webp" alt="" fetchpriority="high" />
+        <img src="/static/img/hero-clinic.webp" srcset="${srcset('/static/img/hero-clinic.webp', 1920)}" sizes="100vw" alt="" fetchpriority="high" />
       </div>
       <div class="container">
         <div class="hero-meta">
@@ -89,7 +90,7 @@ export function HomePage() {
 
         <div class="principle-flow">
           <div class="pf-photo reveal reveal-wipe">
-            <img src="/static/img/consult.webp" alt="치료 계획을 설명하는 상담 모습" loading="lazy" />
+            <img src="/static/img/consult.webp" srcset="${srcset('/static/img/consult.webp')}" sizes="${SIZES.half}" alt="치료 계획을 설명하는 상담 모습" loading="lazy" decoding="async" />
           </div>
           <div class="pf-list reveal reveal-d1">
             ${raw(
@@ -122,7 +123,7 @@ export function HomePage() {
             CORE_TREATMENTS.map(
               (t, i) => `
             <a href="/treatments/${t.slug}" class="core-photo-card reveal reveal-d${i + 1}" id="core-${t.slug}">
-              <span class="cpc-img"><img src="${CORE_IMG[t.slug] || '/static/img/facility-room.webp'}" alt="${t.name}" loading="lazy" /></span>
+              <span class="cpc-img"><img src="${CORE_IMG[t.slug] || '/static/img/facility-room.webp'}" srcset="${srcset(CORE_IMG[t.slug] || '/static/img/facility-room.webp')}" sizes="${SIZES.third}" alt="${t.name}" loading="lazy" decoding="async" /></span>
               <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
               <span class="cpc-body">
                 <span class="cpc-title" style="display:block">${t.name}</span>
@@ -183,7 +184,7 @@ export function HomePage() {
             <a href="/doctors/${d.slug}" class="btn btn-ghost">대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
           </div>
           <div class="doctor-photo reveal reveal-wipe">
-            <img src="/static/img/doctor-care.webp" alt="${d.name} 대표원장 진료 모습" loading="lazy" />
+            <img src="/static/img/doctor-care.webp" srcset="${srcset('/static/img/doctor-care.webp', 1045)}" sizes="${SIZES.half}" alt="${d.name} 대표원장 진료 모습" loading="lazy" decoding="async" />
             <div class="ph-label">
               <div class="pn">${d.name} 대표원장</div>
               <div class="pc">${d.credential}</div>
@@ -226,7 +227,7 @@ export function HomePage() {
     <section class="pad-sm" aria-label="치료 그 이후의 삶">
       <div class="container">
         <div class="life-band reveal">
-          <span class="lb-img"><img src="/static/img/life-smile.webp" alt="" loading="lazy" /></span>
+          <span class="lb-img"><img src="/static/img/life-smile.webp" srcset="${srcset('/static/img/life-smile.webp', 1600)}" sizes="100vw" alt="" loading="lazy" decoding="async" /></span>
           <div class="lb-body">
             <span class="eyebrow" style="color:#BCD5FA">치료, 그 이후</span>
             <h2>치료의 완성은,<br /><em>다시 웃는 일상</em>입니다</h2>
