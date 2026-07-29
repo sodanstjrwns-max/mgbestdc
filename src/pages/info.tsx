@@ -80,7 +80,7 @@ export function DirectionsPage() {
               <tr><th>주차</th><td>건물 내 주차 가능 (자세한 사항은 전화 문의)</td></tr>
             </table>
 
-            <h3 style="margin:32px 0 16px;font-size:1.2rem">진료 시간</h3>
+            <h2 style="margin:32px 0 16px;font-size:1.2rem">진료 시간</h2>
             <table class="info-table">
               ${raw(CLINIC.hours.map((h) => `<tr><th>${h.day}</th><td>${h.time}${h.note ? ` <span style="color:var(--brand);font-weight:600">(${h.note})</span>` : ''}</td></tr>`).join(''))}
             </table>
@@ -128,11 +128,11 @@ export function PricingPage() {
 
         <div class="grid-2">
           <div class="card reveal">
-            <h3 style="margin-bottom:14px"><i class="fa-solid fa-shield-heart" style="color:var(--brand)"></i> 급여 진료</h3>
+            <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-shield-heart" style="color:var(--brand)"></i> 급여 진료</h2>
             <p style="color:var(--ink-3)">국민건강보험이 적용되는 진료(충치치료 일부, 신경치료, 스케일링, 발치 등)는 건강보험 기준에 따라 비용이 산정됩니다. 본원은 국민건강보험공단 구강검진 지정 치과입니다.</p>
           </div>
           <div class="card reveal reveal-d1">
-            <h3 style="margin-bottom:14px"><i class="fa-solid fa-tooth" style="color:var(--brand)"></i> 비급여 진료</h3>
+            <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-tooth" style="color:var(--brand)"></i> 비급여 진료</h2>
             <p style="color:var(--ink-3)">임플란트, 교정, 라미네이트, 미백 등 비급여 진료는 환자분의 상태에 따라 비용이 달라집니다. 진단 후 치료 계획과 함께 정확한 비용을 투명하게 안내드립니다.</p>
           </div>
         </div>
@@ -384,7 +384,7 @@ export function CasesPage(isLoggedIn = false) {
                 }
               </div>
               <div class="ba-body">
-                <h4>${c.title}</h4>
+                <h2 class="h4">${c.title}</h2>
                 <div class="ba-meta"><span>${c.cat}</span><span>${c.age}</span><span>${c.gender}</span><span><i class="fa-solid fa-location-dot"></i> ${c.area}</span></div>
               </div>
             </div>`
@@ -466,17 +466,17 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
           </article>
           <aside class="t-sidebar">
             <div class="side-card brand">
-              <h4>${area.name} 인근 예약 문의</h4>
+              <h3 class="h4">${area.name} 인근 예약 문의</h3>
               <p>${area.full}에서 ${t.name}가 필요하시다면 부담 없이 문의해 주세요.</p>
               <a href="/reservation" class="btn btn-white" style="width:100%">예약 문의</a>
               <a href="tel:${CLINIC.phoneRaw}" class="btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.12);color:#fff"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
             </div>
             <div class="side-card">
-              <h4>${t.name} 자세히 보기</h4>
+              <h3 class="h4">${t.name} 자세히 보기</h3>
               <div class="side-links"><a href="/treatments/${t.slug}">${t.name} 진료 안내 <i class="fa-solid fa-arrow-right"></i></a></div>
             </div>
             <div class="side-card">
-              <h4>인근 지역</h4>
+              <h3 class="h4">인근 지역</h3>
               <div class="side-links">${raw(AREAS.filter((a) => a.slug !== areaSlug).slice(0, 4).map((a) => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}</div>
             </div>
           </aside>

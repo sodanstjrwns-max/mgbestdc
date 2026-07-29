@@ -175,7 +175,7 @@ export function BlogDetailPage(post: BlogPost) {
 
             <aside class="t-sidebar">
               <div class="side-card brand">
-                <h4>상담 예약</h4>
+                <h3 class="h4">상담 예약</h3>
                 <p>칼럼 내용에 대해 더 궁금한 점이 있으신가요? 정확한 진단을 통해 안내드립니다.</p>
                 <a href="/reservation" class="btn btn-white" style="width:100%"><i class="fa-solid fa-calendar-check"></i> 예약 문의</a>
                 <a href="tel:${CLINIC.phoneRaw}" class="btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.12);color:#fff"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
@@ -185,7 +185,7 @@ export function BlogDetailPage(post: BlogPost) {
                 related.length
                   ? raw(`
               <div class="side-card">
-                <h4>관련 진료</h4>
+                <h3 class="h4">관련 진료</h3>
                 <div class="side-links">
                   ${related.map((r: any) => `<a href="/treatments/${r.slug}"><i class="fa-solid ${r.icon}"></i> ${r.name} <i class="fa-solid fa-arrow-right" style="margin-left:auto"></i></a>`).join('')}
                 </div>
@@ -194,7 +194,7 @@ export function BlogDetailPage(post: BlogPost) {
               }
 
               <div class="side-card">
-                <h4>다른 칼럼</h4>
+                <h3 class="h4">다른 칼럼</h3>
                 <div class="side-links">
                   ${raw(others.map((o) => `<a href="/blog/${o.slug}">${o.title} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}
                 </div>

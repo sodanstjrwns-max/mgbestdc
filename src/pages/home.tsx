@@ -203,9 +203,9 @@ export function HomePage() {
             <h2 class="section-title" style="margin-top:20px">정확한 진단을<br /><span class="thin">돕는 장비</span></h2>
             <p class="section-lead" style="margin-top:20px">진료의 시작은 정확한 데이터입니다. 구강 스캔부터 정밀 클리닝까지, 환자에게 맞는 판단을 돕는 장비를 갖췄습니다.</p>
             <div class="feature-list">
-              <div class="feature-item"><i class="fi-ico fa-solid fa-cube"></i><div><h4>디지털 구강 스캔</h4><p>본을 뜨지 않고 입안을 디지털로 스캔해 정밀하게 기록합니다.</p></div></div>
-              <div class="feature-item"><i class="fi-ico fa-solid fa-gauge-high"></i><div><h4>정밀 토크 제어</h4><p>임플란트 전용 엔진으로 식립의 정확도를 높입니다.</p></div></div>
-              <div class="feature-item"><i class="fi-ico fa-solid fa-spray-can-sparkles"></i><div><h4>전문 클리닝</h4><p>미세 분말로 치아 표면과 잇몸 라인을 부드럽게 관리합니다.</p></div></div>
+              <div class="feature-item"><i class="fi-ico fa-solid fa-cube"></i><div><h3 class="h4">디지털 구강 스캔</h3><p>본을 뜨지 않고 입안을 디지털로 스캔해 정밀하게 기록합니다.</p></div></div>
+              <div class="feature-item"><i class="fi-ico fa-solid fa-gauge-high"></i><div><h3 class="h4">정밀 토크 제어</h3><p>임플란트 전용 엔진으로 식립의 정확도를 높입니다.</p></div></div>
+              <div class="feature-item"><i class="fi-ico fa-solid fa-spray-can-sparkles"></i><div><h3 class="h4">전문 클리닝</h3><p>미세 분말로 치아 표면과 잇몸 라인을 부드럽게 관리합니다.</p></div></div>
             </div>
           </div>
           <div class="reveal reveal-d2">

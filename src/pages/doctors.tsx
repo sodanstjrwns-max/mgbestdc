@@ -21,7 +21,7 @@ export function DoctorsListPage() {
           <div class="doc-card reveal">
             <div class="dc-photo"><img src="/static/img/doctor-care.webp" srcset="${srcset('/static/img/doctor-care.webp', 1045)}" sizes="${SIZES.card}" alt="${d.name} ${d.title} 진료 모습" loading="lazy" decoding="async" /></div>
             <div>
-              <h3>${d.name} <span style="font-size:1rem;color:var(--ink-3)">${d.title}</span></h3>
+              <h2>${d.name} <span style="font-size:1rem;color:var(--ink-3)">${d.title}</span></h2>
               <div class="dc-title">${d.credential}</div>
               <p style="color:var(--ink-2);margin-bottom:18px">${d.intro}</p>
               <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">

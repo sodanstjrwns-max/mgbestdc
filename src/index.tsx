@@ -189,7 +189,7 @@ app.get('/pricing', (c) =>
     Layout(
       {
         title: `비용 안내 | ${CLINIC.name}`,
-        description: `비급여 진료비 고지 안내. 정확한 진료비는 정밀 진단 후 투명하게 안내드립니다.`,
+        description: `마곡베스트치과의원 비급여 진료비 고지 안내. 임플란트·교정·심미치료 등 정확한 진료비는 정밀 진단 후 과장 없이 투명하게 안내드립니다.`,
         path: '/pricing',
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용 안내', path: '/pricing' }])]
       },
@@ -245,7 +245,7 @@ app.get('/cases', (c) =>
     Layout(
       {
         title: `비포·애프터 진료사례 | ${CLINIC.name}`,
-        description: `마곡베스트치과의원의 실제 진료 사례. 치료 후 사진은 회원 로그인 후 열람 가능합니다.`,
+        description: `마곡베스트치과의원의 실제 진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 회원 로그인 후 열람 가능합니다.`,
         path: '/cases',
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }])]
       },
@@ -283,7 +283,7 @@ app.get('/blog/category/:cat', (c) => {
     Layout(
       {
         title: `${cat.name} 칼럼 | ${CLINIC.name}`,
-        description: `${cat.name} 관련 건강 칼럼 모음. ${CLINIC.name}이 전하는 ${cat.name} 정보입니다.`,
+        description: `${cat.name} 관련 건강 칼럼 모음 — 마곡나루역 도보 3분 ${CLINIC.name} 대표원장이 직접 쓰는 ${cat.name} 정보와 관리 가이드입니다.`,
         path: `/blog/category/${catSlug}`,
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: cat.name, path: `/blog/category/${catSlug}` }])]
       },
@@ -678,7 +678,7 @@ ${blogDocs}
 // 약관/개인정보 (간단 페이지)
 const legalPage = (title: string, path: string, body: string) =>
   Layout(
-    { title: `${title} | ${CLINIC.name}`, description: `${CLINIC.name} ${title}`, path },
+    { title: `${title} | ${CLINIC.name}`, description: `${CLINIC.name}의 ${title} 안내 페이지입니다. 환자의 개인정보 보호와 웹사이트 이용에 관한 내용을 확인하실 수 있습니다.`, path },
     html`<section class="page-hero"><div class="container"><nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>${title}</span></nav><h1>${title}</h1></div></section>
     <section class="pad"><div class="container" style="max-width:840px"><div class="card" style="padding:36px;line-height:1.9;color:var(--ink-2)">${html([body] as any)}</div></div></section>`
   )

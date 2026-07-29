@@ -135,7 +135,7 @@ export function TreatmentDetailPage(t: Treatment) {
                 <div class="proc-grid">
                   ${t.procedures
                     .map(
-                      (p) => `<div class="proc-card"><h4>${p.name}</h4><p>${p.desc}</p></div>`
+                      (p) => `<div class="proc-card"><h3 class="h4">${p.name}</h3><p>${p.desc}</p></div>`
                     )
                     .join('')}
                 </div>
@@ -166,14 +166,14 @@ export function TreatmentDetailPage(t: Treatment) {
 
           <aside class="t-sidebar">
             <div class="side-card brand">
-              <h4>예약 및 상담</h4>
+              <h3 class="h4">예약 및 상담</h3>
               <p>${t.name}에 대해 더 궁금하신 점이 있으신가요? 정확한 진단을 통해 안내드립니다.</p>
               <a href="/reservation" class="btn btn-white" style="width:100%"><i class="fa-solid fa-calendar-check"></i> 예약 문의</a>
               <a href="tel:${CLINIC.phoneRaw}" class="btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.12);color:#fff"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
             </div>
 
             <div class="side-card">
-              <h4>담당 의료진</h4>
+              <h3 class="h4">담당 의료진</h3>
               <a href="/doctors/${doctor.slug}" style="display:block;padding:6px 0">
                 <strong style="display:block;color:var(--text);font-size:0.98rem">${doctor.name} ${doctor.title}</strong>
                 <span style="display:block;color:var(--ink-3);font-size:0.82rem;margin-top:2px">${doctor.credential}</span>
@@ -181,14 +181,14 @@ export function TreatmentDetailPage(t: Treatment) {
             </div>
 
             <div class="side-card">
-              <h4>다른 진료 보기</h4>
+              <h3 class="h4">다른 진료 보기</h3>
               <div class="side-links">
                 ${raw(related.map((r) => `<a href="/treatments/${r.slug}">${r.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}
               </div>
             </div>
 
             <div class="side-card">
-              <h4>지역별 안내</h4>
+              <h3 class="h4">지역별 안내</h3>
               <div class="side-links">
                 ${raw(AREAS.slice(0, 4).map((a) => `<a href="/area/${a.slug}-${t.slug === 'cavity' || t.slug === 'cosmetic' ? 'implant' : t.slug}">${a.name} ${t.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}
               </div>

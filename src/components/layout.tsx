@@ -314,12 +314,12 @@ function Footer() {
             <p>${CLINIC.mission}<br />${CLINIC.directions}에 위치한 ${CLINIC.region} 강서구의 환자 중심 치과입니다.</p>
           </div>
           <div class="footer-col">
-            <h5>진료안내</h5>
+            <div class="footer-h">진료안내</div>
             ${raw(CORE_TREATMENTS.map((t) => `<a href="/treatments/${t.slug}">${t.name}</a>`).join(''))}
             <a href="/treatments">전체 진료보기</a>
           </div>
           <div class="footer-col">
-            <h5>바로가기</h5>
+            <div class="footer-h">바로가기</div>
             <a href="/mission">병원소개</a>
             <a href="/doctors">의료진</a>
             <a href="/blog">건강칼럼</a>
@@ -328,7 +328,7 @@ function Footer() {
             <a href="/reservation">예약 문의</a>
           </div>
           <div class="footer-col">
-            <h5>오시는 길</h5>
+            <div class="footer-h">오시는 길</div>
             <ul class="footer-contact">
               <li><i class="fa-solid fa-location-dot"></i><span>${CLINIC.addressFull}</span></li>
               <li><i class="fa-solid fa-train-subway"></i><span>${CLINIC.directions}</span></li>

@@ -521,7 +521,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   background: var(--bronze-soft); color: var(--bronze-2);
   display: grid; place-items: center; font-size: 1.02rem;
 }
-.feature-item h4 { font-size: 1.02rem; margin-bottom: 4px; }
+.feature-item h3 { font-size: 1.02rem; margin-bottom: 4px; }
 .feature-item p { font-size: 0.88rem; color: var(--ink-3); }
 
 .equip-table { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--sh-sm); }
@@ -695,15 +695,15 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 
 .proc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .proc-card { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius); padding: 22px; box-shadow: var(--sh-sm); }
-.proc-card h4 { font-size: 1rem; margin-bottom: 7px; color: var(--pine-2); }
+.proc-card h3 { font-size: 1rem; margin-bottom: 7px; color: var(--pine-2); }
 .proc-card p { font-size: 0.85rem !important; color: var(--ink-3) !important; }
 
 .t-sidebar { position: sticky; top: calc(var(--header-h) + 20px); display: grid; gap: 16px; }
 .side-card { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--sh-sm); }
 .side-card.brand { background: var(--dark); border-color: transparent; }
-.side-card.brand h4 { color: #fff; }
+.side-card.brand h3 { color: #fff; }
 .side-card.brand p { color: rgba(255,255,255,0.75); font-size: 0.88rem; margin: 10px 0 18px; }
-.side-card h4 { font-size: 1.04rem; margin-bottom: 8px; }
+.side-card h3 { font-size: 1.04rem; margin-bottom: 8px; }
 .side-links { display: grid; gap: 2px; margin-top: 10px; }
 .side-links a {
   display: flex; justify-content: space-between; align-items: center;
@@ -728,7 +728,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   font-size: 3rem; color: var(--ink-4);
 }
 .dc-photo img { width: 100%; height: 100%; object-fit: cover; }
-.doc-card h3 { font-size: 1.6rem; margin-bottom: 6px; }
+.doc-card h2 { font-size: 1.6rem; margin-bottom: 6px; }
 .dc-title { color: var(--bronze-2); font-weight: 650; font-size: 0.9rem; margin-bottom: 16px; }
 
 .story-quote { font-size: clamp(1.6rem, 3.4vw, 2.4rem); margin: 18px 0 20px; line-height: 1.35; }
@@ -767,7 +767,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .lock-ui { text-align: center; color: var(--ink-3); font-size: 0.76rem; line-height: 1.5; }
 .lock-ui i { font-size: 1.3rem; display: block; margin-bottom: 8px; color: var(--bronze-2); }
 .ba-body { padding: 20px 22px; }
-.ba-body h4 { font-size: 1.02rem; margin-bottom: 8px; }
+.ba-body h2 { font-size: 1.02rem; margin-bottom: 8px; }
 .ba-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.76rem; color: var(--ink-3); }
 .ba-meta span { padding: 4px 10px; background: var(--bg-1); border-radius: 999px; }
 
@@ -923,7 +923,7 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
 .footer-brand .logo small { color: #9CC0F6; }
 .footer-brand .logo-mark { background: rgba(255,255,255,0.1); color: #BCD5FA; box-shadow: none; }
 .footer-brand p { font-size: 0.88rem; line-height: 1.8; }
-.footer-col h5 { color: #fff; font-size: 0.94rem; margin-bottom: 16px; font-weight: 750; }
+.footer-col .footer-h { color: #fff; font-size: 0.94rem; margin-bottom: 16px; font-weight: 750; }
 .footer-col a { display: block; padding: 6px 0; font-size: 0.87rem; color: rgba(255,255,255,0.6); transition: color 0.2s; }
 .footer-col a:hover { color: #BCD5FA; }
 .footer-contact { display: grid; gap: 10px; }
