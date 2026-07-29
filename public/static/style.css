@@ -912,6 +912,13 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
 }
 .site-footer .container { position: relative; z-index: 1; }
 .footer-top { display: grid; grid-template-columns: 1.4fr 0.8fr 0.8fr 1.1fr; gap: 40px; padding: clamp(48px, 6vw, 72px) 0 40px; }
+
+/* 진료권 인링크 (지역 SEO — 사이트 전역에서 32개 지역 페이지로 연결) */
+.footer-areas { border-top: 1px solid rgba(255,255,255,0.1); padding: 22px 0; display: flex; gap: 24px; align-items: baseline; }
+.footer-areas .fa-label { flex-shrink: 0; font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; }
+.footer-areas .fa-links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.footer-areas .fa-links a { font-size: 0.78rem; color: rgba(255,255,255,0.38); transition: color 0.2s; }
+.footer-areas .fa-links a:hover { color: rgba(255,255,255,0.75); }
 .footer-brand .logo { color: #fff; margin-bottom: 18px; }
 .footer-brand .logo small { color: #9CC0F6; }
 .footer-brand .logo-mark { background: rgba(255,255,255,0.1); color: #BCD5FA; box-shadow: none; }
@@ -1003,6 +1010,7 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .blog-grid { grid-template-columns: 1fr; }
   .proc-grid { grid-template-columns: 1fr; }
   .footer-top { grid-template-columns: 1fr; gap: 28px; }
+  .footer-areas { flex-direction: column; gap: 10px; }
   .float-cta { display: none; }
   .sticky-bar { display: grid; }
   body { padding-bottom: 74px; }

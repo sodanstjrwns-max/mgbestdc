@@ -9,6 +9,7 @@ type SeoMeta = {
   ogType?: string
   jsonLd?: object[]
   noindex?: boolean
+  article?: { published: string; modified?: string; tags?: string[] }
 }
 
 const SITE_URL = 'https://magok-best-dental.pages.dev'
@@ -47,6 +48,15 @@ export function Head(meta: SeoMeta) {
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content="${CLINIC.name} — ${CLINIC.directions}" />
+
+      ${meta.article
+        ? raw(
+            `<meta property="article:published_time" content="${meta.article.published}" />
+      <meta property="article:modified_time" content="${meta.article.modified || meta.article.published}" />
+      <meta property="article:author" content="${SITE_URL}/doctors" />` +
+              (meta.article.tags || []).map((t) => `\n      <meta property="article:tag" content="${t}" />`).join('')
+          )
+        : ''}
 
       <!-- Twitter -->
       <meta name="twitter:card" content="summary_large_image" />
@@ -93,12 +103,32 @@ export function organizationSchema() {
     '@type': 'Dentist',
     '@id': SITE_URL + '/#organization',
     name: CLINIC.name,
-    alternateName: CLINIC.nameEn,
+    alternateName: [CLINIC.nameEn, '마곡베스트치과', '마곡 베스트치과'],
     url: SITE_URL,
     telephone: CLINIC.phone,
     email: CLINIC.email,
     image: SITE_URL + '/static/img/og.png',
+    logo: SITE_URL + '/static/img/favicon.svg',
+    slogan: CLINIC.mission,
+    foundingDate: String(CLINIC.openedYear),
+    inLanguage: 'ko',
     priceRange: '₩₩',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: CLINIC.phone,
+      contactType: '예약 및 진료 상담',
+      availableLanguage: 'Korean',
+      areaServed: 'KR'
+    },
+    potentialAction: {
+      '@type': 'ReserveAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: SITE_URL + '/reservation',
+        actionPlatform: ['http://schema.org/DesktopWebPlatform', 'http://schema.org/MobileWebPlatform']
+      },
+      result: { '@type': 'Reservation', name: '진료 예약 문의' }
+    },
     address: {
       '@type': 'PostalAddress',
       streetAddress: CLINIC.addressShort,
@@ -306,6 +336,13 @@ function Footer() {
             </ul>
           </div>
         </div>
+
+        <nav class="footer-areas" aria-label="진료권 안내">
+          <span class="fa-label">진료권 안내</span>
+          <div class="fa-links">
+            ${raw(AREAS.map((a) => `<a href="/area/${a.slug}-implant">${a.name} 임플란트</a><a href="/area/${a.slug}-ortho">${a.name} 교정</a>`).join(''))}
+          </div>
+        </nav>
 
         <div class="footer-bottom">
           <div class="footer-biz">

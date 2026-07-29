@@ -214,18 +214,24 @@ export function blogPostingSchema(post: BlogPost, siteUrl: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'MedicalWebPage',
+    '@id': `${siteUrl}/blog/${post.slug}/#article`,
     headline: post.title,
     description: post.excerpt,
     url: `${siteUrl}/blog/${post.slug}`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteUrl}/blog/${post.slug}` },
+    image: `${siteUrl}/static/img/og.png`,
     datePublished: post.date,
     dateModified: post.updated || post.date,
     inLanguage: 'ko',
     keywords: post.tags.join(', '),
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.post-lead'] },
     author: {
       '@type': 'Physician',
+      '@id': `${siteUrl}/doctors/${DOCTORS[0].slug}/#physician`,
       name: `${DOCTORS[0].name} ${DOCTORS[0].title}`,
       jobTitle: CLINIC.directorCredential,
-      worksFor: { '@type': 'Dentist', name: CLINIC.name }
+      url: `${siteUrl}/doctors/${DOCTORS[0].slug}`,
+      worksFor: { '@type': 'Dentist', name: CLINIC.name, '@id': `${siteUrl}/#organization` }
     },
     publisher: {
       '@type': 'Dentist',

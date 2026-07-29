@@ -43,9 +43,24 @@ app.get('/', (c) =>
           {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
+            '@id': SITE_URL + '/#website',
             name: CLINIC.name,
+            alternateName: '마곡베스트치과',
             url: SITE_URL,
+            inLanguage: 'ko',
+            publisher: { '@id': SITE_URL + '/#organization' },
             potentialAction: { '@type': 'SearchAction', target: `${SITE_URL}/treatments?q={query}`, 'query-input': 'required name=query' }
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            '@id': SITE_URL + '/#webpage',
+            url: SITE_URL,
+            name: `${CLINIC.name} — 마곡 치과`,
+            isPartOf: { '@id': SITE_URL + '/#website' },
+            about: { '@id': SITE_URL + '/#organization' },
+            inLanguage: 'ko',
+            speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.hero-sub'] }
           }
         ]
       },
@@ -290,6 +305,7 @@ app.get('/blog/:slug', (c) => {
         description: post.excerpt,
         path: `/blog/${slug}`,
         ogType: 'article',
+        article: { published: post.date, modified: post.updated, tags: post.tags },
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: post.title, path: `/blog/${slug}` }]),
           blogPostingSchema(post, SITE_URL),
@@ -507,29 +523,29 @@ app.post('/api/admin/reservation/:id/status', async (c) => {
 // SEO 기술 파일
 // ============================================================
 app.get('/sitemap.xml', (c) => {
-  const urls: { loc: string; pri: string; mod?: string }[] = [
-    { loc: '/', pri: '1.0' },
-    { loc: '/mission', pri: '0.8' },
-    { loc: '/doctors', pri: '0.8' },
-    { loc: '/treatments', pri: '0.9' },
-    { loc: '/cases', pri: '0.7' },
-    { loc: '/blog', pri: '0.8' },
-    { loc: '/faq', pri: '0.7' },
-    { loc: '/directions', pri: '0.7' },
-    { loc: '/pricing', pri: '0.6' },
-    { loc: '/facility', pri: '0.6' },
-    { loc: '/reservation', pri: '0.6' }
+  const urls: { loc: string; pri: string; mod?: string; freq?: string }[] = [
+    { loc: '/', pri: '1.0', freq: 'weekly' },
+    { loc: '/mission', pri: '0.8', freq: 'monthly' },
+    { loc: '/doctors', pri: '0.8', freq: 'monthly' },
+    { loc: '/treatments', pri: '0.9', freq: 'monthly' },
+    { loc: '/cases', pri: '0.7', freq: 'weekly' },
+    { loc: '/blog', pri: '0.8', freq: 'weekly' },
+    { loc: '/faq', pri: '0.7', freq: 'monthly' },
+    { loc: '/directions', pri: '0.7', freq: 'yearly' },
+    { loc: '/pricing', pri: '0.6', freq: 'monthly' },
+    { loc: '/facility', pri: '0.6', freq: 'yearly' },
+    { loc: '/reservation', pri: '0.6', freq: 'yearly' }
   ]
-  DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7' }))
-  TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7' }))
-  BLOG_CATEGORIES.forEach((c) => urls.push({ loc: `/blog/category/${c.slug}`, pri: '0.6' }))
-  BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: p.updated || p.date }))
-  AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({ loc: `/area/${a.slug}-${ts}`, pri: '0.6' })))
+  DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly' }))
+  TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7', freq: 'monthly' }))
+  BLOG_CATEGORIES.forEach((c) => urls.push({ loc: `/blog/category/${c.slug}`, pri: '0.6', freq: 'weekly' }))
+  BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: p.updated || p.date, freq: 'monthly' }))
+  AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({ loc: `/area/${a.slug}-${ts}`, pri: '0.6', freq: 'monthly' })))
 
   const today = new Date().toISOString().split('T')[0]
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE_URL}${u.loc}</loc><lastmod>${(u as any).mod || today}</lastmod><priority>${u.pri}</priority></url>`).join('\n')}
+${urls.map((u) => `  <url><loc>${SITE_URL}${u.loc}</loc><lastmod>${u.mod || today}</lastmod><changefreq>${u.freq || 'monthly'}</changefreq><priority>${u.pri}</priority></url>`).join('\n')}
 </urlset>`
   return c.body(xml, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
 })
@@ -548,7 +564,10 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: ${SITE_URL}/sitemap.xml`
+Sitemap: ${SITE_URL}/sitemap.xml
+
+# AI용 콘텐츠 문서
+# ${SITE_URL}/llms.txt (요약) / ${SITE_URL}/llms-full.txt (전문)`
   return c.body(txt, 200, { 'Content-Type': 'text/plain; charset=utf-8' })
 })
 
@@ -592,6 +611,9 @@ ${GENERAL_FAQS.map((f) => `Q. ${f.q}\nA. ${f.a}`).join('\n\n')}
 - 예약: 전화 ${CLINIC.phone} 또는 ${SITE_URL}/reservation
 - 주차: 건물 내 주차 가능
 
+## 전문 문서
+진료 상세·건강칼럼 전체 원문: [llms-full.txt](${SITE_URL}/llms-full.txt)
+
 ## 주요 페이지
 - [병원소개](${SITE_URL}/mission)
 - [의료진](${SITE_URL}/doctors)
@@ -599,6 +621,56 @@ ${GENERAL_FAQS.map((f) => `Q. ${f.q}\nA. ${f.a}`).join('\n\n')}
 - [건강칼럼](${SITE_URL}/blog)
 - [자주 묻는 질문](${SITE_URL}/faq)
 - [예약 문의](${SITE_URL}/reservation)
+`
+  return c.body(txt, 200, { 'Content-Type': 'text/plain; charset=utf-8' })
+})
+
+// ============================================================
+// llms-full.txt — AI 크롤러용 전체 콘텐츠 원문 (AEO 심화)
+// 진료 상세 + 건강칼럼 전문을 마크다운으로 통째 제공
+// ============================================================
+app.get('/llms-full.txt', (c) => {
+  const treatmentDocs = TREATMENTS.map((t) => {
+    const secs = (t.sections || []).map((s) => `### ${s.h}\n${s.p}`).join('\n\n')
+    const procs = (t.procedures || []).length ? `\n\n**진행 과정**\n${(t.procedures || []).map((p, i) => `${i + 1}. ${p.name}: ${p.desc}`).join('\n')}` : ''
+    const faqs = (t.faqs || []).length ? `\n\n**자주 묻는 질문**\n${(t.faqs || []).map((f) => `Q. ${f.q}\nA. ${f.a}`).join('\n\n')}` : ''
+    return `## ${t.name} (${SITE_URL}/treatments/${t.slug})\n${t.tagline} — ${t.summary}\n\n${secs}${procs}${faqs}`
+  }).join('\n\n---\n\n')
+
+  const blogDocs = BLOG_POSTS.map((p) => {
+    const secs = p.sections.map((s) => `### ${s.h}\n${s.p}`).join('\n\n')
+    const faqs = (p.faqs || []).length ? `\n\n**Q&A**\n${(p.faqs || []).map((f) => `Q. ${f.q}\nA. ${f.a}`).join('\n\n')}` : ''
+    return `## ${p.title} (${SITE_URL}/blog/${p.slug})\n발행 ${p.date}${p.updated ? ` · 수정 ${p.updated}` : ''} · ${p.category}\n\n${p.lead}\n\n${secs}\n\n**핵심 요약**: ${p.takeaway}${faqs}`
+  }).join('\n\n---\n\n')
+
+  const txt = `# ${CLINIC.name} — 전체 콘텐츠 (llms-full.txt)
+
+> 이 문서는 AI 어시스턴트가 ${CLINIC.name}에 관한 질문에 정확히 답할 수 있도록 사이트 전체 콘텐츠 원문을 제공합니다.
+> 요약본은 ${SITE_URL}/llms.txt 를 참고하세요.
+
+## 병원 핵심 정보
+- 병원명: ${CLINIC.name} (${CLINIC.nameEn})
+- 대표원장: ${DOCTORS[0].name} (${CLINIC.directorCredential})
+- 주소: ${CLINIC.addressFull}
+- 전화: ${CLINIC.phone} · 예약: ${SITE_URL}/reservation
+- 교통: ${CLINIC.directions}
+- 진료시간: 월·목 10:00-20:30(야간), 화·금 10:00-19:00, 수 13:00-19:00, 토 09:30-14:30, 일·공휴일 휴진
+- 진료 원칙: 1인 책임 진료(상담한 원장이 치료·사후관리까지 직접), 무리한 치료를 권하지 않음
+- 진료권: ${AREAS.map((a) => a.full).join(', ')}
+
+# 진료 안내 (전문)
+
+${treatmentDocs}
+
+---
+
+# 건강칼럼 (전문)
+
+${blogDocs}
+
+---
+
+※ 본 문서의 의료 정보는 일반적인 안내이며, 진단·치료 효과는 환자 개인 상태에 따라 다를 수 있습니다. 정확한 진단은 내원 상담이 필요합니다.
 `
   return c.body(txt, 200, { 'Content-Type': 'text/plain; charset=utf-8' })
 })

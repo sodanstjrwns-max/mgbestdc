@@ -257,6 +257,7 @@ export function faqPageSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.faq-item summary'] },
     mainEntity: all.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }))
   }
 }
