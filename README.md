@@ -16,7 +16,7 @@
 - **접근성**: `prefers-reduced-motion` 대응, 시맨틱 마크업, IntersectionObserver reveal
 
 ## 라이브 URL
-- **✅ 프로덕션**: https://magok-best-dental.pages.dev (Cloudflare Pages, BYOK)
+- **✅ 프로덕션**: https://mgbestdc.kr (Cloudflare Pages, BYOK)
 - **Sandbox 개발 서버**: https://3000-i50w91je75opr4ah1l78s-5634da27.sandbox.novita.ai
 
 ## 배포 정보
@@ -24,7 +24,7 @@
 - **D1**: `magok-best-dental-production` (id: fbcb5d25-f1a5-4d98-8f21-060299aa12a3), 마이그레이션 0001 적용 완료, 예약 API 실동작 검증 완료
 - **ADMIN_KEY**: Pages Secret으로 설정 완료 (기본키 `magok2026`는 프로덕션에서 차단 확인) — 실제 키는 별도 전달
 - **재배포**: `npm run build && npx wrangler pages deploy dist --project-name magok-best-dental --branch main`
-- **SEO 후속(수동)**: 네이버 서치어드바이저·구글 서치콘솔에 `https://magok-best-dental.pages.dev/sitemap.xml` 제출, 네이버 스마트플레이스·구글 비즈니스 프로필 등록
+- **SEO 후속(수동)**: 네이버 서치어드바이저·구글 서치콘솔에 `https://mgbestdc.kr/sitemap.xml` 제출, 네이버 스마트플레이스·구글 비즈니스 프로필 등록
 
 ## 완성된 기능
 | 구분 | 경로 | 설명 |

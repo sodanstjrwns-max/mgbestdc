@@ -21,6 +21,14 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 // 보안 헤더 (동적 HTML 응답 — 정적 자산은 public/_headers)
 app.use('*', async (c, next) => {
+  // 도메인 정규화: pages.dev·www → mgbestdc.kr 301 (SEO 신호 단일화)
+  // 미리보기 배포(*.magok-best-dental.pages.dev 해시 서브도메인)와 로컬은 제외
+  const url = new URL(c.req.url)
+  if (url.hostname === 'magok-best-dental.pages.dev' || url.hostname === 'www.mgbestdc.kr') {
+    url.hostname = 'mgbestdc.kr'
+    url.protocol = 'https:'
+    return c.redirect(url.toString(), 301)
+  }
   await next()
   c.header('X-Content-Type-Options', 'nosniff')
   c.header('X-Frame-Options', 'SAMEORIGIN')

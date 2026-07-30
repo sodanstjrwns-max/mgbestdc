@@ -12,7 +12,7 @@ type SeoMeta = {
   article?: { published: string; modified?: string; tags?: string[] }
 }
 
-const SITE_URL = 'https://magok-best-dental.pages.dev'
+const SITE_URL = 'https://mgbestdc.kr'
 
 // ============================================================
 // <head> — 페이지별 SEO 메타 + OG + 스키마
