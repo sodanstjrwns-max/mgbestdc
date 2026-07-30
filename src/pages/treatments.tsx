@@ -1,5 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, type Treatment, DOCTORS, AREAS } from '../data/clinic'
+import { BLOG_POSTS } from '../data/blog'
 import { srcset, SIZES } from '../components/img'
 
 // ============================================================
@@ -7,10 +8,10 @@ import { srcset, SIZES } from '../components/img'
 // ============================================================
 const TX_PREVIEW: Record<string, string> = {
   ortho: '/static/img/tx-ortho.webp',
-  tmj: '/static/img/doctor-care.webp',
-  gum: '/static/img/consult.webp',
-  prosthesis: '/static/img/tx-cosmetic.webp',
-  extraction: '/static/img/facility-room.webp',
+  tmj: '/static/img/tx-tmj.webp',
+  gum: '/static/img/tx-gum.webp',
+  prosthesis: '/static/img/tx-prosthesis.webp',
+  extraction: '/static/img/tx-extraction.webp',
   preventive: '/static/img/life-smile.webp'
 }
 
@@ -90,6 +91,10 @@ const TX_IMG: Record<string, { src: string; alt: string }> = {
   cavity: { src: '/static/img/consult.webp', alt: '충치치료 상담 모습' },
   cosmetic: { src: '/static/img/tx-cosmetic.webp', alt: '심미치료 결과 미소' },
   ortho: { src: '/static/img/tx-ortho.webp', alt: '교정 치료 모습' },
+  tmj: { src: '/static/img/tx-tmj.webp', alt: '턱관절 불편을 살피는 모습' },
+  gum: { src: '/static/img/tx-gum.webp', alt: '잇몸 상태를 점검하는 진료 모습' },
+  prosthesis: { src: '/static/img/tx-prosthesis.webp', alt: '디지털 보철 제작 과정' },
+  extraction: { src: '/static/img/tx-extraction.webp', alt: '파노라마 영상으로 사랑니 위치를 설명하는 모습' },
   preventive: { src: '/static/img/facility-room.webp', alt: '예방 진료 공간' }
 }
 
@@ -97,6 +102,7 @@ export function TreatmentDetailPage(t: Treatment) {
   const related = TREATMENTS.filter((x) => x.slug !== t.slug).slice(0, 5)
   const doctor = DOCTORS[0]
   const heroImg = TX_IMG[t.slug]
+  const relatedPosts = BLOG_POSTS.filter((p) => p.related.includes(t.slug)).slice(0, 3)
   return html`
     <section class="page-hero">
       <div class="container">
@@ -115,6 +121,22 @@ export function TreatmentDetailPage(t: Treatment) {
         ${heroImg ? html`<div class="t-hero-img reveal"><img src="${heroImg.src}" srcset="${srcset(heroImg.src)}" sizes="${SIZES.card}" alt="${heroImg.alt}" loading="lazy" decoding="async" /></div>` : ''}
         <div class="t-detail-grid">
           <article>
+            ${
+              t.checklist
+                ? raw(`
+              <section class="t-check reveal" aria-label="증상 자가 체크">
+                <div class="t-check-head">
+                  <span class="t-check-label">SELF CHECK</span>
+                  <h2>이런 증상이 있다면, 검진을 권합니다</h2>
+                </div>
+                <ul class="t-check-list">
+                  ${t.checklist.map((c) => `<li><i class="fa-regular fa-square-check" aria-hidden="true"></i>${c}</li>`).join('')}
+                </ul>
+                <p class="t-check-note">해당 항목이 있다고 해서 반드시 치료가 필요한 것은 아닙니다. 정확한 상태는 검진을 통해 확인하고 개별적으로 안내드립니다.</p>
+              </section>`)
+                : ''
+            }
+
             ${raw(
               (t.sections || [])
                 .map(
@@ -126,6 +148,47 @@ export function TreatmentDetailPage(t: Treatment) {
                 )
                 .join('')
             )}
+
+            ${
+              t.steps
+                ? raw(`
+              <div class="t-section reveal">
+                <h2>${t.name} 진행 과정</h2>
+                <ol class="t-steps">
+                  ${t.steps
+                    .map(
+                      (s, i) => `
+                  <li class="t-step">
+                    <span class="t-step-no" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+                    <div class="t-step-body"><strong>${s.name}</strong><p>${s.desc}</p></div>
+                  </li>`
+                    )
+                    .join('')}
+                </ol>
+                <p class="t-check-note">치료 기간과 내원 횟수는 구강 상태에 따라 개인차가 있으며, 진단 후 개별적으로 안내드립니다.</p>
+              </div>`)
+                : ''
+            }
+
+            ${
+              t.equipmentUse
+                ? raw(`
+              <div class="t-section reveal">
+                <h2>${t.name}에 활용하는 장비</h2>
+                <div class="t-equip">
+                  ${t.equipmentUse
+                    .map(
+                      (e) => `
+                  <div class="t-equip-item">
+                    <strong>${e.name}</strong>
+                    <p>${e.why}</p>
+                  </div>`
+                    )
+                    .join('')}
+                </div>
+              </div>`)
+                : ''
+            }
 
             ${
               t.procedures
@@ -144,6 +207,17 @@ export function TreatmentDetailPage(t: Treatment) {
             }
 
             ${
+              t.directorNote
+                ? raw(`
+              <aside class="t-note reveal">
+                <span class="t-note-label">김민 대표원장의 한마디</span>
+                <blockquote>“${t.directorNote}”</blockquote>
+                <a href="/doctors/${doctor.slug}" class="t-note-link">의료진 소개 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+              </aside>`)
+                : ''
+            }
+
+            ${
               t.faqs
                 ? raw(`
               <div class="t-section reveal">
@@ -156,6 +230,26 @@ export function TreatmentDetailPage(t: Treatment) {
                       <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>${f.q}</span></summary>
                       <div class="faq-a">${f.a}</div>
                     </details>`
+                    )
+                    .join('')}
+                </div>
+              </div>`)
+                : ''
+            }
+
+            ${
+              relatedPosts.length > 0
+                ? raw(`
+              <div class="t-section reveal">
+                <h2>함께 읽으면 좋은 글</h2>
+                <div class="t-posts">
+                  ${relatedPosts
+                    .map(
+                      (p) => `
+                  <a href="/blog/${p.slug}" class="t-post-link">
+                    <strong>${p.title}</strong>
+                    <span>칼럼 읽기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+                  </a>`
                     )
                     .join('')}
                 </div>
@@ -181,6 +275,12 @@ export function TreatmentDetailPage(t: Treatment) {
             </div>
 
             <div class="side-card">
+              <h3 class="h4">비용 안내</h3>
+              <p style="font-size:0.86rem;color:var(--ink-3);line-height:1.7;margin-bottom:10px">비급여 진료비는 구강 상태와 치료 범위에 따라 달라집니다. 진단 후 투명하게 안내드립니다.</p>
+              <div class="side-links"><a href="/pricing">비용 안내 자세히 보기 <i class="fa-solid fa-arrow-right"></i></a></div>
+            </div>
+
+            <div class="side-card">
               <h3 class="h4">다른 진료 보기</h3>
               <div class="side-links">
                 ${raw(related.map((r) => `<a href="/treatments/${r.slug}">${r.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}
@@ -202,16 +302,26 @@ export function TreatmentDetailPage(t: Treatment) {
 
 // MedicalProcedure 스키마
 export function procedureSchema(t: Treatment, siteUrl: string) {
-  return {
+  const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'MedicalProcedure',
+    '@id': `${siteUrl}/treatments/${t.slug}#procedure`,
     name: t.name,
     description: t.summary,
     url: `${siteUrl}/treatments/${t.slug}`,
     procedureType: 'https://schema.org/TherapeuticProcedure',
-    howPerformed: (t.sections || []).map((s) => s.h).join(', '),
-    provider: { '@type': 'Dentist', name: CLINIC.name, url: siteUrl }
+    howPerformed: (t.steps || t.sections || []).map((s) => ('name' in s ? s.name : s.h)).join(' → '),
+    provider: { '@id': `${siteUrl}/#organization` }
   }
+  if (t.bodyLocation) schema.bodyLocation = t.bodyLocation
+  if (t.procedures) {
+    schema.subProcedure = t.procedures.map((p) => ({
+      '@type': 'MedicalProcedure',
+      name: p.name,
+      description: p.desc
+    }))
+  }
+  return schema
 }
 
 // FAQPage 스키마 (진료별)
