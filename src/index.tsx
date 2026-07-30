@@ -558,6 +558,10 @@ ${urls.map((u) => `  <url><loc>${SITE_URL}${u.loc}</loc><lastmod>${u.mod || toda
   return c.body(xml, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
 })
 
+// IndexNow 인증 키 파일 (네이버·빙 실시간 색인 프로토콜)
+const INDEXNOW_KEY = '55c48e0393a825b9c183da0bc857e257'
+app.get(`/${INDEXNOW_KEY}.txt`, (c) => c.body(INDEXNOW_KEY, 200, { 'Content-Type': 'text/plain; charset=utf-8' }))
+
 app.get('/robots.txt', (c) => {
   const txt = `User-agent: *
 Allow: /
