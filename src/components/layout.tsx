@@ -45,7 +45,7 @@ export function Head(meta: SeoMeta) {
       <meta property="og:description" content="${meta.description}" />
       <meta property="og:url" content="${canonical}" />
       <meta property="og:locale" content="ko_KR" />
-      <meta property="og:image" content="${SITE_URL}/static/img/og.png" />
+      <meta property="og:image" content="${SITE_URL}/static/img/og.png?v=2" />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:image:alt" content="${CLINIC.name} — ${CLINIC.directions}" />
@@ -63,7 +63,7 @@ export function Head(meta: SeoMeta) {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="${meta.title}" />
       <meta name="twitter:description" content="${meta.description}" />
-      <meta name="twitter:image" content="${SITE_URL}/static/img/og.png" />
+      <meta name="twitter:image" content="${SITE_URL}/static/img/og.png?v=2" />
 
       <!-- Favicon -->
       <link rel="icon" type="image/png" href="/static/img/favicon.png" />
@@ -193,7 +193,7 @@ function Header() {
     <header class="site-header">
       <div class="container">
         <a href="/" class="logo" aria-label="${CLINIC.name} 홈">
-          <img src="/static/img/logo-h.png" alt="마곡베스트치과 로고" class="logo-img" width="1024" height="177" />
+          <img src="/static/img/logo-h.png?v=2" alt="마곡베스트치과 로고" class="logo-img" width="977" height="141" />
         </a>
 
         <nav aria-label="주요 메뉴">
@@ -308,7 +308,7 @@ function Footer() {
         <div class="footer-top">
           <div class="footer-brand">
             <div class="logo">
-              <img src="/static/img/logo-h-white.png" alt="마곡베스트치과 로고" class="logo-img" width="1024" height="177" loading="lazy" />
+              <img src="/static/img/logo-h-white.png?v=2" alt="마곡베스트치과 로고" class="logo-img" width="977" height="141" loading="lazy" />
             </div>
             <p>${CLINIC.mission}<br />${CLINIC.directions}에 위치한 ${CLINIC.region} 강서구의 환자 중심 치과입니다.</p>
           </div>
