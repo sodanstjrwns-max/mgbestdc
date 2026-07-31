@@ -35,12 +35,16 @@
 | 진료 목록 | `/treatments` | 핵심 TOP3 포토카드 + 일반진료 6종 |
 | 진료 상세 | `/treatments/:slug` | 히어로 이미지 + 확장 상세(전 진료 섹션·시술·FAQ 보강), MedicalProcedure+FAQPage 스키마 |
 | 통합 FAQ | `/faq` | 병원이용 + 진료별 FAQ, FAQPage 스키마 |
-| 진료사례 | `/cases` | 비포·애프터 게이팅 골격 (의료법 준수) |
+| 진료사례 | `/cases` | **D1 연동** 비포·애프터 — 관리자 등록 사례 노출, After 블러+내원 안내 (의료법 준수) |
+| 공지사항 | `/notice`, `/notice/:slug` | **D1 연동** 공지 목록(고정 배지)·상세, 조회수, 사이트맵 자동 포함 |
 | 오시는 길 | `/directions` | 주소·교통·진료시간, 포토 지도 카드 |
 | 비용 안내 | `/pricing` | 비급여 고지 (금액·이벤트 미표기, 의료법 준수) |
 | 시설 | `/facility` | 장비 4종 + 실사진 공간 갤러리 |
 | 예약 문의 | `/reservation` | 폼 → `POST /api/reservation` → **D1 저장** |
-| **관리자** | `/admin?key=…` | 예약 문의 조회 + 상태 관리(신규/연락완료/예약확정/취소), noindex |
+| **관리자 CMS** | `/admin?key=…` | 4탭 대시보드: 예약문의 / 공지사항 / 건강칼럼 / 비포애프터 — **Toast UI 에디터**(WYSIWYG·한국어·이미지 붙여넣기 업로드), 임시저장/발행, Ctrl+S 저장, noindex |
+| 관리자 글쓰기 | `/admin/posts/new?type=notice\|column` | 제목·슬러그(한글 지원)·요약·본문·고정/분류 |
+| 관리자 사례 | `/admin/cases` | Before/After 사진 업로드(R2)·환자정보·발행 관리 |
+| 이미지 | `POST /api/admin/upload`, `GET /media/*` | R2 저장 (JPG/PNG/WebP/GIF, 8MB 제한, 캐시 1년) |
 | 건강칼럼 | `/blog`, `/blog/:slug` | **9편** (임플란트/충치/심미/스케일링/첫방문/사랑니/투명교정/잇몸출혈/야간진료), BlogPosting 스키마 |
 | 지역 SEO | `/area/:area-:treatment` | 8지역 × 4진료 = 32페이지 |
 | 퍼널 장치 | 전 페이지 | 데스크톱 플로팅 CTA(카톡/예약/탑) + 모바일 스티키바(전화/카톡/예약) |
@@ -48,8 +52,11 @@
 
 ## 데이터 아키텍처
 - **데이터 모델**: `src/data/clinic.ts`(병원/진료/의료진/지역/FAQ/스토리), `src/data/blog.ts`(칼럼 9편)
-- **저장 서비스**: **Cloudflare D1** — `reservations` 테이블 (`migrations/0001_reservations.sql`)
-  - 필드: name, phone, treatment, message, status(new/contacted/done/canceled), created_at(KST)
+- **저장 서비스**:
+  - **Cloudflare D1** — `reservations`(0001) + `posts`(공지·칼럼)·`cases`(비포애프터) (0002_cms.sql) — 로컬·프로덕션 모두 적용 완료
+  - **Cloudflare R2** — `magok-best-dental-media` 버킷 (칼럼 본문·사례 이미지, `/media/*` 서빙)
+  - posts: type(notice/column), slug(한글 허용), title, excerpt, content_html(Toast UI), category, pinned, status(draft/published), views, published_at
+  - cases: title, category, age_group, gender, area, description, before_img, after_img(R2 키), status
 - **관리자 인증**: `?key=` 쿼리 (기본 `magok2026`, 프로덕션은 `ADMIN_KEY` 환경변수로 교체 권장)
 - **카카오톡 채널**: `CLINIC.social.kakao`에 URL 입력 시 전 CTA 연동 (현재 미입력 → 전화 폴백)
 
