@@ -26,14 +26,22 @@
 - **재배포**: `npm run build && npx wrangler pages deploy dist --project-name magok-best-dental --branch main`
 - **SEO 후속(수동)**: 네이버 서치어드바이저·구글 서치콘솔에 `https://mgbestdc.kr/sitemap.xml` 제출, 네이버 스마트플레이스·구글 비즈니스 프로필 등록
 
+## 사이트 구조 (2026-07 구조화 재편 — 블랑쉬식 단순 위계 + 서울비디식 토픽 허브)
+- **상단 메뉴 5개**: 소개(/about) / 진료(/treatments) / 치료사례(/cases) / 칼럼(/blog) / 상담·안내(/reservation)
+- **토픽 허브**: 진료 slug가 공통 토픽 키 — 진료 상세 하단에 같은 토픽의 치료사례·칼럼 자동 노출, 사례·칼럼에서 진료 페이지 역링크
+- **블로그 카테고리 = 진료 토픽 9개 + 병원소식** (구 care/guide slug는 301 리다이렉트)
+- **지역 SEO 페이지(/area/*)는 메뉴 비노출** — sitemap·내부링크로만 유지 (검색 유입용)
+- **스키마 앵커**: 전 페이지에 `Dentist` + `@id: https://mgbestdc.kr/#organization` 자동 출력, 개별 스키마는 @id 참조
+
 ## 완성된 기능
 | 구분 | 경로 | 설명 |
 |---|---|---|
-| 메인 | `/` | 포토 히어로 + 철학 + 핵심진료 포토카드 + 의료진 실사진 + LIFE 밴드 + 환자여정 퍼널 + CTA |
+| 메인 | `/` | 포토 히어로 + 철학 + 핵심진료 포토카드 + 의료진 실사진 + LIFE 밴드 + 환자여정 퍼널 + CTA (밀도 다이어트: 장비 테이블 → /facility 이관) |
+| 소개 허브 | `/about` | 신설 — 병원소개/의료진/시설/오시는길 진입점 |
 | 병원소개 | `/mission` | 미션/비전, 가치, 통계 카운트업 |
 | 의료진 | `/doctors`, `/doctors/kim-min` | 실사진 프로필, 학력·경력, '손이 좋다' 육성 스토리 3편, Physician 스키마 |
 | 진료 목록 | `/treatments` | 핵심 TOP3 포토카드 + 일반진료 6종 |
-| 진료 상세 | `/treatments/:slug` | 히어로 이미지 + 확장 상세(전 진료 섹션·시술·FAQ 보강), MedicalProcedure+FAQPage 스키마 |
+| 진료 상세 | `/treatments/:slug` | 히어로 이미지 + 확장 상세 + **토픽 허브 섹션**(같은 토픽 치료사례 3건 + 칼럼 3건 D1 자동 조회), MedicalProcedure+FAQPage 스키마 |
 | 통합 FAQ | `/faq` | 병원이용 + 진료별 FAQ, FAQPage 스키마 |
 | 진료사례 | `/cases` | **D1 연동** 비포·애프터 — 관리자 등록 사례 노출, After 블러+내원 안내 (의료법 준수) |
 | 공지사항 | `/notice`, `/notice/:slug` | **D1 연동** 공지 목록(고정 배지)·상세, 조회수, 사이트맵 자동 포함 |
@@ -45,7 +53,8 @@
 | 관리자 글쓰기 | `/admin/posts/new?type=notice\|column` | 제목·슬러그(한글 지원)·요약·본문·고정/분류 |
 | 관리자 사례 | `/admin/cases` | Before/After 사진 업로드(R2)·환자정보·발행 관리 |
 | 이미지 | `POST /api/admin/upload`, `GET /media/*` | R2 저장 (JPG/PNG/WebP/GIF, 8MB 제한, 캐시 1년) |
-| 건강칼럼 | `/blog`, `/blog/:slug` | **9편** (임플란트/충치/심미/스케일링/첫방문/사랑니/투명교정/잇몸출혈/야간진료), BlogPosting 스키마 |
+| 건강칼럼 | `/blog`, `/blog/:slug` | 정적 9편 + DB 칼럼 병합, 카테고리=진료 토픽, **DB 칼럼도 BlogPosting JSON-LD 자동 생성**, 공지는 NewsArticle |
+| 공개 읽기 API | `GET /api/posts`, `GET /api/posts/:slug` | 외부 툴 연동용 (인증 불필요, 발행 글만, url 포함) — `API.md` 참조 |
 | 지역 SEO | `/area/:area-:treatment` | 8지역 × 4진료 = 32페이지 |
 | 퍼널 장치 | 전 페이지 | 데스크톱 플로팅 CTA(카톡/예약/탑) + 모바일 스티키바(전화/카톡/예약) |
 | SEO 파일 | `/sitemap.xml`, `/robots.txt`, `/llms.txt` | 전 페이지 + 블로그 자동 포함 |
@@ -57,7 +66,8 @@
   - **Cloudflare R2** — `magok-best-dental-media` 버킷 (칼럼 본문·사례 이미지, `/media/*` 서빙)
   - posts: type(notice/column), slug(한글 허용), title, excerpt, content_html(Toast UI), category, pinned, status(draft/published), views, published_at
   - cases: title, category, age_group, gender, area, description, before_img, after_img(R2 키), status
-- **관리자 인증**: `?key=` 쿼리 (기본 `magok2026`, 프로덕션은 `ADMIN_KEY` 환경변수로 교체 권장)
+- **관리자 인증**: `?key=` 쿼리 (기본 `magok2026`, 프로덕션은 `ADMIN_KEY` 환경변수로 교체 완료)
+- **콘텐츠 API**: 쓰기 `POST/DELETE /api/admin/posts` (응답에 공개 URL 포함), 읽기 `GET /api/posts` — 발행 시 JSON-LD·sitemap·토픽허브 자동 처리. 상세: `API.md`
 - **카카오톡 채널**: `CLINIC.social.kakao`에 URL 입력 시 전 CTA 연동 (현재 미입력 → 전화 폴백)
 
 ## §B 의료광고법 자동 필터 적용 내역

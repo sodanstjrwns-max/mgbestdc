@@ -1,8 +1,11 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, type Treatment, DOCTORS, AREAS } from '../data/clinic'
-import { BLOG_POSTS } from '../data/blog'
+import { BLOG_POSTS, catByName } from '../data/blog'
 import { TX_DETAIL } from '../data/tx-detail'
 import { srcset, SIZES } from '../components/img'
+import { esc, type DbPost, type DbCase } from './cms'
+
+const fmtD = (d: string) => (d || '').slice(0, 10).replace(/-/g, '.')
 
 // ============================================================
 // 진료 전체 목록
@@ -99,11 +102,11 @@ const TX_IMG: Record<string, { src: string; alt: string }> = {
   preventive: { src: '/static/img/facility-room.webp', alt: '예방 진료 공간' }
 }
 
-export function TreatmentDetailPage(t: Treatment) {
+export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], topicColumns: DbPost[] = []) {
   const related = TREATMENTS.filter((x) => x.slug !== t.slug).slice(0, 5)
   const doctor = DOCTORS[0]
   const heroImg = TX_IMG[t.slug]
-  const relatedPosts = BLOG_POSTS.filter((p) => p.related.includes(t.slug)).slice(0, 3)
+  const relatedPosts = BLOG_POSTS.filter((p) => p.related.includes(t.slug) || catByName(p.category)?.slug === t.slug).slice(0, 3)
   const detail = TX_DETAIL[t.slug]
   // 목차 (TOC) — 본문 순서와 동일하게 구성
   const tocItems: { id: string; label: string }[] = []
@@ -118,6 +121,8 @@ export function TreatmentDetailPage(t: Treatment) {
   if (t.procedures) tocItems.push({ id: 'sec-proc', label: '세부 진료' })
   if (t.faqs) tocItems.push({ id: 'sec-faq', label: '자주 묻는 질문' })
   if (detail?.glossary) tocItems.push({ id: 'sec-gloss', label: '알아두면 좋은 용어' })
+  if (topicCases.length) tocItems.push({ id: 'sec-cases', label: `${t.name} 치료사례` })
+  if (relatedPosts.length || topicColumns.length) tocItems.push({ id: 'sec-posts', label: '관련 칼럼' })
   // 지역 칩 — 해당 과목이 지역페이지 대상(implant/ortho/cavity/cosmetic)이면 자기 slug, 아니면 implant로 연결
   const areaSlug = ['implant', 'ortho', 'cavity', 'cosmetic'].includes(t.slug) ? t.slug : 'implant'
   return html`
@@ -350,12 +355,45 @@ export function TreatmentDetailPage(t: Treatment) {
             }
 
             ${
-              relatedPosts.length > 0
+              topicCases.length > 0
                 ? raw(`
-              <div class="t-section reveal">
-                <h2>함께 읽으면 좋은 글</h2>
+              <div class="t-section reveal" id="sec-cases">
+                <h2>${t.name} 치료사례</h2>
                 <div class="t-posts">
+                  ${topicCases
+                    .slice(0, 3)
+                    .map(
+                      (cs) => `
+                  <a href="/cases" class="t-post-link">
+                    <strong>${esc(cs.title)}</strong>
+                    <span>${[cs.age_group, cs.gender].filter(Boolean).map((v) => esc(String(v))).join(' · ') || '진료 사례'} — 사례 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+                  </a>`
+                    )
+                    .join('')}
+                </div>
+                <p style="margin-top:12px"><a href="/cases" style="font-size:0.88rem;font-weight:700;color:var(--acc)">전체 치료사례 보기 <i class="fa-solid fa-arrow-right"></i></a></p>
+              </div>`)
+                : ''
+            }
+
+            ${
+              relatedPosts.length > 0 || topicColumns.length > 0
+                ? raw(`
+              <div class="t-section reveal" id="sec-posts">
+                <h2>${t.name} 관련 칼럼</h2>
+                <div class="t-posts">
+                  ${topicColumns
+                    .slice(0, 3)
+                    .map(
+                      (p) => `
+                  <a href="/blog/${esc(p.slug)}" class="t-post-link">
+                    <strong>${esc(p.title)}</strong>
+                    <span>${fmtD(p.published_at || p.created_at)} — 칼럼 읽기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+                  </a>`
+                    )
+                    .join('')}
                   ${relatedPosts
+                    .slice(0, Math.max(0, 3 - topicColumns.length))
                     .map(
                       (p) => `
                   <a href="/blog/${p.slug}" class="t-post-link">
@@ -365,6 +403,7 @@ export function TreatmentDetailPage(t: Treatment) {
                     )
                     .join('')}
                 </div>
+                <p style="margin-top:12px"><a href="/blog" style="font-size:0.88rem;font-weight:700;color:var(--acc)">전체 칼럼 보기 <i class="fa-solid fa-arrow-right"></i></a></p>
               </div>`)
                 : ''
             }

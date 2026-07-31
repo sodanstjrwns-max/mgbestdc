@@ -10,6 +10,24 @@ export const esc = (s: string) =>
 
 const fmtDate = (d: string) => (d || '').slice(0, 10).replace(/-/g, '.')
 
+// 카테고리명(한글) → 진료 slug — 사례·칼럼에서 진료 페이지로 역링크 (토픽 허브)
+const CAT_TO_TX: Record<string, string> = {
+  '임플란트': 'implant',
+  '충치·신경치료': 'cavity',
+  '충치치료': 'cavity',
+  '심미치료': 'cosmetic',
+  '교정': 'ortho',
+  '교정치료': 'ortho',
+  '턱관절': 'tmj',
+  '턱관절치료': 'tmj',
+  '잇몸치료': 'gum',
+  '보철치료': 'prosthesis',
+  '발치·사랑니': 'extraction',
+  '예방·검진': 'preventive',
+  '구강 관리': 'preventive'
+}
+export const txSlugOfCategory = (cat: string) => CAT_TO_TX[(cat || '').trim()] || null
+
 export type DbPost = {
   id: number
   type: string
@@ -166,6 +184,16 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[]) {
                 <a href="/reservation" class="btn btn-white" style="width:100%"><i class="fa-solid fa-calendar-check"></i> 예약 문의</a>
                 <a href="tel:${CLINIC.phoneRaw}" class="btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.12);color:#fff"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
               </div>
+              ${txSlugOfCategory(post.category)
+                ? html`
+                <div class="side-card">
+                  <h3 class="h4">관련 진료</h3>
+                  <div class="side-links">
+                    <a href="/treatments/${txSlugOfCategory(post.category)}"><i class="fa-solid fa-tooth"></i> ${esc(post.category)} 진료 안내 <i class="fa-solid fa-arrow-right" style="margin-left:auto"></i></a>
+                    <a href="/cases"><i class="fa-solid fa-images"></i> 치료사례 보기 <i class="fa-solid fa-arrow-right" style="margin-left:auto"></i></a>
+                  </div>
+                </div>`
+                : ''}
               ${others.length
                 ? html`
                 <div class="side-card">
@@ -181,6 +209,61 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[]) {
       </section>
     </article>
   `
+}
+
+// ============================================================
+// JSON-LD: DB 칼럼 BlogPosting — 발행 시 서버가 자동 렌더 (작성자는 신경 쓸 필요 없음)
+// ============================================================
+export function dbBlogPostingSchema(post: DbPost, siteUrl: string) {
+  const doctor = DOCTORS[0]
+  const published = (post.published_at || post.created_at || '').slice(0, 10)
+  const modified = (post.updated_at || post.published_at || post.created_at || '').slice(0, 10)
+  // 본문 텍스트 요약 (HTML 태그 제거)
+  const plain = String(post.content_html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${siteUrl}/blog/${post.slug}#article`,
+    headline: post.title,
+    description: post.excerpt || plain.slice(0, 155),
+    articleBody: plain.slice(0, 2000),
+    url: `${siteUrl}/blog/${post.slug}`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteUrl}/blog/${post.slug}` },
+    image: post.thumbnail ? `${siteUrl}/media/${post.thumbnail}` : `${siteUrl}/static/img/og.png`,
+    datePublished: published,
+    dateModified: modified,
+    inLanguage: 'ko',
+    articleSection: post.category || '건강칼럼',
+    author: {
+      '@type': 'Physician',
+      '@id': `${siteUrl}/doctors/${doctor.slug}/#physician`,
+      name: `${doctor.name} ${doctor.title}`,
+      jobTitle: CLINIC.directorCredential,
+      url: `${siteUrl}/doctors/${doctor.slug}`,
+      worksFor: { '@id': `${siteUrl}/#organization` }
+    },
+    publisher: { '@id': `${siteUrl}/#organization` },
+    isPartOf: { '@type': 'Blog', name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` }
+  }
+}
+
+// JSON-LD: 공지사항 NewsArticle
+export function noticeSchema(post: DbPost, siteUrl: string) {
+  const published = (post.published_at || post.created_at || '').slice(0, 10)
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    '@id': `${siteUrl}/notice/${post.slug}#article`,
+    headline: post.title,
+    description: post.excerpt || post.title,
+    url: `${siteUrl}/notice/${post.slug}`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteUrl}/notice/${post.slug}` },
+    datePublished: published,
+    dateModified: (post.updated_at || '').slice(0, 10) || published,
+    inLanguage: 'ko',
+    author: { '@id': `${siteUrl}/#organization` },
+    publisher: { '@id': `${siteUrl}/#organization` }
+  }
 }
 
 // ============================================================
@@ -226,7 +309,7 @@ export function DbCasesPage(rows: DbCase[]) {
               <div class="ba-body">
                 <h2 class="h4">${esc(c.title)}</h2>
                 <div class="ba-meta">
-                  <span>${esc(c.category)}</span>
+                  ${txSlugOfCategory(c.category) ? `<a href="/treatments/${txSlugOfCategory(c.category)}" style="color:var(--acc);font-weight:700">${esc(c.category)} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7em"></i></a>` : `<span>${esc(c.category)}</span>`}
                   ${c.age_group ? `<span>${esc(c.age_group)}</span>` : ''}
                   ${c.gender ? `<span>${esc(c.gender)}</span>` : ''}
                   ${c.area ? `<span><i class="fa-solid fa-location-dot"></i> ${esc(c.area)}</span>` : ''}

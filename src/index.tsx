@@ -1,17 +1,17 @@
 import { Hono } from 'hono'
 import { html } from 'hono/html'
-import { Layout, organizationSchema, breadcrumbSchema, SITE_URL } from './components/layout'
+import { Layout, breadcrumbSchema, SITE_URL } from './components/layout'
 import { CLINIC, TREATMENTS, getTreatment, DOCTORS, AREAS, AREA_TREATMENTS, CORE_TREATMENTS, GENERAL_TREATMENTS, GENERAL_FAQS } from './data/clinic'
 import { HomePage } from './pages/home'
 import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema } from './pages/treatments'
 import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors'
 import {
-  MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
-  ReservationPage, CasesPage, AreaPage, areaSchema, areaFaqSchema
+  AboutHubPage, MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
+  ReservationPage, AreaPage, areaSchema, areaFaqSchema
 } from './pages/info'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
-import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, type DbPost, type DbCase } from './pages/cms'
+import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations } from './pages/admin'
 
 type Bindings = {
@@ -50,7 +50,6 @@ app.get('/', (c) =>
         description: `마곡·마곡나루 치과를 찾으신다면 — ${CLINIC.directions}, ${CLINIC.directorCredential}가 상담부터 치료까지 책임지는 1인 책임 진료. 임플란트·충치치료·심미치료·투명교정. 월·목 야간 20:30, 토요일 진료.`,
         path: '/',
         jsonLd: [
-          organizationSchema(),
           {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
@@ -76,6 +75,23 @@ app.get('/', (c) =>
         ]
       },
       HomePage()
+    )
+  )
+)
+
+// ============================================================
+// 소개 허브 (/about) — 소개 카테고리 진입점
+// ============================================================
+app.get('/about', (c) =>
+  c.html(
+    Layout(
+      {
+        title: `소개 | ${CLINIC.name}`,
+        description: `${CLINIC.name} 소개 — 병원소개·의료진·시설·장비·오시는 길을 한눈에 확인하세요. ${CLINIC.directions}.`,
+        path: '/about',
+        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '소개', path: '/about' }])]
+      },
+      AboutHubPage()
     )
   )
 )
@@ -155,11 +171,39 @@ app.get('/treatments', (c) =>
   )
 )
 
-app.get('/treatments/:slug', (c) => {
+// 진료 slug → 콘텐츠 카테고리명 매핑 (posts.category / cases.category 는 한글 카테고리명 저장)
+const TOPIC_CAT: Record<string, string[]> = {
+  implant: ['임플란트'],
+  cavity: ['충치·신경치료', '충치치료'],
+  cosmetic: ['심미치료'],
+  ortho: ['교정', '교정치료'],
+  tmj: ['턱관절', '턱관절치료'],
+  gum: ['잇몸치료'],
+  prosthesis: ['보철치료'],
+  extraction: ['발치·사랑니'],
+  preventive: ['예방·검진', '구강 관리']
+}
+
+app.get('/treatments/:slug', async (c) => {
   const slug = c.req.param('slug')
   const t = getTreatment(slug)
   if (!t) return c.notFound()
   const faqSchema = treatmentFaqSchema(t)
+  // 토픽 허브: 같은 토픽의 치료사례·칼럼을 D1에서 조회 (진료 ↔ 사례 ↔ 칼럼 연결)
+  let topicCases: DbCase[] = []
+  let topicColumns: DbPost[] = []
+  const cats = TOPIC_CAT[slug] || [t.name]
+  try {
+    if (c.env?.DB) {
+      const ph = cats.map(() => '?').join(',')
+      const [cs, col] = await Promise.all([
+        c.env.DB.prepare(`SELECT * FROM cases WHERE status = 'published' AND category IN (${ph}) ORDER BY created_at DESC LIMIT 3`).bind(...cats).all(),
+        c.env.DB.prepare(`SELECT * FROM posts WHERE type = 'column' AND status = 'published' AND category IN (${ph}) ORDER BY published_at DESC LIMIT 3`).bind(...cats).all()
+      ])
+      topicCases = (cs.results || []) as any
+      topicColumns = (col.results || []) as any
+    }
+  } catch (e) {}
   return c.html(
     Layout(
       {
@@ -173,7 +217,7 @@ app.get('/treatments/:slug', (c) => {
           ...(faqSchema ? [faqSchema] : [])
         ]
       },
-      TreatmentDetailPage(t)
+      TreatmentDetailPage(t, topicCases, topicColumns)
     )
   )
 })
@@ -188,7 +232,7 @@ app.get('/directions', (c) =>
         title: `오시는 길 | ${CLINIC.name}`,
         description: `${CLINIC.addressFull}. ${CLINIC.directions}. 진료시간 및 주차 안내.`,
         path: '/directions',
-        jsonLd: [organizationSchema(), breadcrumbSchema([{ name: '홈', path: '/' }, { name: '오시는 길', path: '/directions' }])]
+        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '오시는 길', path: '/directions' }])]
       },
       DirectionsPage()
     )
@@ -317,7 +361,10 @@ app.get('/notice/:slug', async (c) => {
         description: post.excerpt || `${CLINIC.name} 공지사항 — ${post.title}`,
         path: `/notice/${slug}`,
         ogType: 'article',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notice' }, { name: post.title, path: `/notice/${slug}` }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notice' }, { name: post.title, path: `/notice/${slug}` }]),
+          noticeSchema(post, SITE_URL)
+        ]
       },
       NoticeDetailPage(post, others)
     )
@@ -351,11 +398,22 @@ app.get('/blog', async (c) => {
   )
 })
 
-// 카테고리 필터
-app.get('/blog/category/:cat', (c) => {
+// 구 카테고리 slug → 신 토픽 slug 리다이렉트 (기존 색인 URL 보존)
+const OLD_CAT_REDIRECT: Record<string, string> = { care: 'preventive', guide: 'news' }
+
+// 카테고리 필터 (진료 토픽 단위 — DB 칼럼 포함)
+app.get('/blog/category/:cat', async (c) => {
   const catSlug = c.req.param('cat')
+  if (OLD_CAT_REDIRECT[catSlug]) return c.redirect(`/blog/category/${OLD_CAT_REDIRECT[catSlug]}`, 301)
   const cat = BLOG_CATEGORIES.find((x) => x.slug === catSlug)
   if (!cat) return c.notFound()
+  let dbPosts: DbPost[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' AND category = ? ORDER BY published_at DESC LIMIT 60").bind(cat.name).all()
+      dbPosts = (res.results || []) as any
+    }
+  } catch (e) {}
   return c.html(
     Layout(
       {
@@ -364,7 +422,7 @@ app.get('/blog/category/:cat', (c) => {
         path: `/blog/category/${catSlug}`,
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: cat.name, path: `/blog/category/${catSlug}` }])]
       },
-      BlogListPage(cat.name)
+      BlogListPage(cat.name, dbPosts)
     )
   )
 })
@@ -396,7 +454,10 @@ app.get('/blog/:slug', async (c) => {
           path: `/blog/${slug}`,
           ogType: 'article',
           article: { published: (dbPost.published_at || dbPost.created_at || '').slice(0, 10), tags: [dbPost.category].filter(Boolean) },
-          jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: dbPost.title, path: `/blog/${slug}` }])]
+          jsonLd: [
+            breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: dbPost.title, path: `/blog/${slug}` }]),
+            dbBlogPostingSchema(dbPost, SITE_URL) // 발행 시 BlogPosting 자동 생성
+          ]
         },
         DbColumnDetailPage(dbPost, others)
       )
@@ -634,7 +695,8 @@ app.post('/api/admin/posts', async (c) => {
          published_at = CASE WHEN ? = 'published' AND published_at IS NULL THEN datetime('now','+9 hours') ELSE published_at END,
          updated_at = datetime('now','+9 hours') WHERE id = ?`
       ).bind(title, slug, excerpt, contentHtml, category, pinned, status, status, Number(b.id)).run()
-      return c.json({ ok: true, id: Number(b.id), slug })
+      const url = `${SITE_URL}${type === 'notice' ? '/notice/' : '/blog/'}${slug}`
+      return c.json({ ok: true, id: Number(b.id), slug, status, url: status === 'published' ? url : null })
     } else {
       const dup: any = await c.env.DB.prepare('SELECT id FROM posts WHERE slug = ?').bind(slug).first()
       if (dup) slug = `${slug}-${Date.now() % 10000}`
@@ -642,8 +704,48 @@ app.post('/api/admin/posts', async (c) => {
         `INSERT INTO posts (type, slug, title, excerpt, content_html, category, pinned, status, published_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN datetime('now','+9 hours') ELSE NULL END)`
       ).bind(type, slug, title, excerpt, contentHtml, category, pinned, status, status).run()
-      return c.json({ ok: true, id: res.meta.last_row_id, slug })
+      const url = `${SITE_URL}${type === 'notice' ? '/notice/' : '/blog/'}${slug}`
+      return c.json({ ok: true, id: res.meta.last_row_id, slug, status, url: status === 'published' ? url : null })
     }
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
+})
+
+// ============================================================
+// 공개 읽기 API — 외부 툴·자동화 연동용 (인증 불필요, 발행 글만)
+// GET /api/posts?type=column|notice&category=임플란트&limit=20&offset=0
+// GET /api/posts/:slug
+// ============================================================
+app.get('/api/posts', async (c) => {
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  const type = c.req.query('type') === 'notice' ? 'notice' : 'column'
+  const category = (c.req.query('category') || '').trim()
+  const limit = Math.min(Math.max(parseInt(c.req.query('limit') || '20', 10) || 20, 1), 100)
+  const offset = Math.max(parseInt(c.req.query('offset') || '0', 10) || 0, 0)
+  try {
+    let sql = "SELECT id, type, slug, title, excerpt, category, thumbnail, pinned, views, published_at, updated_at FROM posts WHERE status = 'published' AND type = ?"
+    const binds: any[] = [type]
+    if (category) { sql += ' AND category = ?'; binds.push(category) }
+    sql += ' ORDER BY pinned DESC, published_at DESC LIMIT ? OFFSET ?'
+    binds.push(limit, offset)
+    const res = await c.env.DB.prepare(sql).bind(...binds).all()
+    const items = (res.results || []).map((p: any) => ({
+      ...p,
+      url: `${SITE_URL}${p.type === 'notice' ? '/notice/' : '/blog/'}${p.slug}`
+    }))
+    return c.json({ ok: true, count: items.length, items })
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
+})
+
+app.get('/api/posts/:slug', async (c) => {
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  try {
+    const p: any = await c.env.DB.prepare("SELECT id, type, slug, title, excerpt, content_html, category, thumbnail, pinned, views, published_at, updated_at FROM posts WHERE slug = ? AND status = 'published'").bind(c.req.param('slug')).first()
+    if (!p) return c.json({ ok: false, error: 'not found' }, 404)
+    return c.json({ ok: true, item: { ...p, url: `${SITE_URL}${p.type === 'notice' ? '/notice/' : '/blog/'}${p.slug}` } })
   } catch (e) {
     return c.json({ ok: false, error: String(e) }, 500)
   }
@@ -775,6 +877,7 @@ app.get('/media/*', async (c) => {
 app.get('/sitemap.xml', async (c) => {
   const urls: { loc: string; pri: string; mod?: string; freq?: string }[] = [
     { loc: '/', pri: '1.0', freq: 'weekly' },
+    { loc: '/about', pri: '0.8', freq: 'monthly' },
     { loc: '/notice', pri: '0.6', freq: 'weekly' },
     { loc: '/mission', pri: '0.8', freq: 'monthly' },
     { loc: '/doctors', pri: '0.8', freq: 'monthly' },

@@ -28,13 +28,23 @@ export type BlogPost = {
   takeaway: string // 핵심 요약 (한 문단)
 }
 
+// 카테고리 = 진료 토픽 (slug가 진료 slug와 1:1 일치 → 진료↔사례↔칼럼 토픽 허브 연결 키)
 export const BLOG_CATEGORIES = [
   { slug: 'implant', name: '임플란트', en: 'IMPLANT' },
   { slug: 'cavity', name: '충치·신경치료', en: 'CAVITY CARE' },
   { slug: 'cosmetic', name: '심미치료', en: 'COSMETIC' },
-  { slug: 'care', name: '구강관리', en: 'ORAL CARE' },
-  { slug: 'guide', name: '진료안내', en: 'GUIDE' }
+  { slug: 'ortho', name: '교정', en: 'ORTHODONTICS' },
+  { slug: 'tmj', name: '턱관절', en: 'TMJ' },
+  { slug: 'gum', name: '잇몸치료', en: 'GUM CARE' },
+  { slug: 'prosthesis', name: '보철치료', en: 'PROSTHESIS' },
+  { slug: 'extraction', name: '발치·사랑니', en: 'EXTRACTION' },
+  { slug: 'preventive', name: '예방·검진', en: 'PREVENTIVE' },
+  { slug: 'news', name: '병원소식', en: 'NEWS' }
 ]
+
+// 카테고리 이름 ↔ slug 변환 헬퍼 (토픽 허브 연결용)
+export const catBySlug = (slug: string) => BLOG_CATEGORIES.find((c) => c.slug === slug)
+export const catByName = (name: string) => BLOG_CATEGORIES.find((c) => c.name === name)
 
 export const BLOG_POSTS: BlogPost[] = [
   // ----------------------------------------------------------
@@ -192,8 +202,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: '스케일링과 에어플로우, 무엇이 다를까요?',
     excerpt:
       '스케일링과 에어플로우는 모두 구강을 깨끗하게 관리하는 방법이지만 역할이 다릅니다. 두 관리의 차이와 정기적인 구강 관리가 왜 중요한지 마곡베스트치과의원이 설명드립니다.',
-    category: '구강관리',
-    categoryEn: 'ORAL CARE',
+    category: '예방·검진',
+    categoryEn: 'PREVENTIVE',
     tags: ['스케일링', '에어플로우', '잇몸관리', '예방치과'],
     date: '2026-05-04',
     readMin: 4,
@@ -233,8 +243,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: '마곡 치과 첫 방문, 이렇게 준비하면 좋아요',
     excerpt:
       '치과 첫 방문이 막막하게 느껴지신다면, 준비하면 좋은 것과 진료 흐름을 미리 알아두세요. 마곡나루역 인근 마곡베스트치과의원의 첫 방문 안내입니다.',
-    category: '진료안내',
-    categoryEn: 'GUIDE',
+    category: '예방·검진',
+    categoryEn: 'PREVENTIVE',
     tags: ['마곡치과', '마곡나루치과', '첫방문', '치과예약'],
     date: '2026-04-26',
     readMin: 4,
@@ -282,8 +292,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: '사랑니, 꼭 빼야 할까? 발치를 고려하는 4가지 경우',
     excerpt:
       '모든 사랑니를 반드시 빼야 하는 것은 아닙니다. 발치를 고려하게 되는 대표적인 경우와 그대로 두어도 되는 경우, 발치 전 확인해야 할 것들을 마곡베스트치과의원이 정리했습니다.',
-    category: '진료안내',
-    categoryEn: 'GUIDE',
+    category: '발치·사랑니',
+    categoryEn: 'EXTRACTION',
     tags: ['사랑니', '사랑니발치', '마곡치과', '매복사랑니'],
     date: '2026-06-12',
     readMin: 5,
@@ -339,8 +349,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: '투명교정, 직장 생활하면서 가능할까? 일상 관리 가이드',
     excerpt:
       '눈에 잘 띄지 않는 투명교정은 직장인들이 많이 고려하는 교정 방식입니다. 장치 착용 시간, 식사와 커피, 회의와 발음까지 — 일상 속 투명교정 관리법을 마곡베스트치과의원이 안내합니다.',
-    category: '진료안내',
-    categoryEn: 'GUIDE',
+    category: '교정',
+    categoryEn: 'ORTHODONTICS',
     tags: ['투명교정', '마곡교정', '직장인교정', '교정치과'],
     date: '2026-06-24',
     readMin: 5,
@@ -392,8 +402,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: '양치할 때 잇몸에서 피가 난다면? 놓치기 쉬운 잇몸병 신호',
     excerpt:
       '양치 중 잇몸 출혈은 많은 분들이 대수롭지 않게 넘기는 증상입니다. 잇몸병이 진행되는 과정과 조기에 관리해야 하는 이유, 스케일링과 잇몸치료에 대해 마곡베스트치과의원이 설명드립니다.',
-    category: '구강관리',
-    categoryEn: 'ORAL CARE',
+    category: '잇몸치료',
+    categoryEn: 'GUM CARE',
     tags: ['잇몸출혈', '잇몸병', '치주질환', '스케일링', '마곡치과'],
     date: '2026-07-03',
     readMin: 5,
@@ -445,8 +455,8 @@ export const BLOG_POSTS: BlogPost[] = [
     title: '마곡 야간진료 치과 — 퇴근 후에도 치과 진료가 필요하다면',
     excerpt:
       '평일 낮에 시간 내기 어려운 직장인을 위해 마곡베스트치과의원은 월·목요일 야간 20:30까지 진료합니다. 야간진료 이용 방법과 예약 팁, 진료 가능한 항목을 안내합니다.',
-    category: '진료안내',
-    categoryEn: 'GUIDE',
+    category: '병원소식',
+    categoryEn: 'NEWS',
     tags: ['야간진료', '마곡야간치과', '직장인치과', '마곡나루치과'],
     date: '2026-07-10',
     readMin: 4,

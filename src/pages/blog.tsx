@@ -1,6 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, getTreatment, DOCTORS } from '../data/clinic'
-import { BLOG_POSTS, BLOG_CATEGORIES, sortedPosts, getPost, type BlogPost } from '../data/blog'
+import { BLOG_POSTS, BLOG_CATEGORIES, catByName, sortedPosts, getPost, type BlogPost } from '../data/blog'
 
 // 날짜 표기: 2026-05-28 → 2026.05.28
 const fmtDate = (d: string) => d.replace(/-/g, '.')
@@ -16,6 +16,9 @@ export function BlogListPage(activeCat?: string, dbPosts: DbPostLite[] = []) {
   const posts = sortedPosts().filter((p) => !activeCat || p.category === activeCat)
   const dbFiltered = dbPosts.filter((p) => !activeCat || p.category === activeCat)
   const [featured, ...rest] = posts
+  // 토픽 허브: 카테고리가 진료 토픽이면 해당 진료 페이지로 역링크
+  const activeCatDef = activeCat ? catByName(activeCat) : undefined
+  const topicTx = activeCatDef && activeCatDef.slug !== 'news' ? getTreatment(activeCatDef.slug) : undefined
 
   return html`
     <section class="page-hero">
@@ -38,6 +41,16 @@ export function BlogListPage(activeCat?: string, dbPosts: DbPostLite[] = []) {
             ).join('')
           )}
         </nav>
+
+        ${
+          topicTx
+            ? raw(`
+        <div class="notice-box reveal" style="margin-bottom:28px">
+          <i class="fa-solid fa-tooth"></i>
+          <div>${topicTx.name}에 대해 체계적으로 정리된 진료 안내도 함께 확인해 보세요. <a href="/treatments/${topicTx.slug}" style="color:var(--acc);font-weight:700">${topicTx.name} 진료 안내 →</a> &nbsp;|&nbsp; <a href="/cases" style="color:var(--acc);font-weight:700">치료사례 보기 →</a></div>
+        </div>`)
+            : ''
+        }
 
         ${
           featured
@@ -98,7 +111,7 @@ export function BlogListPage(activeCat?: string, dbPosts: DbPostLite[] = []) {
         </div>
 
         ${
-          posts.length === 0
+          posts.length === 0 && dbFiltered.length === 0
             ? raw(`<p style="color:var(--fg-3);text-align:center;padding:60px 0">해당 분류의 칼럼이 아직 없습니다.</p>`)
             : ''
         }
@@ -255,11 +268,7 @@ export function blogPostingSchema(post: BlogPost, siteUrl: string) {
       url: `${siteUrl}/doctors/${DOCTORS[0].slug}`,
       worksFor: { '@type': 'Dentist', name: CLINIC.name, '@id': `${siteUrl}/#organization` }
     },
-    publisher: {
-      '@type': 'Dentist',
-      name: CLINIC.name,
-      url: siteUrl
-    },
+    publisher: { '@id': `${siteUrl}/#organization` },
     about: { '@type': 'MedicalCondition', name: post.category },
     isPartOf: { '@type': 'Blog', name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` }
   }
@@ -287,7 +296,7 @@ export function blogListSchema(siteUrl: string) {
     name: `${CLINIC.shortName} 건강칼럼`,
     description: `${DOCTORS[0].name} 대표원장이 전하는 치아 건강 칼럼`,
     url: `${siteUrl}/blog`,
-    publisher: { '@type': 'Dentist', name: CLINIC.name, url: siteUrl },
+    publisher: { '@id': `${siteUrl}/#organization` },
     blogPost: sortedPosts().map((p) => ({
       '@type': 'BlogPosting',
       headline: p.title,

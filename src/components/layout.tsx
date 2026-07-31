@@ -1,6 +1,5 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, AREAS } from '../data/clinic'
-import { BLOG_CATEGORIES } from '../data/blog'
 
 type SeoMeta = {
   title: string
@@ -19,7 +18,9 @@ const SITE_URL = 'https://mgbestdc.kr'
 // ============================================================
 export function Head(meta: SeoMeta) {
   const canonical = SITE_URL + meta.path
-  const ld = meta.jsonLd || []
+  // 전 페이지 공통: Dentist 조직 스키마(@id 앵커)를 항상 먼저 출력 —
+  // 개별 페이지 스키마는 { '@id': SITE_URL + '/#organization' } 참조로 연결 (블랑쉬 패턴)
+  const ld = [organizationSchema(), ...(meta.jsonLd || [])]
   return html`
     <head>
       <meta charset="UTF-8" />
@@ -97,6 +98,11 @@ export function Head(meta: SeoMeta) {
 // ============================================================
 // 공통 스키마 빌더
 // ============================================================
+// 조직 @id 참조 헬퍼 — 개별 스키마에서 publisher/worksFor 등에 사용
+export function orgRef() {
+  return { '@id': SITE_URL + '/#organization' }
+}
+
 export function organizationSchema() {
   return {
     '@context': 'https://schema.org',
@@ -193,64 +199,51 @@ function Header() {
 
         <nav aria-label="주요 메뉴">
           <ul class="gnb">
-            <li><a href="/mission">병원소개</a></li>
-            <li><a href="/doctors">의료진</a></li>
             <li>
-              <a href="/treatments">진료안내 <i class="fa-solid fa-chevron-down"></i></a>
-              <div class="mega">
-                <div class="mega-grid">
-                  <div class="mega-col-title">핵심 진료</div>
+              <a href="/about">소개 <i class="fa-solid fa-chevron-down"></i></a>
+              <div class="mega" style="min-width:250px">
+                <div class="mega-grid" style="grid-template-columns:1fr">
+                  <a href="/mission" class="mega-item"><i class="fa-solid fa-hand-holding-heart"></i><span><span class="mi-name">병원소개</span></span></a>
+                  <a href="/doctors" class="mega-item"><i class="fa-solid fa-user-doctor"></i><span><span class="mi-name">의료진</span></span></a>
+                  <a href="/facility" class="mega-item"><i class="fa-solid fa-hospital"></i><span><span class="mi-name">시설·장비</span></span></a>
+                  <a href="/directions" class="mega-item"><i class="fa-solid fa-location-dot"></i><span><span class="mi-name">오시는 길</span></span></a>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="/treatments">진료 <i class="fa-solid fa-chevron-down"></i></a>
+              <div class="mega" style="min-width:520px">
+                <div class="mega-grid" style="grid-template-columns:1fr 1fr">
                   ${raw(
-                    CORE_TREATMENTS.map(
+                    [...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map(
                       (t) => `
-                    <a href="/treatments/${t.slug}" class="mega-item core">
+                    <a href="/treatments/${t.slug}" class="mega-item${t.category === 'core' ? ' core' : ''}">
                       <i class="fa-solid ${t.icon}"></i>
-                      <span><span class="mi-name">${t.name}</span><span class="mi-desc">${t.tagline}</span></span>
+                      <span><span class="mi-name">${t.name}</span></span>
                     </a>`
                     ).join('')
                   )}
-                  <div class="mega-col-title">일반 진료</div>
-                  ${raw(
-                    GENERAL_TREATMENTS.map(
-                      (t) => `
-                    <a href="/treatments/${t.slug}" class="mega-item">
-                      <i class="fa-solid ${t.icon}"></i>
-                      <span><span class="mi-name">${t.name}</span><span class="mi-desc">${t.tagline}</span></span>
-                    </a>`
-                    ).join('')
-                  )}
+                  <a href="/treatments" class="mega-item" style="grid-column:1/-1"><i class="fa-solid fa-list"></i><span><span class="mi-name">전체 진료 보기</span></span></a>
+                </div>
+              </div>
+            </li>
+            <li><a href="/cases">치료사례</a></li>
+            <li>
+              <a href="/blog">칼럼 <i class="fa-solid fa-chevron-down"></i></a>
+              <div class="mega" style="min-width:250px">
+                <div class="mega-grid" style="grid-template-columns:1fr">
+                  <a href="/blog" class="mega-item"><i class="fa-solid fa-pen-nib"></i><span><span class="mi-name">건강칼럼</span></span></a>
+                  <a href="/notice" class="mega-item"><i class="fa-solid fa-bullhorn"></i><span><span class="mi-name">공지사항</span></span></a>
                 </div>
               </div>
             </li>
             <li>
-              <a href="/blog">건강칼럼 <i class="fa-solid fa-chevron-down"></i></a>
-              <div class="mega" style="min-width:340px">
+              <a href="/reservation">상담·안내 <i class="fa-solid fa-chevron-down"></i></a>
+              <div class="mega" style="min-width:250px">
                 <div class="mega-grid" style="grid-template-columns:1fr">
-                  ${raw(
-                    BLOG_CATEGORIES.map(
-                      (cat) => `<a href="/blog/category/${cat.slug}" class="mega-item"><i class="fa-solid fa-pen-nib"></i><span><span class="mi-name">${cat.name}</span></span></a>`
-                    ).join('')
-                  )}
-                </div>
-              </div>
-            </li>
-            <li>
-              <a href="/cases">진료사례 <i class="fa-solid fa-chevron-down"></i></a>
-              <div class="mega" style="min-width:300px">
-                <div class="mega-grid" style="grid-template-columns:1fr">
-                  <a href="/cases" class="mega-item"><i class="fa-solid fa-images"></i><span><span class="mi-name">비포·애프터</span><span class="mi-desc">치료 전후 비교</span></span></a>
-                  <a href="/notice" class="mega-item"><i class="fa-solid fa-bullhorn"></i><span><span class="mi-name">공지사항</span><span class="mi-desc">진료 일정·병원 소식</span></span></a>
-                  <a href="/faq" class="mega-item"><i class="fa-solid fa-circle-question"></i><span><span class="mi-name">자주 묻는 질문</span><span class="mi-desc">진료별 FAQ</span></span></a>
-                </div>
-              </div>
-            </li>
-            <li>
-              <a href="/directions">안내 <i class="fa-solid fa-chevron-down"></i></a>
-              <div class="mega" style="min-width:300px">
-                <div class="mega-grid" style="grid-template-columns:1fr">
-                  <a href="/directions" class="mega-item"><i class="fa-solid fa-location-dot"></i><span><span class="mi-name">오시는 길</span><span class="mi-desc">${CLINIC.directions}</span></span></a>
-                  <a href="/pricing" class="mega-item"><i class="fa-solid fa-won-sign"></i><span><span class="mi-name">비용 안내</span><span class="mi-desc">비급여 진료비 고지</span></span></a>
-                  <a href="/facility" class="mega-item"><i class="fa-solid fa-hospital"></i><span><span class="mi-name">시설 둘러보기</span><span class="mi-desc">장비·공간 안내</span></span></a>
+                  <a href="/reservation" class="mega-item"><i class="fa-solid fa-calendar-check"></i><span><span class="mi-name">예약 문의</span></span></a>
+                  <a href="/pricing" class="mega-item"><i class="fa-solid fa-won-sign"></i><span><span class="mi-name">비용 안내</span></span></a>
+                  <a href="/faq" class="mega-item"><i class="fa-solid fa-circle-question"></i><span><span class="mi-name">자주 묻는 질문</span></span></a>
                 </div>
               </div>
             </li>
@@ -266,30 +259,36 @@ function Header() {
     </header>
 
     <div class="mobile-nav" id="mobile-nav">
-      <a href="/mission" class="top-link">병원소개</a>
-      <a href="/doctors" class="top-link">의료진</a>
       <details>
-        <summary>진료안내</summary>
+        <summary>소개</summary>
+        <div class="sub">
+          <a href="/mission">병원소개</a>
+          <a href="/doctors">의료진</a>
+          <a href="/facility">시설·장비</a>
+          <a href="/directions">오시는 길</a>
+        </div>
+      </details>
+      <details>
+        <summary>진료</summary>
         <div class="sub">
           ${raw([...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => `<a href="/treatments/${t.slug}">${t.name}</a>`).join(''))}
+          <a href="/treatments">전체 진료 보기</a>
+        </div>
+      </details>
+      <a href="/cases" class="top-link">치료사례</a>
+      <details>
+        <summary>칼럼</summary>
+        <div class="sub">
+          <a href="/blog">건강칼럼</a>
+          <a href="/notice">공지사항</a>
         </div>
       </details>
       <details>
-        <summary>건강칼럼</summary>
+        <summary>상담·안내</summary>
         <div class="sub">
-          <a href="/blog">전체 칼럼</a>
-          ${raw(BLOG_CATEGORIES.map((cat) => `<a href="/blog/category/${cat.slug}">${cat.name}</a>`).join(''))}
-        </div>
-      </details>
-      <a href="/cases" class="top-link">진료사례</a>
-      <a href="/notice" class="top-link">공지사항</a>
-      <a href="/faq" class="top-link">자주 묻는 질문</a>
-      <details>
-        <summary>안내</summary>
-        <div class="sub">
-          <a href="/directions">오시는 길</a>
+          <a href="/reservation">예약 문의</a>
           <a href="/pricing">비용 안내</a>
-          <a href="/facility">시설 둘러보기</a>
+          <a href="/faq">자주 묻는 질문</a>
         </div>
       </details>
       <div class="mobile-cta">
@@ -322,10 +321,10 @@ function Footer() {
           </div>
           <div class="footer-col">
             <div class="footer-h">바로가기</div>
-            <a href="/mission">병원소개</a>
+            <a href="/about">병원 소개</a>
             <a href="/doctors">의료진</a>
+            <a href="/cases">치료사례</a>
             <a href="/blog">건강칼럼</a>
-            <a href="/cases">진료사례</a>
             <a href="/notice">공지사항</a>
             <a href="/faq">자주 묻는 질문</a>
             <a href="/reservation">예약 문의</a>

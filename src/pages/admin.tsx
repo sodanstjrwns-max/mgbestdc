@@ -171,7 +171,8 @@ export function AdminPostEditor(type: string, post: DbPost | null, adminKey: str
   const isNotice = type === 'notice'
   const label = isNotice ? '공지사항' : '건강칼럼'
   const k = encodeURIComponent(adminKey)
-  const CATS = ['임플란트', '충치·신경치료', '심미치료', '교정', '턱관절', '잇몸치료', '구강 관리', '병원 소식']
+  // 카테고리 = 진료 토픽 기준 (BLOG_CATEGORIES와 동일 — 진료↔칼럼 토픽 허브 자동 연결)
+  const CATS = ['임플란트', '충치·신경치료', '심미치료', '교정', '턱관절', '잇몸치료', '보철치료', '발치·사랑니', '예방·검진', '병원소식']
   return html`
     <div class="adm-head">
       <div>
@@ -309,7 +310,8 @@ export function AdminPostEditor(type: string, post: DbPost | null, adminKey: str
 // ------------------------------------------------------------
 export function AdminCases(rows: DbCase[], adminKey: string) {
   const k = encodeURIComponent(adminKey)
-  const CATS = ['임플란트', '충치·신경치료', '심미치료', '교정', '보철치료', '잇몸치료']
+  // 카테고리 = 진료 토픽 기준 (진료↔사례 토픽 허브 자동 연결)
+  const CATS = ['임플란트', '충치·신경치료', '심미치료', '교정', '턱관절', '잇몸치료', '보철치료', '발치·사랑니', '예방·검진']
   return html`
     <div class="adm-head">
       <div>

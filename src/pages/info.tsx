@@ -3,6 +3,59 @@ import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, GENERAL_FAQS, 
 import { srcset, SIZES } from '../components/img'
 
 // ============================================================
+// 소개 허브 (/about) — 소개 카테고리 진입점 (블랑쉬식 단순 위계)
+// ============================================================
+export function AboutHubPage() {
+  const d = DOCTORS[0]
+  const items = [
+    { href: '/mission', icon: 'fa-hand-holding-heart', title: '병원소개', desc: `${CLINIC.mission} — 마곡베스트치과의 철학과 약속을 소개합니다.` },
+    { href: '/doctors', icon: 'fa-user-doctor', title: '의료진', desc: `${CLINIC.directorCredential} ${d.name} 대표원장. 1인 책임 진료의 원칙을 확인하세요.` },
+    { href: '/facility', icon: 'fa-hospital', title: '시설·장비', desc: '프라임스캐너·임플란트 카보 엔진·에어플로우 등 디지털 진단 장비와 진료 공간.' },
+    { href: '/directions', icon: 'fa-location-dot', title: '오시는 길', desc: `${CLINIC.directions}. 진료시간·주차 안내까지 한 번에.` }
+  ]
+  return html`
+    <section class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>소개</span></nav>
+        <span class="eyebrow">ABOUT</span>
+        <h1>마곡베스트치과를<br /><span class="grad">소개합니다</span></h1>
+        <p class="ph-sub">${CLINIC.vision}. 철학과 사람, 공간과 위치까지 — 궁금하신 것부터 살펴보세요.</p>
+      </div>
+    </section>
+
+    <section class="pad">
+      <div class="container">
+        <div class="blog-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+          ${raw(
+            items
+              .map(
+                (it, i) => `
+            <a href="${it.href}" class="blog-card reveal reveal-d${(i % 3) + 1}">
+              <span class="bc-ico"><i class="fa-solid ${it.icon}"></i></span>
+              <h2 class="h3" style="margin-top:8px">${it.title}</h2>
+              <p>${it.desc}</p>
+              <div class="bc-meta"><span class="bc-read">자세히 보기</span></div>
+            </a>`
+              )
+              .join('')
+          )}
+        </div>
+      </div>
+    </section>
+
+    <section class="pad-sm"><div class="container"><div class="cta-band reveal">
+      <span class="label" style="justify-content:center">진료가 궁금하시다면</span>
+      <h2>어떤 진료를 받아야 할지<br /><em>함께 찾아드립니다</em></h2>
+      <p>증상만 말씀해 주셔도 됩니다. 정밀 진단 후 필요한 진료를 과장 없이 안내드립니다.</p>
+      <div class="cta-actions">
+        <a href="/treatments" class="btn btn-primary">진료 안내 보기 <i class="fa-solid fa-arrow-right"></i></a>
+        <a href="/reservation" class="btn btn-ghost">예약 문의</a>
+      </div>
+    </div></div></section>
+  `
+}
+
+// ============================================================
 // 병원소개 / 미션
 // ============================================================
 export function MissionPage() {

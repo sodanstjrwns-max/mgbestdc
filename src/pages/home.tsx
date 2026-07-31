@@ -194,36 +194,7 @@ export function HomePage() {
       </div>
     </section>
 
-    <!-- ============ EQUIPMENT ============ -->
-    <section class="pad" aria-label="보유 장비">
-      <div class="container">
-        <div class="feature-split">
-          <div class="reveal">
-            <span class="label">진단 장비</span>
-            <h2 class="section-title" style="margin-top:20px">정확한 진단을<br /><span class="thin">돕는 장비</span></h2>
-            <p class="section-lead" style="margin-top:20px">진료의 시작은 정확한 데이터입니다. 구강 스캔부터 정밀 클리닝까지, 환자에게 맞는 판단을 돕는 장비를 갖췄습니다.</p>
-            <div class="feature-list">
-              <div class="feature-item"><i class="fi-ico fa-solid fa-cube"></i><div><h3 class="h4">디지털 구강 스캔</h3><p>본을 뜨지 않고 입안을 디지털로 스캔해 정밀하게 기록합니다.</p></div></div>
-              <div class="feature-item"><i class="fi-ico fa-solid fa-gauge-high"></i><div><h3 class="h4">정밀 토크 제어</h3><p>임플란트 전용 엔진으로 식립의 정확도를 높입니다.</p></div></div>
-              <div class="feature-item"><i class="fi-ico fa-solid fa-spray-can-sparkles"></i><div><h3 class="h4">전문 클리닝</h3><p>미세 분말로 치아 표면과 잇몸 라인을 부드럽게 관리합니다.</p></div></div>
-            </div>
-          </div>
-          <div class="reveal reveal-d2">
-            <div class="equip-table">
-              ${raw(
-                CLINIC.equipment
-                  .map(
-                    (e) => `<div class="equip-row"><div><div class="en">${e.name}</div><div class="ed">${e.desc}</div></div></div>`
-                  )
-                  .join('')
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ LIFE — 풀블리드 포토 밴드 ============ -->
+    <!-- ============ LIFE — 풀블리드 포토 밴드 (장비 안내는 /facility로 유도 — 홈 밀도 다이어트) ============ -->
     <section class="pad-sm" aria-label="치료 그 이후의 삶">
       <div class="container">
         <div class="life-band reveal">
@@ -232,7 +203,7 @@ export function HomePage() {
             <span class="eyebrow" style="color:#BCD5FA">치료, 그 이후</span>
             <h2>치료의 완성은,<br /><em>다시 웃는 일상</em>입니다</h2>
             <p>임플란트 치료는 단순히 치아를 만드는 것이 아니라, 한 사람의 식생활과 건강, 삶의 질과 연결됩니다. 치료가 끝난 뒤에도 오래 건강하게 쓰실 수 있도록 끝까지 함께 관리해 드립니다.</p>
-            <a href="/mission" class="btn btn-glass">마곡베스트치과 이야기 <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="/about" class="btn btn-glass">마곡베스트치과 이야기 <i class="fa-solid fa-arrow-right"></i></a>
           </div>
         </div>
       </div>
