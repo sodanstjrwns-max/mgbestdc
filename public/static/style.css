@@ -764,6 +764,39 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .t-note-link:hover { color: #fff; }
 .t-note-link i { font-size: 0.72rem; margin-left: 4px; }
 
+/* ---- 진료 상세: 비교표 ---- */
+.t-compare-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 14px; border-radius: var(--radius); border: 1px solid var(--line-3); box-shadow: var(--sh-sm); }
+.t-compare { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.88rem; min-width: 520px; }
+.t-compare th, .t-compare td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.6; }
+.t-compare thead th { background: var(--dark); color: #fff; font-weight: 600; font-size: 0.84rem; white-space: nowrap; border-bottom: none; }
+.t-compare thead th.t-compare-key { background: var(--dark-2); }
+.t-compare tbody th.t-compare-key { background: var(--bg-1); color: var(--pine-2); font-weight: 600; white-space: nowrap; font-size: 0.84rem; }
+.t-compare tbody td { color: var(--ink-2); }
+.t-compare tbody tr:last-child th, .t-compare tbody tr:last-child td { border-bottom: none; }
+
+/* ---- 진료 상세: 목차(TOC) ---- */
+.t-toc { display: none; }
+@media (min-width: 1024px) { .t-toc { display: block; } }
+.t-toc-progress { height: 3px; background: var(--bg-2); border-radius: 2px; margin: 10px 0 14px; overflow: hidden; }
+.t-toc-progress span { display: block; height: 100%; width: 0%; background: var(--brand); border-radius: 2px; transition: width 0.15s linear; }
+.t-toc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+.t-toc-list a {
+  display: block; font-size: 0.82rem; color: var(--ink-3); line-height: 1.5;
+  padding: 6px 10px; border-left: 2px solid transparent; border-radius: 0 6px 6px 0;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.t-toc-list a:hover { color: var(--brand); }
+.t-toc-list a.is-active { color: var(--brand); border-left-color: var(--brand); background: var(--brand-soft); font-weight: 600; }
+
+/* ---- 진료 상세: 지역 칩 ---- */
+.t-area-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.t-area-chip {
+  display: inline-block; font-size: 0.79rem; color: var(--ink-2);
+  background: var(--bg-1); border: 1px solid var(--line-3); border-radius: 999px;
+  padding: 6px 13px; transition: all 0.15s;
+}
+.t-area-chip:hover { background: var(--brand-soft); border-color: rgba(22,86,200,0.3); color: var(--brand); }
+
 /* ---- 진료 상세: 관련 칼럼 ---- */
 .t-posts { display: grid; gap: 10px; }
 .t-post-link {

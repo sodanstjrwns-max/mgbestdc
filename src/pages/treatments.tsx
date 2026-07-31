@@ -103,6 +103,17 @@ export function TreatmentDetailPage(t: Treatment) {
   const doctor = DOCTORS[0]
   const heroImg = TX_IMG[t.slug]
   const relatedPosts = BLOG_POSTS.filter((p) => p.related.includes(t.slug)).slice(0, 3)
+  // 목차 (TOC) — 본문 순서와 동일하게 구성
+  const tocItems: { id: string; label: string }[] = []
+  if (t.checklist) tocItems.push({ id: 'sec-check', label: '증상 자가 체크' })
+  ;(t.sections || []).forEach((s, i) => tocItems.push({ id: `sec-${i}`, label: s.h }))
+  if (t.steps) tocItems.push({ id: 'sec-steps', label: '진행 과정' })
+  if (t.compare) tocItems.push({ id: 'sec-compare', label: t.compare.title })
+  if (t.equipmentUse) tocItems.push({ id: 'sec-equip', label: '활용 장비' })
+  if (t.procedures) tocItems.push({ id: 'sec-proc', label: '세부 진료' })
+  if (t.faqs) tocItems.push({ id: 'sec-faq', label: '자주 묻는 질문' })
+  // 지역 칩 — 해당 과목이 지역페이지 대상(implant/ortho/cavity/cosmetic)이면 자기 slug, 아니면 implant로 연결
+  const areaSlug = ['implant', 'ortho', 'cavity', 'cosmetic'].includes(t.slug) ? t.slug : 'implant'
   return html`
     <section class="page-hero">
       <div class="container">
@@ -124,7 +135,7 @@ export function TreatmentDetailPage(t: Treatment) {
             ${
               t.checklist
                 ? raw(`
-              <section class="t-check reveal" aria-label="증상 자가 체크">
+              <section class="t-check reveal" id="sec-check" aria-label="증상 자가 체크">
                 <div class="t-check-head">
                   <span class="t-check-label">SELF CHECK</span>
                   <h2>이런 증상이 있다면, 검진을 권합니다</h2>
@@ -140,8 +151,8 @@ export function TreatmentDetailPage(t: Treatment) {
             ${raw(
               (t.sections || [])
                 .map(
-                  (s) => `
-              <div class="t-section reveal">
+                  (s, i) => `
+              <div class="t-section reveal" id="sec-${i}">
                 <h2>${s.h}</h2>
                 <p>${s.p}</p>
               </div>`
@@ -152,7 +163,7 @@ export function TreatmentDetailPage(t: Treatment) {
             ${
               t.steps
                 ? raw(`
-              <div class="t-section reveal">
+              <div class="t-section reveal" id="sec-steps">
                 <h2>${t.name} 진행 과정</h2>
                 <ol class="t-steps">
                   ${t.steps
@@ -171,9 +182,31 @@ export function TreatmentDetailPage(t: Treatment) {
             }
 
             ${
+              t.compare
+                ? raw(`
+              <div class="t-section reveal" id="sec-compare">
+                <h2>${t.compare.title}</h2>
+                <div class="t-compare-wrap">
+                  <table class="t-compare">
+                    <thead><tr>${t.compare.cols.map((c, i) => `<th scope="col"${i === 0 ? ' class="t-compare-key"' : ''}>${c}</th>`).join('')}</tr></thead>
+                    <tbody>
+                      ${t.compare.rows
+                        .map(
+                          (r) => `<tr>${r.map((cell, i) => (i === 0 ? `<th scope="row" class="t-compare-key">${cell}</th>` : `<td>${cell}</td>`)).join('')}</tr>`
+                        )
+                        .join('')}
+                    </tbody>
+                  </table>
+                </div>
+                <p class="t-check-note">${t.compare.note}</p>
+              </div>`)
+                : ''
+            }
+
+            ${
               t.equipmentUse
                 ? raw(`
-              <div class="t-section reveal">
+              <div class="t-section reveal" id="sec-equip">
                 <h2>${t.name}에 활용하는 장비</h2>
                 <div class="t-equip">
                   ${t.equipmentUse
@@ -193,7 +226,7 @@ export function TreatmentDetailPage(t: Treatment) {
             ${
               t.procedures
                 ? raw(`
-              <div class="t-section reveal">
+              <div class="t-section reveal" id="sec-proc">
                 <h2>${t.name} 세부 진료</h2>
                 <div class="proc-grid">
                   ${t.procedures
@@ -220,7 +253,7 @@ export function TreatmentDetailPage(t: Treatment) {
             ${
               t.faqs
                 ? raw(`
-              <div class="t-section reveal">
+              <div class="t-section reveal" id="sec-faq">
                 <h2>${t.name} 자주 묻는 질문</h2>
                 <div class="faq-list">
                   ${t.faqs
@@ -259,6 +292,14 @@ export function TreatmentDetailPage(t: Treatment) {
           </article>
 
           <aside class="t-sidebar">
+            <nav class="side-card t-toc" aria-label="본문 목차" data-toc>
+              <h3 class="h4">목차</h3>
+              <div class="t-toc-progress" aria-hidden="true"><span data-toc-bar></span></div>
+              <ol class="t-toc-list">
+                ${raw(tocItems.map((it) => `<li><a href="#${it.id}" data-toc-link="${it.id}">${it.label}</a></li>`).join(''))}
+              </ol>
+            </nav>
+
             <div class="side-card brand">
               <h3 class="h4">예약 및 상담</h3>
               <p>${t.name}에 대해 더 궁금하신 점이 있으신가요? 정확한 진단을 통해 안내드립니다.</p>
@@ -289,9 +330,10 @@ export function TreatmentDetailPage(t: Treatment) {
 
             <div class="side-card">
               <h3 class="h4">지역별 안내</h3>
-              <div class="side-links">
-                ${raw(AREAS.slice(0, 4).map((a) => `<a href="/area/${a.slug}-${t.slug === 'cavity' || t.slug === 'cosmetic' ? 'implant' : t.slug}">${a.name} ${t.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}
+              <div class="t-area-chips">
+                ${raw(AREAS.map((a) => `<a href="/area/${a.slug}-${areaSlug}" class="t-area-chip">${a.name}</a>`).join(''))}
               </div>
+              <p style="font-size:0.78rem;color:var(--ink-4);margin:10px 0 0">마곡나루역 1번 출구 도보 3분 — 인근 지역 어디서든 편하게 찾으실 수 있습니다.</p>
             </div>
           </aside>
         </div>

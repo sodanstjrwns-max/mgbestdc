@@ -186,6 +186,42 @@
     });
   }
 
+  function initToc() {
+    var toc = document.querySelector('[data-toc]');
+    if (!toc) return;
+    var links = toc.querySelectorAll('[data-toc-link]');
+    var bar = toc.querySelector('[data-toc-bar]');
+    if (!links.length) return;
+    var sections = [];
+    links.forEach(function (a) {
+      var el = document.getElementById(a.getAttribute('data-toc-link'));
+      if (el) sections.push({ el: el, link: a });
+    });
+    if (!sections.length) return;
+    var article = sections[0].el.closest('article') || document.body;
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var y = window.scrollY + 120;
+      var active = sections[0];
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].el.offsetTop <= y) active = sections[i];
+      }
+      links.forEach(function (a) { a.classList.remove('is-active'); });
+      active.link.classList.add('is-active');
+      if (bar) {
+        var start = article.offsetTop;
+        var end = start + article.offsetHeight - window.innerHeight;
+        var p = end > start ? Math.min(1, Math.max(0, (window.scrollY - start) / (end - start))) : 0;
+        bar.style.width = (p * 100).toFixed(1) + '%';
+      }
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  }
+
   function init() {
     initHeader();
     initReveal();
@@ -194,6 +230,7 @@
     initTxPreview();
     initParallax();
     initMagnetic();
+    initToc();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
