@@ -8,8 +8,13 @@ const fmtDate = (d: string) => d.replace(/-/g, '.')
 // ============================================================
 // 블로그 목록
 // ============================================================
-export function BlogListPage(activeCat?: string) {
+// DB 칼럼 (관리자 작성) — 목록에 함께 노출
+type DbPostLite = { slug: string; title: string; excerpt: string; category: string; published_at: string; created_at: string }
+const escHtml = (s: string) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+export function BlogListPage(activeCat?: string, dbPosts: DbPostLite[] = []) {
   const posts = sortedPosts().filter((p) => !activeCat || p.category === activeCat)
+  const dbFiltered = dbPosts.filter((p) => !activeCat || p.category === activeCat)
   const [featured, ...rest] = posts
 
   return html`
@@ -56,6 +61,23 @@ export function BlogListPage(activeCat?: string) {
 
         <!-- 나머지 글 그리드 -->
         <div class="blog-grid">
+          ${raw(
+            dbFiltered
+              .map(
+                (p, i) => `
+            <a href="/blog/${escHtml(p.slug)}" class="blog-card reveal reveal-d${(i % 3) + 1}">
+              <span class="bc-ico"><i class="fa-solid fa-pen-nib"></i></span>
+              <span class="bc-cat">${escHtml(p.category || '칼럼')}</span>
+              <h3>${escHtml(p.title)}</h3>
+              <p>${escHtml((p.excerpt || '').slice(0, 92))}${(p.excerpt || '').length > 92 ? '…' : ''}</p>
+              <div class="bc-meta">
+                <span>${fmtDate((p.published_at || p.created_at || '').slice(0, 10))}</span>
+                <span class="bc-read">읽어보기</span>
+              </div>
+            </a>`
+              )
+              .join('')
+          )}
           ${raw(
             rest
               .map(

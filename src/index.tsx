@@ -11,9 +11,12 @@ import {
 } from './pages/info'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
+import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, type DbPost, type DbCase } from './pages/cms'
+import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations } from './pages/admin'
 
 type Bindings = {
   DB: D1Database
+  R2: R2Bucket
   ADMIN_KEY?: string
 }
 
@@ -248,25 +251,91 @@ app.get('/reservation', (c) =>
   )
 )
 
-app.get('/cases', (c) =>
-  c.html(
+app.get('/cases', async (c) => {
+  let rows: DbCase[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT * FROM cases WHERE status = 'published' ORDER BY created_at DESC LIMIT 100").all()
+      rows = (res.results || []) as any
+    }
+  } catch (e) { /* 테이블 미생성 시 빈 목록 */ }
+  return c.html(
     Layout(
       {
         title: `비포·애프터 진료사례 | ${CLINIC.name}`,
-        description: `마곡베스트치과의원의 실제 진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 회원 로그인 후 열람 가능합니다.`,
+        description: `마곡베스트치과의원의 실제 진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 내원 상담 시 확인 가능합니다.`,
         path: '/cases',
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }])]
       },
-      CasesPage(false)
+      DbCasesPage(rows)
     )
   )
-)
+})
+
+// ============================================================
+// 공지사항 (D1 posts, type=notice)
+// ============================================================
+app.get('/notice', async (c) => {
+  let rows: DbPost[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'notice' AND status = 'published' ORDER BY pinned DESC, published_at DESC LIMIT 100").all()
+      rows = (res.results || []) as any
+    }
+  } catch (e) {}
+  return c.html(
+    Layout(
+      {
+        title: `공지사항 | ${CLINIC.name}`,
+        description: `${CLINIC.name} 공지사항 — 진료 일정 변경, 병원 소식, 안내 말씀을 전해드립니다. ${CLINIC.directions}.`,
+        path: '/notice',
+        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notice' }])]
+      },
+      NoticeListPage(rows)
+    )
+  )
+})
+
+app.get('/notice/:slug', async (c) => {
+  const slug = c.req.param('slug')
+  if (!c.env?.DB) return c.notFound()
+  let post: DbPost | null = null
+  let others: DbPost[] = []
+  try {
+    post = (await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'notice' AND slug = ? AND status = 'published'").bind(slug).first()) as any
+    if (post) {
+      c.executionCtx.waitUntil(c.env.DB.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').bind(post.id).run())
+      const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'notice' AND status = 'published' AND id != ? ORDER BY published_at DESC LIMIT 5").bind(post.id).all()
+      others = (res.results || []) as any
+    }
+  } catch (e) {}
+  if (!post) return c.notFound()
+  return c.html(
+    Layout(
+      {
+        title: `${post.title} | ${CLINIC.shortName} 공지사항`,
+        description: post.excerpt || `${CLINIC.name} 공지사항 — ${post.title}`,
+        path: `/notice/${slug}`,
+        ogType: 'article',
+        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notice' }, { name: post.title, path: `/notice/${slug}` }])]
+      },
+      NoticeDetailPage(post, others)
+    )
+  )
+})
 
 // ============================================================
 // 건강칼럼 (블로그) — AI·검색 노출용 콘텐츠
 // ============================================================
-app.get('/blog', (c) =>
-  c.html(
+app.get('/blog', async (c) => {
+  let dbPosts: DbPost[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' ORDER BY published_at DESC LIMIT 60").all()
+      dbPosts = (res.results || []) as any
+    }
+  } catch (e) {}
+  return c.html(
     Layout(
       {
         title: `건강칼럼 | ${CLINIC.name} (${CLINIC.station} 도보 3분)`,
@@ -277,10 +346,10 @@ app.get('/blog', (c) =>
           blogListSchema(SITE_URL)
         ]
       },
-      BlogListPage()
+      BlogListPage(undefined, dbPosts)
     )
   )
-)
+})
 
 // 카테고리 필터
 app.get('/blog/category/:cat', (c) => {
@@ -300,11 +369,39 @@ app.get('/blog/category/:cat', (c) => {
   )
 })
 
-// 칼럼 상세
-app.get('/blog/:slug', (c) => {
+// 칼럼 상세 (정적 데이터 우선 → 없으면 DB 칼럼 조회)
+app.get('/blog/:slug', async (c) => {
   const slug = c.req.param('slug')
   const post = getPost(slug)
-  if (!post) return c.notFound()
+  if (!post) {
+    // DB 칼럼 (관리자 작성)
+    let dbPost: DbPost | null = null
+    let others: DbPost[] = []
+    try {
+      if (c.env?.DB) {
+        dbPost = (await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND slug = ? AND status = 'published'").bind(slug).first()) as any
+        if (dbPost) {
+          c.executionCtx.waitUntil(c.env.DB.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').bind(dbPost.id).run())
+          const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' AND id != ? ORDER BY published_at DESC LIMIT 3").bind(dbPost.id).all()
+          others = (res.results || []) as any
+        }
+      }
+    } catch (e) {}
+    if (!dbPost) return c.notFound()
+    return c.html(
+      Layout(
+        {
+          title: `${dbPost.title} | ${CLINIC.shortName} 건강칼럼`,
+          description: dbPost.excerpt || dbPost.title,
+          path: `/blog/${slug}`,
+          ogType: 'article',
+          article: { published: (dbPost.published_at || dbPost.created_at || '').slice(0, 10), tags: [dbPost.category].filter(Boolean) },
+          jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: dbPost.title, path: `/blog/${slug}` }])]
+        },
+        DbColumnDetailPage(dbPost, others)
+      )
+    )
+  }
   const faqSchema = blogFaqSchema(post)
   return c.html(
     Layout(
@@ -422,95 +519,29 @@ app.get('/admin', async (c) => {
     )
   }
 
-  const key = c.req.query('key')
+  const key = c.req.query('key') || ''
   let rows: any[] = []
   let dbError = ''
+  const counts = { posts: 0, columns: 0, cases: 0 }
   try {
     if (c.env?.DB) {
       const res = await c.env.DB.prepare('SELECT * FROM reservations ORDER BY created_at DESC LIMIT 200').all()
       rows = res.results || []
+      try {
+        const cnt: any = await c.env.DB.prepare(
+          "SELECT (SELECT COUNT(*) FROM posts WHERE type='notice' AND status='published') AS n, (SELECT COUNT(*) FROM posts WHERE type='column' AND status='published') AS col, (SELECT COUNT(*) FROM cases WHERE status='published') AS cs"
+        ).first()
+        counts.posts = cnt?.n || 0
+        counts.columns = cnt?.col || 0
+        counts.cases = cnt?.cs || 0
+      } catch (e) {}
     } else {
       dbError = 'D1 데이터베이스가 연결되지 않았습니다. (로컬: --d1 플래그 / 프로덕션: wrangler.jsonc d1_databases 설정 필요)'
     }
   } catch (e) {
     dbError = `DB 오류: ${String(e)}`
   }
-
-  const STATUS_LABEL: Record<string, string> = { new: '신규', contacted: '연락완료', done: '예약확정', canceled: '취소' }
-  const STATUS_COLOR: Record<string, string> = { new: '#1656C8', contacted: '#3E8EF0', done: '#16A34A', canceled: '#9CA3AF' }
-
-  return c.html(
-    Layout(
-      { title: `예약 관리 | ${CLINIC.name}`, description: '예약 문의 관리', path: '/admin', noindex: true },
-      html`
-        <section class="pad">
-          <div class="container">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:28px">
-              <div>
-                <span class="eyebrow">ADMIN</span>
-                <h1 style="font-size:1.8rem">예약 문의 관리</h1>
-              </div>
-              <div style="color:var(--ink-3);font-size:0.9rem">총 <strong style="color:var(--brand)">${rows.length}</strong>건 (최근 200건)</div>
-            </div>
-            ${dbError ? html`<div class="notice-box" style="margin-bottom:24px"><i class="fa-solid fa-triangle-exclamation"></i><div>${dbError}</div></div>` : ''}
-            <div style="overflow-x:auto;border-radius:var(--radius);border:1px solid var(--glass-border);background:#fff">
-              <table style="width:100%;border-collapse:collapse;font-size:0.9rem;min-width:760px">
-                <thead>
-                  <tr style="background:var(--bg-2);text-align:left">
-                    <th style="padding:12px 16px">#</th>
-                    <th style="padding:12px 16px">접수일시</th>
-                    <th style="padding:12px 16px">이름</th>
-                    <th style="padding:12px 16px">연락처</th>
-                    <th style="padding:12px 16px">희망 진료</th>
-                    <th style="padding:12px 16px">문의 내용</th>
-                    <th style="padding:12px 16px">상태</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rows.length === 0 && !dbError
-                    ? html`<tr><td colspan="7" style="padding:40px;text-align:center;color:var(--ink-3)">아직 접수된 예약 문의가 없습니다.</td></tr>`
-                    : ''}
-                  ${rows.map(
-                    (r: any) => html`
-                      <tr style="border-top:1px solid var(--glass-border)">
-                        <td style="padding:12px 16px;color:var(--ink-3)">${r.id}</td>
-                        <td style="padding:12px 16px;white-space:nowrap">${r.created_at}</td>
-                        <td style="padding:12px 16px;font-weight:700">${r.name}</td>
-                        <td style="padding:12px 16px"><a href="tel:${r.phone}" style="color:var(--brand);font-weight:600">${r.phone}</a></td>
-                        <td style="padding:12px 16px">${r.treatment || '-'}</td>
-                        <td style="padding:12px 16px;max-width:280px">${r.message || '-'}</td>
-                        <td style="padding:12px 16px">
-                          <select onchange="updateStatus(${r.id}, this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid var(--glass-border);font-weight:600;color:${STATUS_COLOR[r.status] || '#333'}">
-                            ${['new', 'contacted', 'done', 'canceled'].map(
-                              (s) => html`<option value="${s}" ${r.status === s ? 'selected' : ''}>${STATUS_LABEL[s]}</option>`
-                            )}
-                          </select>
-                        </td>
-                      </tr>
-                    `
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <script>
-              const ADMIN_KEY = ${JSON.stringify(key)};
-              async function updateStatus(id, status) {
-                try {
-                  const res = await fetch('/api/admin/reservation/' + id + '/status?key=' + encodeURIComponent(ADMIN_KEY), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status })
-                  });
-                  const j = await res.json();
-                  if (!j.ok) alert('상태 변경 실패: ' + (j.error || ''));
-                } catch (e) { alert('상태 변경 중 오류가 발생했습니다.'); }
-              }
-            </script>
-          </div>
-        </section>
-      `
-    )
-  )
+  return c.html(AdminShell('예약 문의', key, 'reservations', AdminReservations(rows, dbError, counts)))
 })
 
 app.post('/api/admin/reservation/:id/status', async (c) => {
@@ -528,11 +559,223 @@ app.post('/api/admin/reservation/:id/status', async (c) => {
 })
 
 // ============================================================
+// 관리자 CMS — 공지·칼럼·비포애프터
+// ============================================================
+// 한글 슬러그 유지 (네이버 등 한글 URL 색인 우수) — 공백은 하이픈, 특수문자만 제거
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9가-힣\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+
+// 게시글 목록 (관리자)
+app.get('/admin/posts', async (c) => {
+  if (!adminAuthed(c)) return c.redirect('/admin')
+  const key = c.req.query('key') || ''
+  const type = c.req.query('type') === 'column' ? 'column' : 'notice'
+  let rows: DbPost[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare('SELECT id, type, slug, title, excerpt, category, status, pinned, views, published_at, created_at, updated_at, "" AS content_html, "" AS thumbnail FROM posts WHERE type = ? ORDER BY pinned DESC, created_at DESC LIMIT 300').bind(type).all()
+      rows = (res.results || []) as any
+    }
+  } catch (e) {}
+  return c.html(AdminShell(type === 'notice' ? '공지사항' : '건강칼럼', key, type, AdminPostList(type, rows, key)))
+})
+
+// 새 글 작성
+app.get('/admin/posts/new', async (c) => {
+  if (!adminAuthed(c)) return c.redirect('/admin')
+  const key = c.req.query('key') || ''
+  const type = c.req.query('type') === 'column' ? 'column' : 'notice'
+  return c.html(AdminShell('새 글 쓰기', key, type, AdminPostEditor(type, null, key)))
+})
+
+// 글 수정
+app.get('/admin/posts/:id/edit', async (c) => {
+  if (!adminAuthed(c)) return c.redirect('/admin')
+  const key = c.req.query('key') || ''
+  const id = Number(c.req.param('id'))
+  if (!c.env?.DB || !id) return c.redirect(`/admin?key=${encodeURIComponent(key)}`)
+  const post = (await c.env.DB.prepare('SELECT * FROM posts WHERE id = ?').bind(id).first()) as any
+  if (!post) return c.redirect(`/admin?key=${encodeURIComponent(key)}`)
+  return c.html(AdminShell('글 수정', key, post.type, AdminPostEditor(post.type, post, key)))
+})
+
+// 글 저장 (신규/수정)
+app.post('/api/admin/posts', async (c) => {
+  if (!adminAuthed(c)) return c.json({ ok: false, error: 'unauthorized' }, 401)
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  try {
+    const b = await c.req.json()
+    const type = b.type === 'column' ? 'column' : 'notice'
+    const title = String(b.title || '').trim()
+    if (!title) return c.json({ ok: false, error: '제목이 비어 있습니다' }, 400)
+    if (title.length > 200) return c.json({ ok: false, error: '제목은 200자 이내로 입력해 주세요' }, 400)
+    const status = b.status === 'published' ? 'published' : 'draft'
+    let slug = String(b.slug || '').trim() || slugify(title)
+    if (!slug) slug = `${type}-${Date.now()}`
+    slug = slug.slice(0, 120)
+    const contentHtml = String(b.content_html || '')
+    if (contentHtml.length > 500_000) return c.json({ ok: false, error: '본문이 너무 깁니다 (이미지가 많다면 나눠서 작성해 주세요)' }, 400)
+    const excerpt = String(b.excerpt || '').slice(0, 300)
+    const category = String(b.category || '').slice(0, 50)
+    const pinned = b.pinned ? 1 : 0
+
+    if (b.id) {
+      // 수정 — 슬러그 중복 시 다른 글과 충돌 방지
+      const dup: any = await c.env.DB.prepare('SELECT id FROM posts WHERE slug = ? AND id != ?').bind(slug, Number(b.id)).first()
+      if (dup) slug = `${slug}-${b.id}`
+      await c.env.DB.prepare(
+        `UPDATE posts SET title=?, slug=?, excerpt=?, content_html=?, category=?, pinned=?, status=?,
+         published_at = CASE WHEN ? = 'published' AND published_at IS NULL THEN datetime('now','+9 hours') ELSE published_at END,
+         updated_at = datetime('now','+9 hours') WHERE id = ?`
+      ).bind(title, slug, excerpt, contentHtml, category, pinned, status, status, Number(b.id)).run()
+      return c.json({ ok: true, id: Number(b.id), slug })
+    } else {
+      const dup: any = await c.env.DB.prepare('SELECT id FROM posts WHERE slug = ?').bind(slug).first()
+      if (dup) slug = `${slug}-${Date.now() % 10000}`
+      const res = await c.env.DB.prepare(
+        `INSERT INTO posts (type, slug, title, excerpt, content_html, category, pinned, status, published_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN datetime('now','+9 hours') ELSE NULL END)`
+      ).bind(type, slug, title, excerpt, contentHtml, category, pinned, status, status).run()
+      return c.json({ ok: true, id: res.meta.last_row_id, slug })
+    }
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
+})
+
+// 글 삭제
+app.delete('/api/admin/posts/:id', async (c) => {
+  if (!adminAuthed(c)) return c.json({ ok: false, error: 'unauthorized' }, 401)
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  try {
+    await c.env.DB.prepare('DELETE FROM posts WHERE id = ?').bind(Number(c.req.param('id'))).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
+})
+
+// 비포애프터 목록 (관리자)
+app.get('/admin/cases', async (c) => {
+  if (!adminAuthed(c)) return c.redirect('/admin')
+  const key = c.req.query('key') || ''
+  let rows: DbCase[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare('SELECT * FROM cases ORDER BY created_at DESC LIMIT 300').all()
+      rows = (res.results || []) as any
+    }
+  } catch (e) {}
+  return c.html(AdminShell('비포애프터', key, 'cases', AdminCases(rows, key)))
+})
+
+// 비포애프터 저장
+app.post('/api/admin/cases', async (c) => {
+  if (!adminAuthed(c)) return c.json({ ok: false, error: 'unauthorized' }, 401)
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  try {
+    const b = await c.req.json()
+    const title = String(b.title || '').trim()
+    if (!title) return c.json({ ok: false, error: '제목이 비어 있습니다' }, 400)
+    const status = b.status === 'published' ? 'published' : 'draft'
+    const vals = [
+      title.slice(0, 200),
+      String(b.category || '임플란트').slice(0, 50),
+      String(b.age_group || '').slice(0, 20),
+      String(b.gender || '').slice(0, 10),
+      String(b.area || '').slice(0, 30),
+      String(b.description || '').slice(0, 1000),
+      String(b.before_img || '').slice(0, 300),
+      String(b.after_img || '').slice(0, 300),
+      status
+    ]
+    if (b.id) {
+      await c.env.DB.prepare(
+        "UPDATE cases SET title=?, category=?, age_group=?, gender=?, area=?, description=?, before_img=?, after_img=?, status=?, updated_at=datetime('now','+9 hours') WHERE id=?"
+      ).bind(...vals, Number(b.id)).run()
+      return c.json({ ok: true, id: Number(b.id) })
+    } else {
+      const res = await c.env.DB.prepare(
+        'INSERT INTO cases (title, category, age_group, gender, area, description, before_img, after_img, status) VALUES (?,?,?,?,?,?,?,?,?)'
+      ).bind(...vals).run()
+      return c.json({ ok: true, id: res.meta.last_row_id })
+    }
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
+})
+
+// 비포애프터 삭제
+app.delete('/api/admin/cases/:id', async (c) => {
+  if (!adminAuthed(c)) return c.json({ ok: false, error: 'unauthorized' }, 401)
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  try {
+    await c.env.DB.prepare('DELETE FROM cases WHERE id = ?').bind(Number(c.req.param('id'))).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
+})
+
+// ============================================================
+// R2 이미지 업로드 / 서빙
+// ============================================================
+const IMG_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/avif': 'avif'
+}
+
+app.post('/api/admin/upload', async (c) => {
+  if (!adminAuthed(c)) return c.json({ ok: false, error: 'unauthorized' }, 401)
+  if (!c.env?.R2) return c.json({ ok: false, error: 'R2 스토리지가 연결되지 않았습니다' }, 500)
+  try {
+    const form = await c.req.formData()
+    const file = form.get('file') as File | null
+    if (!file) return c.json({ ok: false, error: '파일이 없습니다' }, 400)
+    const ext = IMG_TYPES[file.type]
+    if (!ext) return c.json({ ok: false, error: '이미지 파일(JPG/PNG/WebP/GIF)만 업로드할 수 있습니다' }, 400)
+    if (file.size > 8 * 1024 * 1024) return c.json({ ok: false, error: '8MB 이하 이미지만 업로드할 수 있습니다' }, 400)
+    const now = new Date()
+    const key = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+    await c.env.R2.put(key, await file.arrayBuffer(), { httpMetadata: { contentType: file.type } })
+    return c.json({ ok: true, key, url: `/media/${key}` })
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
+})
+
+// R2 이미지 서빙 (공개 — 캐시 1년)
+app.get('/media/*', async (c) => {
+  if (!c.env?.R2) return c.notFound()
+  const key = c.req.path.replace(/^\/media\//, '')
+  if (!key || key.includes('..')) return c.notFound()
+  const obj = await c.env.R2.get(key)
+  if (!obj) return c.notFound()
+  return new Response(obj.body as any, {
+    headers: {
+      'Content-Type': obj.httpMetadata?.contentType || 'image/jpeg',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'X-Content-Type-Options': 'nosniff'
+    }
+  })
+})
+
+// ============================================================
 // SEO 기술 파일
 // ============================================================
-app.get('/sitemap.xml', (c) => {
+app.get('/sitemap.xml', async (c) => {
   const urls: { loc: string; pri: string; mod?: string; freq?: string }[] = [
     { loc: '/', pri: '1.0', freq: 'weekly' },
+    { loc: '/notice', pri: '0.6', freq: 'weekly' },
     { loc: '/mission', pri: '0.8', freq: 'monthly' },
     { loc: '/doctors', pri: '0.8', freq: 'monthly' },
     { loc: '/treatments', pri: '0.9', freq: 'monthly' },
@@ -549,6 +792,17 @@ app.get('/sitemap.xml', (c) => {
   BLOG_CATEGORIES.forEach((c) => urls.push({ loc: `/blog/category/${c.slug}`, pri: '0.6', freq: 'weekly' }))
   BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: p.updated || p.date, freq: 'monthly' }))
   AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({ loc: `/area/${a.slug}-${ts}`, pri: '0.6', freq: 'monthly' })))
+
+  // DB 게시글 (공지·관리자 칼럼)
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT type, slug, published_at, updated_at FROM posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 500").all()
+      for (const p of (res.results || []) as any[]) {
+        const mod = String(p.updated_at || p.published_at || '').slice(0, 10) || undefined
+        urls.push({ loc: p.type === 'notice' ? `/notice/${p.slug}` : `/blog/${p.slug}`, pri: p.type === 'notice' ? '0.5' : '0.7', mod, freq: 'monthly' })
+      }
+    }
+  } catch (e) {}
 
   const today = new Date().toISOString().split('T')[0]
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

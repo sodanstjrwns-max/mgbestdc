@@ -14,5 +14,12 @@
       "database_name": "magok-best-dental-production",
       "database_id": "fbcb5d25-f1a5-4d98-8f21-060299aa12a3"
     }
+  ],
+  // R2 — 비포애프터·칼럼 이미지 저장
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "magok-best-dental-media"
+    }
   ]
 }

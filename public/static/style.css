@@ -992,6 +992,39 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .ptag { padding: 6px 14px; background: #fff; border: 1px solid var(--line-3); border-radius: 999px; font-size: 0.78rem; color: var(--ink-3); }
 .post-disclaimer { margin-top: 30px; font-size: 0.8rem; color: var(--ink-4); line-height: 1.7; padding: 16px 20px; background: var(--bg-1); border-radius: var(--radius); }
 
+/* ---------- CMS 본문 (Toast UI Editor 출력) ---------- */
+.cms-body h1 { font-size: 1.55rem; margin: 44px 0 14px; }
+.cms-body h3 { font-size: 1.15rem; margin: 32px 0 10px; }
+.cms-body h4 { font-size: 1.02rem; margin: 24px 0 8px; }
+.cms-body p { margin-bottom: 14px; }
+.cms-body img { max-width: 100%; height: auto; border-radius: var(--radius); margin: 18px 0; display: block; }
+.cms-body ul, .cms-body ol { margin: 14px 0 14px 22px; color: var(--ink-2); line-height: 1.9; }
+.cms-body li { margin-bottom: 6px; }
+.cms-body blockquote { margin: 20px 0; padding: 16px 22px; border-left: 3px solid var(--brand); background: var(--bg-1); border-radius: 0 var(--radius) var(--radius) 0; color: var(--ink-2); }
+.cms-body blockquote p { margin: 0; }
+.cms-body table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.92rem; }
+.cms-body table th { background: var(--bg-2); font-weight: 700; }
+.cms-body table th, .cms-body table td { border: 1px solid var(--line); padding: 10px 14px; text-align: left; }
+.cms-body a { color: var(--brand); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.cms-body hr { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+.cms-body pre { background: var(--bg-2); border-radius: var(--radius); padding: 16px 20px; overflow-x: auto; margin: 18px 0; font-size: 0.85rem; }
+
+/* ---------- 공지사항 목록 ---------- */
+.notice-list { display: flex; flex-direction: column; border: 1px solid var(--line-3); border-radius: var(--radius-lg); overflow: hidden; background: #fff; }
+.notice-row { display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--line); transition: background 0.2s; }
+.notice-row:last-child { border-bottom: none; }
+.notice-row:hover { background: var(--bg-1); }
+.notice-row.is-pinned { background: #F4F8FE; }
+.nr-badge { flex-shrink: 0; padding: 4px 12px; border-radius: 999px; font-size: 0.74rem; font-weight: 700; background: var(--bg-2); color: var(--ink-3); white-space: nowrap; }
+.is-pinned .nr-badge { background: var(--brand); color: #fff; }
+.nr-title { flex: 1; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nr-date { flex-shrink: 0; font-size: 0.84rem; color: var(--ink-3); }
+@media (max-width: 640px) {
+  .notice-row { padding: 15px 16px; gap: 10px; }
+  .nr-title { white-space: normal; font-size: 0.92rem; }
+  .nr-date { display: none; }
+}
+
 /* ============================================================
    폼
    ============================================================ */
