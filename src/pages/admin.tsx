@@ -25,12 +25,12 @@ export function AdminShell(title: string, adminKey: string, active: string, body
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
 <title>${title} | 마곡베스트치과 관리자</title>
-<link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg" />
+<link rel="icon" type="image/png" href="/static/img/favicon.png" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
 <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
 <style>
-:root{--brand:#1656C8;--brand-2:#3E8EF0;--ink:#0F1B2D;--ink-2:#3D4A5F;--ink-3:#74829C;--line:#E3E9F2;--bg:#F5F8FC;--r:14px}
+:root{--brand:#0C5B9D;--brand-2:#00B4E5;--ink:#0F1B2D;--ink-2:#3D4A5F;--ink-3:#74829C;--line:#E3E9F2;--bg:#F5F8FC;--r:14px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6}
 a{color:inherit;text-decoration:none}
@@ -58,7 +58,7 @@ th{background:var(--bg);text-align:left;padding:12px 16px;font-weight:700;color:
 td{padding:12px 16px;border-top:1px solid var(--line);vertical-align:middle}
 tr:hover td{background:#FAFCFF}
 .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:0.76rem;font-weight:700}
-.b-pub{background:#EAF6EE;color:#16A34A}.b-draft{background:#F1F3F7;color:#74829C}.b-pin{background:#EAF1FD;color:#1656C8}
+.b-pub{background:#EAF6EE;color:#16A34A}.b-draft{background:#F1F3F7;color:#74829C}.b-pin{background:#EAF1FD;color:#0C5B9D}
 .form-row{margin-bottom:18px}
 .form-row label{display:block;font-weight:700;font-size:0.88rem;margin-bottom:7px;color:var(--ink-2)}
 .inp{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:0.93rem;background:#fff;transition:border .18s}
@@ -463,7 +463,7 @@ export function AdminCases(rows: DbCase[], adminKey: string) {
 // ------------------------------------------------------------
 export function AdminReservations(rows: any[], dbError: string, counts: { posts: number; columns: number; cases: number }) {
   const STATUS_LABEL: Record<string, string> = { new: '신규', contacted: '연락완료', done: '예약확정', canceled: '취소' }
-  const STATUS_COLOR: Record<string, string> = { new: '#1656C8', contacted: '#3E8EF0', done: '#16A34A', canceled: '#9CA3AF' }
+  const STATUS_COLOR: Record<string, string> = { new: '#0C5B9D', contacted: '#00B4E5', done: '#16A34A', canceled: '#9CA3AF' }
   const newCnt = rows.filter((r) => r.status === 'new').length
   return html`
     <div class="stat-row">

@@ -31,22 +31,22 @@
   --ink-3: #74829C;
   --ink-4: #A2AEC4;
 
-  /* ---- 액센트: 로고 블루(주) + 스카이(디테일) ---- */
-  --pine: #1656C8;          /* 로고 블루 (사파이어) */
-  --pine-2: #0F3E96;
-  --pine-soft: #E4EDFB;
-  --bronze: #3E8EF0;
-  --bronze-2: #2C6FD6;
-  --bronze-soft: #E7F1FE;
+  /* ---- 액센트: 정식 로고 컴러 (로고 원본 추출값) ---- */
+  --pine: #0C5B9D;          /* 로고 딥 블루 (본문 타이포·심볼) */
+  --pine-2: #08509A;        /* 심볼 배경 네이비 블루 */
+  --pine-soft: #E3EEF8;
+  --bronze: #00B4E5;        /* 로고 시안 ("베스트" 강조색) */
+  --bronze-2: #009BC7;
+  --bronze-soft: #DFF5FC;
 
   /* ---- 레거시 별칭 (인라인 스타일 호환) ---- */
-  --brand: #1656C8;
-  --brand-2: #0F3E96;
-  --brand-glow: #4C8DF5;
-  --brand-soft: #E4EDFB;
-  --brand-dark: #0F3E96;
-  --acc: #3E8EF0;
-  --acc-blue: #1656C8;
+  --brand: #0C5B9D;
+  --brand-2: #08509A;
+  --brand-glow: #33C4EC;
+  --brand-soft: #E3EEF8;
+  --brand-dark: #073F73;
+  --acc: #00B4E5;
+  --acc-blue: #0C5B9D;
   --text: #17202E;
   --text-3: #74829C;
   --fg: #17202E;
@@ -112,7 +112,7 @@ body::before {
 .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .aurora span { position: absolute; border-radius: 50%; filter: blur(110px); opacity: 0.55; }
 .aurora .a1 { width: 46vw; height: 46vw; top: -18vw; right: -12vw; background: radial-gradient(circle, rgba(62,142,240,0.14), transparent 70%); }
-.aurora .a2 { width: 40vw; height: 40vw; bottom: -16vw; left: -12vw; background: radial-gradient(circle, rgba(22,86,200,0.10), transparent 70%); }
+.aurora .a2 { width: 40vw; height: 40vw; bottom: -16vw; left: -12vw; background: radial-gradient(circle, rgba(12,91,157,0.10), transparent 70%); }
 .aurora .a3 { display: none; }
 
 .scroll-progress {
@@ -176,8 +176,8 @@ em, .doctor-quote em { font-style: normal; color: var(--pine); }
 .btn i { font-size: 0.85em; transition: transform 0.35s var(--ease); }
 .btn:hover i.fa-arrow-right { transform: translateX(4px); }
 
-.btn-primary { background: var(--pine); color: #fff; box-shadow: 0 8px 22px rgba(22, 86, 200, 0.25); }
-.btn-primary:hover { background: var(--pine-2); transform: translateY(-2px); box-shadow: 0 14px 30px rgba(22, 86, 200, 0.3); }
+.btn-primary { background: var(--pine); color: #fff; box-shadow: 0 8px 22px rgba(12, 91, 157, 0.25); }
+.btn-primary:hover { background: var(--pine-2); transform: translateY(-2px); box-shadow: 0 14px 30px rgba(12, 91, 157, 0.3); }
 
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
 .btn-ghost:hover { border-color: var(--pine); color: var(--pine); transform: translateY(-2px); }
@@ -209,11 +209,12 @@ em, .doctor-quote em { font-style: normal; color: var(--pine); }
 
 .logo { display: flex; align-items: center; gap: 11px; font-weight: 800; color: var(--ink); font-size: 1.06rem; letter-spacing: -0.02em; }
 .logo small { display: block; font-size: 0.66rem; font-weight: 500; letter-spacing: 0.02em; color: var(--ink-3); margin-top: 2px; }
+.logo-img { display: block; height: 34px; width: auto; }
 .logo-mark {
   width: 40px; height: 40px; border-radius: 13px; flex: none;
   background: var(--pine); color: #EAF2FE;
   display: grid; place-items: center; font-size: 1rem;
-  box-shadow: 0 6px 16px rgba(22, 86, 200, 0.28);
+  box-shadow: 0 6px 16px rgba(12, 91, 157, 0.28);
 }
 
 .gnb { display: flex; gap: 4px; }
@@ -466,7 +467,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   align-items: baseline; padding: 24px 4px; border-bottom: 1px solid var(--line);
   transition: background 0.25s var(--ease), padding 0.25s var(--ease);
 }
-.tx-row:hover { background: rgba(22, 86, 200, 0.035); padding-left: 14px; padding-right: 0; }
+.tx-row:hover { background: rgba(12, 91, 157, 0.035); padding-left: 14px; padding-right: 0; }
 .tx-name { font-weight: 750; color: var(--text); font-size: clamp(1.05rem, 1.6vw, 1.25rem); letter-spacing: -0.02em; }
 .tx-desc { color: var(--ink-3); font-size: 0.92rem; }
 .tx-go { font-size: 0.82rem; font-weight: 700; color: var(--ink-4); white-space: nowrap; transition: color 0.25s; }
@@ -605,7 +606,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   border-bottom: 1px solid var(--line-3);
   background:
     radial-gradient(60% 120% at 85% -20%, rgba(62,142,240,0.10), transparent 60%),
-    radial-gradient(50% 110% at 10% -10%, rgba(22,86,200,0.08), transparent 60%);
+    radial-gradient(50% 110% at 10% -10%, rgba(12,91,157,0.08), transparent 60%);
 }
 .page-hero h1 { font-size: clamp(2.2rem, 5.4vw, 3.6rem); margin: 14px 0 16px; }
 .ph-sub { max-width: 640px; color: var(--ink-3); font-size: 1.02rem; }
@@ -659,7 +660,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius);
   overflow: hidden; box-shadow: var(--sh-sm); transition: box-shadow 0.3s;
 }
-.faq-item[open] { box-shadow: var(--sh-md); border-color: rgba(22,86,200,0.22); }
+.faq-item[open] { box-shadow: var(--sh-md); border-color: rgba(12,91,157,0.22); }
 .faq-item summary {
   padding: 19px 24px; cursor: pointer; list-style: none;
   font-weight: 700; color: var(--ink); font-size: 0.97rem;
@@ -696,7 +697,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 /* ---- 진료 상세: 증상 자가체크 ---- */
 .t-check {
   background: linear-gradient(160deg, var(--brand-soft), #F4F8FE 70%);
-  border: 1px solid rgba(22,86,200,0.16);
+  border: 1px solid rgba(12,91,157,0.16);
   border-radius: var(--radius-lg);
   padding: clamp(24px, 4vw, 36px);
   margin-bottom: clamp(36px, 5vw, 52px);
@@ -709,7 +710,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .t-check-list { list-style: none; display: grid; gap: 10px; margin: 0 0 16px; padding: 0; }
 .t-check-list li {
   display: flex; align-items: flex-start; gap: 12px;
-  background: #fff; border: 1px solid rgba(22,86,200,0.1);
+  background: #fff; border: 1px solid rgba(12,91,157,0.1);
   border-radius: var(--radius); padding: 13px 16px;
   font-size: 0.93rem; color: var(--ink-2); line-height: 1.6;
 }
@@ -795,7 +796,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   background: var(--bg-1); border: 1px solid var(--line-3); border-radius: 999px;
   padding: 6px 13px; transition: all 0.15s;
 }
-.t-area-chip:hover { background: var(--brand-soft); border-color: rgba(22,86,200,0.3); color: var(--brand); }
+.t-area-chip:hover { background: var(--brand-soft); border-color: rgba(12,91,157,0.3); color: var(--brand); }
 
 /* ---- 진료 상세: 관련 칼럼 ---- */
 .t-posts { display: grid; gap: 10px; }
@@ -805,7 +806,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   padding: 16px 20px; box-shadow: var(--sh-sm);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.t-post-link:hover { border-color: rgba(22,86,200,0.3); box-shadow: var(--sh-md); }
+.t-post-link:hover { border-color: rgba(12,91,157,0.3); box-shadow: var(--sh-md); }
 .t-post-link strong { font-size: 0.92rem; color: var(--ink-1); font-weight: 600; line-height: 1.5; }
 .t-post-link > span { flex: none; font-size: 0.78rem; color: var(--brand); white-space: nowrap; }
 .t-post-link > span i { font-size: 0.68rem; margin-left: 3px; }
@@ -827,7 +828,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   padding: 3px 9px; border-radius: 99px; margin-right: 9px; vertical-align: 2px;
   background: rgba(15,23,42,0.06); color: var(--ink-2);
 }
-.t-myth-tag.is-fact { background: rgba(22,86,200,0.1); color: var(--brand); }
+.t-myth-tag.is-fact { background: rgba(12,91,157,0.1); color: var(--brand); }
 
 /* --- 용어 사전 --- */
 .t-gloss { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 0; }
@@ -1033,7 +1034,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   border: 1.5px solid var(--line-2); background: #fff; color: var(--ink);
   font-family: var(--sans); font-size: 1rem; transition: all 0.25s; outline: none; /* 16px 이상 — iOS 자동확대 방지 */
 }
-.form-input:focus { border-color: var(--pine); box-shadow: 0 0 0 4px rgba(22,86,200,0.1); }
+.form-input:focus { border-color: var(--pine); box-shadow: 0 0 0 4px rgba(12,91,157,0.1); }
 .form-input::placeholder { color: var(--ink-4); }
 select.form-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2374829C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 18px center; }
 
@@ -1097,6 +1098,7 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
 .footer-brand .logo { color: #fff; margin-bottom: 18px; }
 .footer-brand .logo small { color: #9CC0F6; }
 .footer-brand .logo-mark { background: rgba(255,255,255,0.1); color: #BCD5FA; box-shadow: none; }
+.footer-brand .logo-img { height: 30px; }
 .footer-brand p { font-size: 0.88rem; line-height: 1.8; }
 .footer-col .footer-h { color: #fff; font-size: 0.94rem; margin-bottom: 16px; font-weight: 750; }
 .footer-col a { display: block; padding: 6px 0; font-size: 0.87rem; color: rgba(255,255,255,0.6); transition: color 0.2s; }
@@ -1166,6 +1168,7 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
 }
 
 @media (max-width: 720px) {
+  .logo-img { height: 27px; }
   .hero { margin: 0; border-radius: 0; min-height: calc(96svh - var(--header-h)); }
   .hero-meta { flex-direction: column; gap: 12px; }
   .hero .coord { text-align: left; }

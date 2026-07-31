@@ -66,8 +66,8 @@ export function Head(meta: SeoMeta) {
       <meta name="twitter:image" content="${SITE_URL}/static/img/og.png" />
 
       <!-- Favicon -->
-      <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg" />
-      <link rel="apple-touch-icon" href="/static/img/favicon.svg" />
+      <link rel="icon" type="image/png" href="/static/img/favicon.png" />
+      <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png" />
 
       <!-- Fonts (Pretendard 단일 서체 — Noto Serif 제거로 요청 1개 절감) -->
       <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -114,7 +114,7 @@ export function organizationSchema() {
     telephone: CLINIC.phone,
     email: CLINIC.email,
     image: SITE_URL + '/static/img/og.png',
-    logo: SITE_URL + '/static/img/favicon.svg',
+    logo: SITE_URL + '/static/img/symbol-512.png',
     slogan: CLINIC.mission,
     foundingDate: String(CLINIC.openedYear),
     inLanguage: 'ko',
@@ -193,8 +193,7 @@ function Header() {
     <header class="site-header">
       <div class="container">
         <a href="/" class="logo" aria-label="${CLINIC.name} 홈">
-          <span class="logo-mark"><i class="fa-solid fa-tooth"></i></span>
-          <span>마곡베스트치과<small>MAGOK BEST DENTAL</small></span>
+          <img src="/static/img/logo-h.png" alt="마곡베스트치과 로고" class="logo-img" width="1024" height="177" />
         </a>
 
         <nav aria-label="주요 메뉴">
@@ -309,8 +308,7 @@ function Footer() {
         <div class="footer-top">
           <div class="footer-brand">
             <div class="logo">
-              <span class="logo-mark"><i class="fa-solid fa-tooth"></i></span>
-              <span>마곡베스트치과<small>MAGOK BEST DENTAL</small></span>
+              <img src="/static/img/logo-h-white.png" alt="마곡베스트치과 로고" class="logo-img" width="1024" height="177" loading="lazy" />
             </div>
             <p>${CLINIC.mission}<br />${CLINIC.directions}에 위치한 ${CLINIC.region} 강서구의 환자 중심 치과입니다.</p>
           </div>
