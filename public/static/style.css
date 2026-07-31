@@ -810,6 +810,31 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .t-post-link > span { flex: none; font-size: 0.78rem; color: var(--brand); white-space: nowrap; }
 .t-post-link > span i { font-size: 0.68rem; margin-left: 3px; }
 
+/* --- 치료 전후 관리 수칙 --- */
+.t-care-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.t-care-item { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--sh-sm); }
+.t-care-item strong { display: flex; align-items: center; gap: 8px; font-size: 0.92rem; color: var(--ink-1); font-weight: 700; margin-bottom: 7px; }
+.t-care-item strong i { color: var(--brand); font-size: 0.9rem; }
+.t-care-item p { font-size: 0.85rem !important; color: var(--ink-3) !important; line-height: 1.7 !important; margin: 0 !important; }
+
+/* --- 오해와 사실 --- */
+.t-myth-list { display: grid; gap: 12px; margin-top: 4px; }
+.t-myth-item { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--sh-sm); }
+.t-myth-q { font-size: 0.93rem !important; font-weight: 700; color: var(--ink-1) !important; margin: 0 0 10px !important; line-height: 1.6 !important; }
+.t-myth-a { font-size: 0.87rem !important; color: var(--ink-3) !important; margin: 0 !important; line-height: 1.75 !important; }
+.t-myth-tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+  padding: 3px 9px; border-radius: 99px; margin-right: 9px; vertical-align: 2px;
+  background: rgba(15,23,42,0.06); color: var(--ink-2);
+}
+.t-myth-tag.is-fact { background: rgba(22,86,200,0.1); color: var(--brand); }
+
+/* --- 용어 사전 --- */
+.t-gloss { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 0; }
+.t-gloss-item { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--sh-sm); }
+.t-gloss-item dt { font-size: 0.9rem; font-weight: 700; color: var(--brand); margin-bottom: 5px; }
+.t-gloss-item dd { font-size: 0.83rem; color: var(--ink-3); line-height: 1.65; margin: 0; }
+
 .proc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .proc-card { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius); padding: 22px; box-shadow: var(--sh-sm); }
 .proc-card h3 { font-size: 1rem; margin-bottom: 7px; color: var(--pine-2); }
@@ -1126,6 +1151,8 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .ba-grid { grid-template-columns: 1fr; }
   .blog-grid { grid-template-columns: 1fr; }
   .proc-grid { grid-template-columns: 1fr; }
+  .t-care-grid { grid-template-columns: 1fr; }
+  .t-gloss { grid-template-columns: 1fr; }
   .footer-top { grid-template-columns: 1fr; gap: 28px; }
   .footer-areas { flex-direction: column; gap: 10px; }
   .float-cta { display: none; }

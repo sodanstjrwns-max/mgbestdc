@@ -1,6 +1,7 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, type Treatment, DOCTORS, AREAS } from '../data/clinic'
 import { BLOG_POSTS } from '../data/blog'
+import { TX_DETAIL } from '../data/tx-detail'
 import { srcset, SIZES } from '../components/img'
 
 // ============================================================
@@ -103,15 +104,20 @@ export function TreatmentDetailPage(t: Treatment) {
   const doctor = DOCTORS[0]
   const heroImg = TX_IMG[t.slug]
   const relatedPosts = BLOG_POSTS.filter((p) => p.related.includes(t.slug)).slice(0, 3)
+  const detail = TX_DETAIL[t.slug]
   // 목차 (TOC) — 본문 순서와 동일하게 구성
   const tocItems: { id: string; label: string }[] = []
   if (t.checklist) tocItems.push({ id: 'sec-check', label: '증상 자가 체크' })
   ;(t.sections || []).forEach((s, i) => tocItems.push({ id: `sec-${i}`, label: s.h }))
+  ;(detail?.deepDive || []).forEach((s, i) => tocItems.push({ id: `sec-deep-${i}`, label: s.h }))
   if (t.steps) tocItems.push({ id: 'sec-steps', label: '진행 과정' })
+  if (detail?.aftercare) tocItems.push({ id: 'sec-care', label: '치료 전후 관리 수칙' })
   if (t.compare) tocItems.push({ id: 'sec-compare', label: t.compare.title })
   if (t.equipmentUse) tocItems.push({ id: 'sec-equip', label: '활용 장비' })
+  if (detail?.mythFact) tocItems.push({ id: 'sec-myth', label: '오해와 사실' })
   if (t.procedures) tocItems.push({ id: 'sec-proc', label: '세부 진료' })
   if (t.faqs) tocItems.push({ id: 'sec-faq', label: '자주 묻는 질문' })
+  if (detail?.glossary) tocItems.push({ id: 'sec-gloss', label: '알아두면 좋은 용어' })
   // 지역 칩 — 해당 과목이 지역페이지 대상(implant/ortho/cavity/cosmetic)이면 자기 slug, 아니면 implant로 연결
   const areaSlug = ['implant', 'ortho', 'cavity', 'cosmetic'].includes(t.slug) ? t.slug : 'implant'
   return html`
@@ -160,6 +166,18 @@ export function TreatmentDetailPage(t: Treatment) {
                 .join('')
             )}
 
+            ${raw(
+              (detail?.deepDive || [])
+                .map(
+                  (s, i) => `
+              <div class="t-section reveal" id="sec-deep-${i}">
+                <h2>${s.h}</h2>
+                <p>${s.p}</p>
+              </div>`
+                )
+                .join('')
+            )}
+
             ${
               t.steps
                 ? raw(`
@@ -177,6 +195,27 @@ export function TreatmentDetailPage(t: Treatment) {
                     .join('')}
                 </ol>
                 <p class="t-check-note">치료 기간과 내원 횟수는 구강 상태에 따라 개인차가 있으며, 진단 후 개별적으로 안내드립니다.</p>
+              </div>`)
+                : ''
+            }
+
+            ${
+              detail?.aftercare
+                ? raw(`
+              <div class="t-section reveal" id="sec-care">
+                <h2>치료 전후 관리 수칙</h2>
+                <div class="t-care-grid">
+                  ${detail.aftercare
+                    .map(
+                      (c) => `
+                  <div class="t-care-item">
+                    <strong><i class="fa-regular fa-circle-check" aria-hidden="true"></i>${c.name}</strong>
+                    <p>${c.desc}</p>
+                  </div>`
+                    )
+                    .join('')}
+                </div>
+                <p class="t-check-note">관리 방법과 회복 경과는 구강 상태에 따라 개인차가 있으며, 치료 후 개별적으로 상세히 안내드립니다.</p>
               </div>`)
                 : ''
             }
@@ -215,6 +254,26 @@ export function TreatmentDetailPage(t: Treatment) {
                   <div class="t-equip-item">
                     <strong>${e.name}</strong>
                     <p>${e.why}</p>
+                  </div>`
+                    )
+                    .join('')}
+                </div>
+              </div>`)
+                : ''
+            }
+
+            ${
+              detail?.mythFact
+                ? raw(`
+              <div class="t-section reveal" id="sec-myth">
+                <h2>${t.name}, 오해와 사실</h2>
+                <div class="t-myth-list">
+                  ${detail.mythFact
+                    .map(
+                      (m) => `
+                  <div class="t-myth-item">
+                    <p class="t-myth-q"><span class="t-myth-tag">오해</span>${m.myth}</p>
+                    <p class="t-myth-a"><span class="t-myth-tag is-fact">사실</span>${m.fact}</p>
                   </div>`
                     )
                     .join('')}
@@ -266,6 +325,26 @@ export function TreatmentDetailPage(t: Treatment) {
                     )
                     .join('')}
                 </div>
+              </div>`)
+                : ''
+            }
+
+            ${
+              detail?.glossary
+                ? raw(`
+              <div class="t-section reveal" id="sec-gloss">
+                <h2>알아두면 좋은 용어</h2>
+                <dl class="t-gloss">
+                  ${detail.glossary
+                    .map(
+                      (g) => `
+                  <div class="t-gloss-item">
+                    <dt>${g.term}</dt>
+                    <dd>${g.def}</dd>
+                  </div>`
+                    )
+                    .join('')}
+                </dl>
               </div>`)
                 : ''
             }
