@@ -296,22 +296,40 @@ app.get('/reservation', (c) =>
 )
 
 app.get('/cases', async (c) => {
+  const cat = (c.req.query('cat') || '').trim() || undefined
   let rows: DbCase[] = []
   try {
     if (c.env?.DB) {
-      const res = await c.env.DB.prepare("SELECT * FROM cases WHERE status = 'published' ORDER BY created_at DESC LIMIT 100").all()
+      const res = cat
+        ? await c.env.DB.prepare("SELECT * FROM cases WHERE status = 'published' AND category = ? ORDER BY created_at DESC LIMIT 100").bind(cat).all()
+        : await c.env.DB.prepare("SELECT * FROM cases WHERE status = 'published' ORDER BY created_at DESC LIMIT 100").all()
       rows = (res.results || []) as any
     }
   } catch (e) { /* 테이블 미생성 시 빈 목록 */ }
   return c.html(
     Layout(
       {
-        title: `비포·애프터 진료사례 | ${CLINIC.name}`,
-        description: `마곡베스트치과의원의 실제 진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 내원 상담 시 확인 가능합니다.`,
+        title: cat ? `${cat} 진료사례 | ${CLINIC.name}` : `비포·애프터 진료사례 | ${CLINIC.name}`,
+        description: `마곡베스트치과의원의 실제 ${cat ? cat + ' ' : ''}진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 내원 상담 시 확인 가능합니다.`,
         path: '/cases',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            '@id': `${SITE_URL}/cases#collection`,
+            name: cat ? `${cat} 진료사례` : '비포·애프터 진료사례',
+            url: `${SITE_URL}/cases`,
+            about: { '@id': `${SITE_URL}/#organization` },
+            mainEntity: {
+              '@type': 'ItemList',
+              numberOfItems: rows.length,
+              itemListElement: rows.slice(0, 20).map((r, i) => ({ '@type': 'ListItem', position: i + 1, name: r.title }))
+            }
+          }
+        ]
       },
-      DbCasesPage(rows)
+      DbCasesPage(rows, cat)
     )
   )
 })

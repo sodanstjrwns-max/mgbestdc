@@ -364,14 +364,14 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
                     .slice(0, 3)
                     .map(
                       (cs) => `
-                  <a href="/cases" class="t-post-link">
+                  <a href="/cases?cat=${encodeURIComponent(cs.category || t.name)}" class="t-post-link">
                     <strong>${esc(cs.title)}</strong>
                     <span>${[cs.age_group, cs.gender].filter(Boolean).map((v) => esc(String(v))).join(' · ') || '진료 사례'} — 사례 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
                   </a>`
                     )
                     .join('')}
                 </div>
-                <p style="margin-top:12px"><a href="/cases" style="font-size:0.88rem;font-weight:700;color:var(--acc)">전체 치료사례 보기 <i class="fa-solid fa-arrow-right"></i></a></p>
+                <p style="margin-top:12px"><a href="/cases?cat=${encodeURIComponent(topicCases[0]?.category || t.name)}" style="font-size:0.88rem;font-weight:700;color:var(--acc)">${t.name} 사례 전체 보기 <i class="fa-solid fa-arrow-right"></i></a></p>
               </div>`)
                 : ''
             }

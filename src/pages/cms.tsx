@@ -269,7 +269,8 @@ export function noticeSchema(post: DbPost, siteUrl: string) {
 // ============================================================
 // 비포·애프터 (DB cases) — 의료광고법: After는 내원 확인 안내
 // ============================================================
-export function DbCasesPage(rows: DbCase[]) {
+export function DbCasesPage(rows: DbCase[], activeCat?: string) {
+  const cats = Object.keys(CAT_TO_TX).filter((k, i, a) => a.findIndex((x) => CAT_TO_TX[x] === CAT_TO_TX[k]) === i)
   return html`
     <section class="page-hero">
       <div class="container">
@@ -282,10 +283,15 @@ export function DbCasesPage(rows: DbCase[]) {
 
     <section class="pad">
       <div class="container">
-        <div class="notice-box reveal" style="margin-bottom:32px">
+        <div class="notice-box reveal" style="margin-bottom:24px">
           <i class="fa-solid fa-circle-info"></i>
           <div>의료법에 따라 치료 후(After) 사진은 병원 내원 상담 시 직접 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a></div>
         </div>
+
+        <nav class="case-filter reveal" aria-label="진료 과목별 사례 필터" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px">
+          <a href="/cases" class="t-area-chip${!activeCat ? ' is-active' : ''}" style="${!activeCat ? 'background:var(--brand);color:#fff;border-color:var(--brand)' : ''}">전체</a>
+          ${raw(cats.map((cat) => `<a href="/cases?cat=${encodeURIComponent(cat)}" class="t-area-chip${activeCat === cat ? ' is-active' : ''}" style="${activeCat === cat ? 'background:var(--brand);color:#fff;border-color:var(--brand)' : ''}">${esc(cat)}</a>`).join(''))}
+        </nav>
 
         ${rows.length === 0
           ? html`<p style="text-align:center;color:var(--ink-3);padding:60px 0"><i class="fa-regular fa-images" style="font-size:2rem;display:block;margin-bottom:16px;opacity:0.4"></i>진료 사례가 준비 중입니다. 곧 업데이트됩니다.</p>`
