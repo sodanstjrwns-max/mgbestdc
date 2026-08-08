@@ -93,7 +93,7 @@ export function HomePage() {
 
         <div class="principle-flow">
           <div class="pf-photo reveal reveal-wipe">
-            <img src="/static/img/consult.webp" srcset="${srcset('/static/img/consult.webp')}" sizes="${SIZES.half}" alt="치료 계획을 설명하는 상담 모습" loading="lazy" decoding="async" />
+            <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/clip-consult-poster.jpg" aria-label="치료 계획을 설명하는 상담 모습" style="width:100%;height:100%;object-fit:cover;display:block"><source src="/media/video/clip-consult.mp4" type="video/mp4" /></video>
           </div>
           <div class="pf-list reveal reveal-d1">
             ${raw(
@@ -204,7 +204,7 @@ export function HomePage() {
     <section class="pad-sm" aria-label="치료 그 이후의 삶">
       <div class="container">
         <div class="life-band reveal">
-          <span class="lb-img"><img src="/static/img/life-smile.webp" srcset="${srcset('/static/img/life-smile.webp', 1600)}" sizes="100vw" alt="" loading="lazy" decoding="async" /></span>
+          <span class="lb-img"><video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/drone-a-poster.jpg" aria-hidden="true" style="width:100%;height:100%;object-fit:cover;display:block"><source src="/media/video/drone-a.mp4" type="video/mp4" /></video></span>
           <div class="lb-body">
             <span class="eyebrow" style="color:#BCD5FA">치료, 그 이후</span>
             <h2>치료의 완성은,<br /><em>다시 웃는 일상</em>입니다</h2>

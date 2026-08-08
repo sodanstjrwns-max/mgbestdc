@@ -92,6 +92,26 @@ export function MissionPage() {
       </div>
     </section>
 
+    <!-- 드론 전경 밴드 -->
+    <section class="story-drone" aria-label="마곡베스트치과 전경">
+      <div class="sd-media" aria-hidden="true">
+        <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/drone-b-poster.jpg">
+          <source src="/media/video/drone-b.mp4" type="video/mp4" />
+        </video>
+        <div class="sd-scrim"></div>
+      </div>
+      <div class="container sd-inner">
+        <div class="reveal">
+          <span class="eyebrow light">MAGOK, SEOUL</span>
+          <h2>고향 마곡에서,<br />오래 볼 수 있는 치과가 되겠습니다.</h2>
+          <p>${CLINIC.addressShort} · 마곡나루역 도보 3분</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+            <a href="/story" class="btn btn-white">원장의 스토리 보기 <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="pad-sm">
       <div class="container"><div class="fact-strip reveal">
         <div class="fact"><strong>${CLINIC.openedYear}년 마곡 개원</strong><span>지역에서 꾸준히 진료합니다</span></div>
@@ -152,6 +172,23 @@ export function DirectionsPage() {
               </div>
             </a>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 드론 전경 밴드 — 하늘에서 본 위치 -->
+    <section class="story-drone" aria-label="하늘에서 본 마곡베스트치과 위치">
+      <div class="sd-media" aria-hidden="true">
+        <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/drone-c-poster.jpg">
+          <source src="/media/video/drone-c.mp4" type="video/mp4" />
+        </video>
+        <div class="sd-scrim"></div>
+      </div>
+      <div class="container sd-inner">
+        <div class="reveal">
+          <span class="eyebrow light">BOTANIC BIZ TOWER 3F</span>
+          <h2>마곡나루역 1번 출구 앞,<br />보타닉비즈타워 310호입니다.</h2>
+          <p>${CLINIC.station} 1번 출구 도보 3분 · 건물 내 주차 가능</p>
         </div>
       </div>
     </section>
@@ -229,6 +266,30 @@ export function FacilityPage() {
               )
               .join('')
           )}
+        </div>
+
+        <div class="reveal" style="margin-top:64px">
+          <span class="eyebrow">영상으로 보기</span>
+          <h2 class="section-title" style="margin-bottom:32px">영상으로 만나는 진료 환경</h2>
+          <div class="grid-3">
+            ${raw(
+              [
+                { src: '/media/video/clip-lobby.mp4', poster: '/static/img/video/clip-lobby-poster.jpg', label: '로비 · 데스크', desc: '밝고 깔끔한 맞이 공간' },
+                { src: '/media/video/clip-xray.mp4', poster: '/static/img/video/clip-xray-poster.jpg', label: '정밀 진단', desc: '디지털 영상 판독 환경' },
+                { src: '/media/video/clip-light.mp4', poster: '/static/img/video/clip-light-poster.jpg', label: '진료실', desc: '집중도 높은 진료 공간' }
+              ]
+                .map(
+                  (v) => `
+              <figure style="margin:0">
+                <div style="aspect-ratio:4/3;border-radius:var(--radius);overflow:hidden;box-shadow:var(--sh-md)">
+                  <video autoplay muted loop playsinline preload="metadata" poster="${v.poster}" aria-label="${CLINIC.name} ${v.label}" style="width:100%;height:100%;object-fit:cover;display:block"><source src="${v.src}" type="video/mp4" /></video>
+                </div>
+                <figcaption style="margin-top:12px"><strong style="color:var(--text)">${v.label}</strong><span style="color:var(--ink-3);font-size:0.88rem;display:block;margin-top:2px">${v.desc}</span></figcaption>
+              </figure>`
+                )
+                .join('')
+            )}
+          </div>
         </div>
 
         <div class="reveal" style="margin-top:64px">

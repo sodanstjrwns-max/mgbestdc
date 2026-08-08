@@ -34,8 +34,9 @@ const CHAPTERS = [
       '앞으로 병원이 성장하며 더 좋은 의료진과 함께하게 되더라도 원칙은 변하지 않습니다. 대표원장이 만든 진료 기준과 시스템을 바탕으로, 누구에게 진료를 받더라도 동일한 수준의 설명과 진료를 받으실 수 있도록 하는 것입니다.'
     ],
     quote: '진료의 주체가 바뀌지 않는다는 것. 환자분께는 그것이 가장 큰 안심입니다.',
-    img: '/static/img/dr-kim-crossed.webp',
-    imgAlt: '김민 대표원장 — 1인 책임 진료'
+    video: '/media/video/clip-consult.mp4',
+    poster: '/static/img/video/clip-consult-poster.jpg',
+    imgAlt: '김민 대표원장의 상담 장면'
   },
   {
     no: '03',
@@ -62,8 +63,9 @@ const CHAPTERS = [
       '좋은 장비가 의료진의 실력을 대신할 수는 없습니다. 하지만 책임감을 가진 의료진이 좋은 장비를 제대로 활용할 때, 더 좋은 치료 결과를 만들 수 있다고 믿습니다.'
     ],
     quote: '같은 치료를 하더라도 조금 더 정확하고 안전하게. 그것이 장비에 투자하는 이유의 전부입니다.',
-    img: '/static/img/dr-kim-side.webp',
-    imgAlt: '김민 대표원장 — 정밀 진단 철학'
+    video: '/media/video/clip-light.mp4',
+    poster: '/static/img/video/clip-light-poster.jpg',
+    imgAlt: '진료 장비'
   }
 ]
 
@@ -120,8 +122,12 @@ export function StoryPage() {
     <section class="pad story-chapter${i % 2 === 1 ? ' tone' : ''}" id="chapter-${i + 1}">
       <div class="container">
         <div class="sc-grid${i % 2 === 1 ? ' flip' : ''}">
-          <div class="sc-photo reveal reveal-wipe">
-            <img src="${ch.img}" srcset="${srcset(ch.img, 1045)}" sizes="${SIZES.half}" alt="${ch.imgAlt}" width="1045" height="1306" loading="lazy" decoding="async" />
+          <div class="sc-photo${'video' in ch ? ' sc-video' : ''} reveal reveal-wipe">
+            ${
+              'video' in ch
+                ? `<video autoplay muted loop playsinline preload="metadata" poster="${ch.poster}" aria-label="${ch.imgAlt}"><source src="${ch.video}" type="video/mp4" /></video>`
+                : `<img src="${ch.img}" srcset="${srcset(ch.img!, 1045)}" sizes="${SIZES.half}" alt="${ch.imgAlt}" width="1045" height="1306" loading="lazy" decoding="async" />`
+            }
             <span class="sc-no">${ch.no}</span>
           </div>
           <div class="sc-text reveal reveal-d1">

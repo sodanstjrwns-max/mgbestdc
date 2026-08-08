@@ -19,7 +19,7 @@ export function DoctorsListPage() {
           DOCTORS.map(
             (d) => `
           <div class="doc-card reveal">
-            <div class="dc-photo"><img src="/static/img/dr-kim-crossed.webp" srcset="${srcset('/static/img/dr-kim-crossed.webp', 1045)}" sizes="${SIZES.card}" alt="${d.name} ${d.title}" loading="lazy" decoding="async" /></div>
+            <div class="dc-photo"><img src="/static/img/dr-kim-stool.webp" srcset="${srcset('/static/img/dr-kim-stool.webp', 1045)}" sizes="${SIZES.card}" alt="${d.name} ${d.title}" loading="lazy" decoding="async" /></div>
             <div>
               <h2>${d.name} <span style="font-size:1rem;color:var(--ink-3)">${d.title}</span></h2>
               <div class="dc-title">${d.credential}</div>
@@ -94,10 +94,9 @@ export function DoctorDetailPage(slug: string) {
             ${raw(PATIENT_VOICES.map((v) => `<span class="voice-chip">${v}</span>`).join(''))}
           </div>
           <p class="story-attr">— ${GOOD_HANDS.attribution}</p>
-          <div class="dr-strip">
-            <img src="/static/img/dr-kim-loupe.webp" srcset="${srcset('/static/img/dr-kim-loupe.webp', 1000)}" sizes="${SIZES.third}" alt="확대경을 착용한 김민 대표원장" loading="lazy" decoding="async" />
-            <img src="/static/img/dr-kim-stool.webp" srcset="${srcset('/static/img/dr-kim-stool.webp', 1045)}" sizes="${SIZES.third}" alt="김민 대표원장 프로필" loading="lazy" decoding="async" />
-            <img src="/static/img/dr-kim-side.webp" srcset="${srcset('/static/img/dr-kim-side.webp', 1045)}" sizes="${SIZES.third}" alt="김민 대표원장 프로필" loading="lazy" decoding="async" />
+          <div class="dr-strip dr-strip-2">
+            <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/clip-loupe-poster.jpg" aria-label="확대경을 착용하고 진료하는 김민 대표원장"><source src="/media/video/clip-loupe.mp4" type="video/mp4" /></video>
+            <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/clip-care-poster.jpg" aria-label="진료 중인 김민 대표원장"><source src="/media/video/clip-care.mp4" type="video/mp4" /></video>
           </div>
         </div>
       </div>
