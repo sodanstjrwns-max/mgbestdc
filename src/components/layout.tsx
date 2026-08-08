@@ -116,7 +116,9 @@ export function organizationSchema() {
     image: SITE_URL + '/static/img/og.png',
     logo: SITE_URL + '/static/img/symbol-512.png',
     slogan: CLINIC.mission,
-    foundingDate: String(CLINIC.openedYear),
+    foundingDate: '2023-11-01',
+    taxID: CLINIC.businessNumber,
+    identifier: { '@type': 'PropertyValue', name: '사업자등록번호', value: CLINIC.businessNumber },
     inLanguage: 'ko',
     priceRange: '₩₩',
     contactPoint: {
@@ -350,7 +352,7 @@ function Footer() {
         <div class="footer-bottom">
           <div class="footer-biz">
             상호 <b>${CLINIC.name}</b> · 대표자 ${CLINIC.director} · 사업자등록번호 ${CLINIC.businessNumber}<br />
-            주소 ${CLINIC.addressFull} · 개업 ${CLINIC.openedYear}년 · TEL ${CLINIC.phone}
+            주소 ${CLINIC.addressLegal} · 개업 ${CLINIC.openedYear}년 · TEL ${CLINIC.phone}
           </div>
           <div class="footer-legal">
             <a href="/privacy">개인정보처리방침</a>

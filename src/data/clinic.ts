@@ -57,7 +57,9 @@ export const CLINIC = {
     // 카카오톡 채널 URL (예: 'https://pf.kakao.com/_xxxxxx/chat') — 비어있으면 전화 연결로 폴백
     kakao: ''
   },
-  businessNumber: '상담 시 안내',
+  businessNumber: '112-15-99590',
+  // 사업자등록증 기재 소재지 (법적 표기용 — 310·311·312호 3개 호실)
+  addressLegal: '서울특별시 강서구 마곡중앙5로1길 20, 3층 310호·311호·312호 (마곡동, 마곡나루역보타닉비즈타워)',
   // 메인 히어로 카피 — Q20~23 철학 기반, 비디치과 복제 금지
   heroLead: '치료가 끝나고 문을 나설 때,',
   heroMain: '아무 걱정도 남지 않도록.',
