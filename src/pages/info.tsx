@@ -70,23 +70,77 @@ export function MissionPage() {
       </div>
     </section>
 
+    <!-- 개원 이야기: 실촬영 영상 스플릿 -->
     <section class="pad">
       <div class="container">
         <div class="feature-split">
           <div class="reveal">
             <span class="eyebrow">개원 이야기</span>
-            <h2 class="section-title">고향에서 시작한 치과</h2>
+            <h2 class="section-title">고향에서<br /><span class="grad">시작한 치과</span></h2>
             <p class="section-lead">${d.philosophy}</p>
             <p style="margin-top:18px;color:var(--ink-2)">단순히 치료만 하는 곳이 아니라, 환자분이 진료를 마치고 문을 나설 때 어떠한 불편도 최소화할 수 있도록. 그것이 마곡베스트치과가 가장 중요하게 생각하는 가치입니다.</p>
+            <div style="margin-top:26px"><a href="/story" class="btn btn-ghost">원장의 스토리 읽기 <i class="fa-solid fa-arrow-right"></i></a></div>
           </div>
-          <div class="equip-visual reveal reveal-d1">
-            <h3><i class="fa-solid fa-heart"></i> 우리가 지키는 가치</h3>
-            <div class="equip-grid">
-              <div class="equip-row"><i class="fa-solid fa-circle-check"></i><div><span class="en">정직한 진료</span><br /><span class="ed">필요한 치료를 정확하게, 과하지 않게 안내합니다.</span></div></div>
-              <div class="equip-row"><i class="fa-solid fa-circle-check"></i><div><span class="en">맞춤 치료</span><br /><span class="ed">환자 개개인의 상태에 맞춘 계획을 세웁니다.</span></div></div>
-              <div class="equip-row"><i class="fa-solid fa-circle-check"></i><div><span class="en">끝까지 함께</span><br /><span class="ed">치료 후 관리까지, 삶의 동반자가 되겠습니다.</span></div></div>
-              <div class="equip-row"><i class="fa-solid fa-circle-check"></i><div><span class="en">환자 중심</span><br /><span class="ed">불편을 최소화하는 진료 환경을 만듭니다.</span></div></div>
-            </div>
+          <div class="mv-media reveal reveal-wipe" aria-label="실제 상담 영상">
+            <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/clip-consult-poster.jpg">
+              <source src="/media/video/clip-consult.mp4" type="video/mp4" />
+            </video>
+            <span class="mv-tag">실제 상담 모습</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 인용 밴드 -->
+    <section class="pad-sm tone">
+      <div class="container narrow">
+        <div class="reveal" style="text-align:center">
+          <span class="eyebrow" style="display:inline-flex">진료 철학</span>
+          <h2 class="story-quote" style="margin-left:auto;margin-right:auto">“치료가 끝나는 순간이 아니라,<br /><span class="grad">오래 편안한 일상</span>이 목표입니다.”</h2>
+          <p class="story-attr" style="margin-top:16px">— ${d.name} 대표원장 · ${CLINIC.directorCredential}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 네 가지 약속 -->
+    <section class="pad">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">PROMISE</span>
+          <h2 class="section-title">마곡베스트치과의<br /><span class="grad">네 가지 약속</span></h2>
+        </div>
+        <div class="promise-grid">
+          <div class="promise-card reveal"><span class="pc-no">01</span><span class="pc-ico"><i class="fa-solid fa-scale-balanced"></i></span><h3>정직한 진료</h3><p>필요한 치료를 정확하게, 과하지 않게 안내합니다. 지금 하지 않아도 되는 치료는 그렇게 말씀드립니다.</p></div>
+          <div class="promise-card reveal reveal-d1"><span class="pc-no">02</span><span class="pc-ico"><i class="fa-solid fa-user-gear"></i></span><h3>맞춤 치료</h3><p>같은 증상이라도 구강 상태와 생활 패턴은 다릅니다. 환자 개개인에 맞춘 치료 계획을 세웁니다.</p></div>
+          <div class="promise-card reveal reveal-d2"><span class="pc-no">03</span><span class="pc-ico"><i class="fa-solid fa-handshake-angle"></i></span><h3>끝까지 함께</h3><p>치료 후 정기 검진과 관리까지. 한 번의 치료가 아니라 오래 가는 구강 건강을 함께 만듭니다.</p></div>
+          <div class="promise-card reveal reveal-d3"><span class="pc-no">04</span><span class="pc-ico"><i class="fa-solid fa-couch"></i></span><h3>환자 중심</h3><p>진단 설명부터 통증 관리까지, 환자분의 불편을 최소화하는 진료 환경을 만듭니다.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 약속이 지켜지는 진료 과정: 실촬영 3스텝 -->
+    <section class="pad tone">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">HOW WE WORK</span>
+          <h2 class="section-title">약속이 지켜지는 <span class="grad">진료 과정</span></h2>
+          <p class="section-lead">말뿐인 약속이 아니라, 진료실에서 매일 반복되는 순서입니다.</p>
+        </div>
+        <div class="pr-steps">
+          <div class="pr-step reveal">
+            <div class="pr-img"><img src="/static/img/tx-ortho.webp" srcset="${srcset('/static/img/tx-ortho.webp')}" sizes="${SIZES.third}" alt="CT 영상을 함께 보며 설명하는 모습" loading="lazy" decoding="async" /><span class="pr-no">STEP 1</span></div>
+            <h3>정밀 진단, 함께 보며 설명</h3>
+            <p>CT·구강스캐너로 상태를 확인하고, 영상을 화면에 띄워 환자분과 같이 봅니다. 이해되지 않는 치료는 시작하지 않습니다.</p>
+          </div>
+          <div class="pr-step reveal reveal-d1">
+            <div class="pr-img"><img src="/static/img/consult.webp" srcset="${srcset('/static/img/consult.webp')}" sizes="${SIZES.third}" alt="치료 계획을 상담하는 대표원장" loading="lazy" decoding="async" /><span class="pr-no">STEP 2</span></div>
+            <h3>과하지 않은 치료 계획</h3>
+            <p>가능한 선택지를 모두 설명드리고, 환자분의 상황에 맞는 계획을 함께 정합니다. 서두르게 하지 않습니다.</p>
+          </div>
+          <div class="pr-step reveal reveal-d2">
+            <div class="pr-img"><img src="/static/img/tx-gum.webp" srcset="${srcset('/static/img/tx-gum.webp')}" sizes="${SIZES.third}" alt="확대경을 착용하고 정밀 진료 중인 대표원장" loading="lazy" decoding="async" /><span class="pr-no">STEP 3</span></div>
+            <h3>1인 책임진료, 그리고 관리</h3>
+            <p>상담부터 치료, 치료 후 검진까지 대표원장이 직접 확인합니다. 담당자가 바뀌지 않으니 과정 전체가 이어집니다.</p>
           </div>
         </div>
       </div>
@@ -114,10 +168,10 @@ export function MissionPage() {
 
     <section class="pad-sm">
       <div class="container"><div class="fact-strip reveal">
-        <div class="fact"><strong>${CLINIC.openedYear}년 마곡 개원</strong><span>지역에서 꾸준히 진료합니다</span></div>
-        <div class="fact"><strong>정밀 디지털 장비</strong><span>CT·구강스캐너 상시 운용</span></div>
-        <div class="fact"><strong>임플란트 자문위원</strong><span>국내 임플란트사 3곳</span></div>
-        <div class="fact"><strong>전 과목 진료</strong><span>보존·보철·교정·임플란트</span></div>
+        <div class="fact"><strong class="fact-num"><span data-countup="${CLINIC.openedYear}">0</span><em>년 개원</em></strong><span>마곡에서 꾸준히 진료합니다</span></div>
+        <div class="fact"><strong class="fact-num"><span data-countup="1">0</span><em>인 책임진료</em></strong><span>상담부터 치료 후 관리까지</span></div>
+        <div class="fact"><strong class="fact-num"><span data-countup="3">0</span><em>곳 자문위원</em></strong><span>국내 임플란트사 자문</span></div>
+        <div class="fact"><strong class="fact-num">CT<em>·스캐너</em></strong><span>정밀 디지털 장비 상시 운용</span></div>
       </div></div>
     </section>
 
