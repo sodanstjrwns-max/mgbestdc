@@ -93,7 +93,7 @@ export function TreatmentsListPage() {
 const TX_IMG: Record<string, { src: string; alt: string }> = {
   implant: { src: '/static/img/tx-implant.webp', alt: '임플란트 정밀 진료 모습' },
   cavity: { src: '/static/img/consult.webp', alt: '충치치료 상담 모습' },
-  cosmetic: { src: '/static/img/tx-cosmetic.webp', alt: '심미치료 결과 미소' },
+  cosmetic: { src: '/static/img/tx-cosmetic.webp', alt: '심미 보철물을 직접 보여주며 설명하는 대표원장' },
   ortho: { src: '/static/img/tx-ortho.webp', alt: '교정 치료 모습' },
   tmj: { src: '/static/img/tx-tmj.webp', alt: '턱관절 불편을 살피는 모습' },
   gum: { src: '/static/img/tx-gum.webp', alt: '잇몸 상태를 점검하는 진료 모습' },
