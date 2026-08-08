@@ -944,6 +944,11 @@ app.get('/media/*', async (c) => {
   })
 })
 
+// 루트 파비콘 (브라우저 자동 요청 — 워커가 루트를 점유하므로 명시 라우트 필요)
+app.get('/favicon.ico', (c) => c.redirect('/static/img/favicon.png', 301))
+app.get('/apple-touch-icon.png', (c) => c.redirect('/static/img/apple-touch-icon.png', 301))
+app.get('/apple-touch-icon-precomposed.png', (c) => c.redirect('/static/img/apple-touch-icon.png', 301))
+
 // ============================================================
 // SEO 기술 파일
 // ============================================================

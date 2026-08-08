@@ -39,7 +39,8 @@
 | 메인 | `/` | 포토 히어로 + 철학 + 핵심진료 포토카드 + 의료진 실사진 + LIFE 밴드 + 환자여정 퍼널 + CTA (밀도 다이어트: 장비 테이블 → /facility 이관) |
 | 소개 허브 | `/about` | 신설 — 병원소개/의료진/시설/오시는길 진입점 |
 | 병원소개 | `/mission` | 미션/비전, 가치, 통계 카운트업 |
-| 의료진 | `/doctors`, `/doctors/kim-min` | 실사진 프로필, 학력·경력, '손이 좋다' 육성 스토리 3편, Physician 스키마 |
+| 의료진 | `/doctors`, `/doctors/kim-min` | **실제 프로필 사진 5컷**(드라이브 선정본), 포트레이트 스트립, 학력·경력, '손이 좋다' 육성 스토리 3편, Physician 스키마 |
+| **스토리** | `/story` | **신설** — 브랜딩 영상 히어로(R2 스트리밍) + 인터뷰 7문항 기반 챕터 4편 + 드론 영상 밴드 + 환자 이야기(개인차 고지) + 브랜드필름 풀버전, AboutPage 스키마 |
 | 진료 목록 | `/treatments` | 핵심 TOP3 포토카드 + 일반진료 6종 |
 | 진료 상세 | `/treatments/:slug` | 히어로 이미지 + 확장 상세 + **토픽 허브 섹션**(같은 토픽 치료사례 3건 + 칼럼 3건 D1 자동 조회), MedicalProcedure+FAQPage 스키마 |
 | 통합 FAQ | `/faq` | 병원이용 + 진료별 FAQ, FAQPage 스키마 |
@@ -52,7 +53,7 @@
 | **관리자 CMS** | `/admin?key=…` | 4탭 대시보드: 예약문의 / 공지사항 / 건강칼럼 / 비포애프터 — **Toast UI 에디터**(WYSIWYG·한국어·이미지 붙여넣기 업로드), 임시저장/발행, Ctrl+S 저장, noindex |
 | 관리자 글쓰기 | `/admin/posts/new?type=notice\|column` | 제목·슬러그(한글 지원)·요약·본문·고정/분류 |
 | 관리자 사례 | `/admin/cases` | Before/After 사진 업로드(R2)·환자정보·발행 관리 |
-| 이미지 | `POST /api/admin/upload`, `GET /media/*` | R2 저장 (JPG/PNG/WebP/GIF, 8MB 제한, 캐시 1년) |
+| 미디어 | `POST /api/admin/upload`, `GET /media/*` | R2 저장 (이미지 8MB 제한, 캐시 1년) + **영상 Range 스트리밍**(206, Safari 시킹 지원) — 브랜딩/드론 영상 8편 `video/*` 키로 서빙 |
 | 건강칼럼 | `/blog`, `/blog/:slug` | 정적 9편 + DB 칼럼 병합, 카테고리=진료 토픽, **DB 칼럼도 BlogPosting JSON-LD 자동 생성**, 공지는 NewsArticle |
 | 공개 읽기 API | `GET /api/posts`, `GET /api/posts/:slug` | 외부 툴 연동용 (인증 불필요, 발행 글만, url 포함) — `API.md` 참조 |
 | 지역 SEO | `/area/:area-:treatment` | 8지역 × 4진료 = 32페이지 |
