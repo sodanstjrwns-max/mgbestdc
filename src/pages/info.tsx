@@ -446,6 +446,20 @@ export function ReservationPage() {
 
     <section class="pad">
       <div class="container" style="max-width:680px">
+        <div class="quick-reserve reveal" aria-label="빠른 예약 채널">
+          <a href="${CLINIC.social.naverBooking}" target="_blank" rel="noopener" class="qr-btn qr-naver">
+            <span class="n-ico" aria-hidden="true">N</span>
+            <span class="qr-txt"><b>네이버 예약</b><small>원하는 시간 바로 선택</small></span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+          <a href="${CLINIC.social.kakao}" target="_blank" rel="noopener" class="qr-btn qr-kakao">
+            <i class="fa-solid fa-comment" aria-hidden="true"></i>
+            <span class="qr-txt"><b>카카오톡 상담</b><small>채팅으로 편하게 문의</small></span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+        <div class="qr-divider reveal"><span>또는 양식으로 문의 남기기</span></div>
+
         <div class="glass-card reveal" style="padding:36px">
           <form id="reservation-form">
             <div style="display:grid;gap:18px">

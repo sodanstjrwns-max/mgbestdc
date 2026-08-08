@@ -51,11 +51,15 @@ export const CLINIC = {
   ],
   social: {
     // Q36~38 기존 자산 (있으면 링크만)
-    blog: '',
-    instagram: '',
+    blog: 'https://blog.naver.com/magokbest0',
+    instagram: 'https://www.instagram.com/magokbestdent/',
     youtube: '',
-    // 카카오톡 채널 URL (예: 'https://pf.kakao.com/_xxxxxx/chat') — 비어있으면 전화 연결로 폴백
-    kakao: ''
+    // 카카오톡 채널 — 마곡베스트치과의원 공식 (pf.kakao.com/_xdjNsG), /chat 으로 바로 상담창
+    kakao: 'https://pf.kakao.com/_xdjNsG/chat',
+    // 네이버 예약 — 네이버 플레이스(1160976549) 연동 예약
+    naverBooking: 'https://booking.naver.com/booking/13/bizes/359784',
+    // 네이버 플레이스
+    naverPlace: 'https://map.naver.com/p/entry/place/1160976549'
   },
   businessNumber: '112-15-99590',
   // 사업자등록증 기재 소재지 (법적 표기용 — 310·311·312호 3개 호실)

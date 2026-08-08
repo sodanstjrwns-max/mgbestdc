@@ -1153,7 +1153,16 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
 }
 .float-cta a:hover { transform: translateY(-3px); box-shadow: var(--sh-lg); }
 .fc-kakao { background: #FEE500; color: #191919; }
+.fc-naver { background: #03C75A; color: #fff; }
 .fc-reserve { background: var(--pine); color: #fff; }
+.n-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 5px;
+  background: #fff; color: #03C75A;
+  font-weight: 900; font-size: 0.78rem; line-height: 1;
+  font-family: 'Pretendard', sans-serif;
+}
+.sb-naver .n-ico, .fc-naver .n-ico { background: #fff; color: #03C75A; }
 .fc-top {
   width: 52px; height: 52px; padding: 0 !important; justify-content: center;
   background: #fff; color: var(--ink-2); border: 1px solid var(--line-3);
@@ -1175,7 +1184,39 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
 }
 .sb-call { background: var(--bg-1); color: var(--ink); }
 .sb-kakao { background: #FEE500; color: #191919; }
+.sb-naver { background: #03C75A; color: #fff; }
 .sb-reserve { background: var(--pine); color: #fff; }
+
+/* 예약 페이지 — 빠른 예약 채널 버튼 */
+.quick-reserve { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 26px; }
+.qr-btn {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 20px; border-radius: 16px;
+  box-shadow: var(--sh-md); transition: all 0.3s var(--ease);
+}
+.qr-btn:hover { transform: translateY(-3px); box-shadow: var(--sh-lg); }
+.qr-naver { background: #03C75A; color: #fff; }
+.qr-kakao { background: #FEE500; color: #191919; }
+.qr-btn .n-ico { width: 30px; height: 30px; border-radius: 8px; font-size: 1.05rem; flex-shrink: 0; }
+.qr-kakao > .fa-comment { font-size: 1.5rem; flex-shrink: 0; }
+.qr-txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.qr-txt b { font-size: 1rem; font-weight: 800; }
+.qr-txt small { font-size: 0.8rem; opacity: 0.82; font-weight: 500; }
+.qr-btn .fa-arrow-up-right-from-square { font-size: 0.8rem; opacity: 0.7; }
+.qr-divider { display: flex; align-items: center; gap: 14px; margin: 26px 0; color: var(--ink-3); font-size: 0.85rem; }
+.qr-divider::before, .qr-divider::after { content: ''; flex: 1; height: 1px; background: var(--line-3); }
+@media (max-width: 560px) { .quick-reserve { grid-template-columns: 1fr; } }
+
+/* 푸터 SNS 아이콘 */
+.footer-sns { display: flex; gap: 10px; margin-top: 16px; }
+.footer-sns a {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75);
+  transition: all 0.25s var(--ease);
+}
+.footer-sns a:hover { background: rgba(255,255,255,0.16); color: #fff; transform: translateY(-2px); }
+.footer-sns .n-ico { width: 17px; height: 17px; border-radius: 4px; font-size: 0.68rem; background: rgba(255,255,255,0.85); color: #03C75A; }
 
 /* ============================================================
    FOOTER

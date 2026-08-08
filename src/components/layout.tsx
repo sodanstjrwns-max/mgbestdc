@@ -88,7 +88,7 @@ export function Head(meta: SeoMeta) {
         onload="this.media='all'"
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
-      <link rel="stylesheet" href="/static/style.css?v=design4" />
+      <link rel="stylesheet" href="/static/style.css?v=design5" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->
@@ -337,6 +337,7 @@ function Footer() {
             <a href="/notice">공지사항</a>
             <a href="/faq">자주 묻는 질문</a>
             <a href="/reservation">예약 문의</a>
+            <a href="${CLINIC.social.naverBooking}" target="_blank" rel="noopener">네이버 예약</a>
           </div>
           <div class="footer-col">
             <div class="footer-h">오시는 길</div>
@@ -345,6 +346,12 @@ function Footer() {
               <li><i class="fa-solid fa-train-subway"></i><span>${CLINIC.directions}</span></li>
               <li><i class="fa-solid fa-phone"></i><a href="tel:${CLINIC.phoneRaw}">${CLINIC.phone}</a></li>
             </ul>
+            <div class="footer-sns" aria-label="외부 채널">
+              <a href="${CLINIC.social.naverBooking}" target="_blank" rel="noopener" aria-label="네이버 예약" title="네이버 예약"><span class="n-ico">N</span></a>
+              <a href="${CLINIC.social.kakao}" target="_blank" rel="noopener" aria-label="카카오톡 채널" title="카카오톡 채널"><i class="fa-solid fa-comment"></i></a>
+              <a href="${CLINIC.social.blog}" target="_blank" rel="noopener" aria-label="네이버 블로그" title="네이버 블로그"><i class="fa-solid fa-blog"></i></a>
+              <a href="${CLINIC.social.instagram}" target="_blank" rel="noopener" aria-label="인스타그램" title="인스타그램"><i class="fa-brands fa-instagram"></i></a>
+            </div>
           </div>
         </div>
 
@@ -389,6 +396,9 @@ function FloatingCta() {
       <a href="${kakao}" class="fc-kakao" ${raw(kakaoIsLink ? 'target="_blank" rel="noopener"' : '')} id="float-kakao">
         <i class="fa-solid fa-comment"></i> 카톡 상담
       </a>
+      <a href="${CLINIC.social.naverBooking}" class="fc-naver" target="_blank" rel="noopener" id="float-naver">
+        <span class="n-ico" aria-hidden="true">N</span> 네이버 예약
+      </a>
       <a href="/reservation" class="fc-reserve" id="float-reserve">
         <i class="fa-solid fa-calendar-check"></i> 예약 문의
       </a>
@@ -398,7 +408,7 @@ function FloatingCta() {
     <nav class="sticky-bar" aria-label="모바일 빠른 상담">
       <a href="tel:${CLINIC.phoneRaw}" class="sb-call"><i class="fa-solid fa-phone"></i> 전화</a>
       <a href="${kakao}" class="sb-kakao" ${raw(kakaoIsLink ? 'target="_blank" rel="noopener"' : '')}><i class="fa-solid fa-comment"></i> 카톡</a>
-      <a href="/reservation" class="sb-reserve"><i class="fa-solid fa-calendar-check"></i> 예약 문의</a>
+      <a href="${CLINIC.social.naverBooking}" class="sb-naver" target="_blank" rel="noopener"><span class="n-ico" aria-hidden="true">N</span> 네이버 예약</a>
     </nav>
   `
 }
