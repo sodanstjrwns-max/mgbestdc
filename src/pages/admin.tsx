@@ -316,7 +316,7 @@ export function AdminCases(rows: DbCase[], adminKey: string) {
     <div class="adm-head">
       <div>
         <h1>비포·애프터 관리</h1>
-        <div class="sub">총 ${rows.length}건 · 의료광고법에 따라 After 사진은 사이트에서 블러 처리되며 "내원 상담 시 확인" 안내가 표시됩니다.</div>
+        <div class="sub">총 ${rows.length}건 · 의료광고법에 따라 After 사진은 사이트에서 블러 처리되며 "회원가입 시 확인 가능" 안내가 표시됩니다.</div>
       </div>
       <button class="btn btn-primary" onclick="openForm()"><i class="fa-solid fa-plus"></i> 새 사례 등록</button>
     </div>

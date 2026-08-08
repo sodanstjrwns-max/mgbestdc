@@ -11,9 +11,9 @@ const FUNNEL = [
 ]
 
 const CORE_IMG: Record<string, string> = {
-  implant: '/static/img/tx-implant.webp',
-  cavity: '/static/img/consult.webp',
-  cosmetic: '/static/img/tx-cosmetic.webp'
+  implant: '/static/img/core-implant.webp',
+  cavity: '/static/img/core-cavity.webp',
+  cosmetic: '/static/img/core-cosmetic.webp'
 }
 
 // tx-index 호버 시 커서 옆에 뜨는 프리뷰 이미지

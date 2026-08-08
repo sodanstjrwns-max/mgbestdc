@@ -331,7 +331,7 @@ app.get('/cases', async (c) => {
     Layout(
       {
         title: cat ? `${cat} 진료사례 | ${CLINIC.name}` : `비포·애프터 진료사례 | ${CLINIC.name}`,
-        description: `마곡베스트치과의원의 실제 ${cat ? cat + ' ' : ''}진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 내원 상담 시 확인 가능합니다.`,
+        description: `마곡베스트치과의원의 실제 ${cat ? cat + ' ' : ''}진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 회원가입 후 확인 가능합니다.`,
         path: '/cases',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }]),

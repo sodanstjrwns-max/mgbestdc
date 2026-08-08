@@ -534,7 +534,7 @@ export function CasesPage(isLoggedIn = false) {
       <div class="container">
         <div class="notice-box reveal" style="margin-bottom:32px">
           <i class="fa-solid fa-lock"></i>
-          <div>의료법에 따라 치료 후(After) 사진은 병원 방문 상담 시 직접 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.${raw(isLoggedIn ? '' : ` <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a>`)}</div>
+          <div>의료법에 따라 치료 후(After) 사진은 회원가입 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.${raw(isLoggedIn ? '' : ` <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a>`)}</div>
         </div>
 
         <div class="ba-grid">

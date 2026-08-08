@@ -285,7 +285,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
       <div class="container">
         <div class="notice-box reveal" style="margin-bottom:24px">
           <i class="fa-solid fa-circle-info"></i>
-          <div>의료법에 따라 치료 후(After) 사진은 병원 내원 상담 시 직접 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a></div>
+          <div>의료법에 따라 치료 후(After) 사진은 회원가입 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a></div>
         </div>
 
         <nav class="case-filter reveal" aria-label="진료 과목별 사례 필터" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px">
@@ -307,7 +307,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
             <div class="ba-card ba-coming reveal reveal-d${i + 1}">
               <div class="ba-images">
                 <div class="ba-img"><span class="ba-tag">Before</span><span class="ba-soon"><i class="fa-regular fa-clock"></i>준비 중</span></div>
-                <div class="ba-img locked"><div class="lock-ui"><i class="fa-solid fa-lock"></i><span>내원 상담 시<br />확인 가능</span></div></div>
+                <div class="ba-img locked"><div class="lock-ui"><i class="fa-solid fa-lock"></i><span>회원가입 시<br />확인 가능</span></div></div>
               </div>
               <div class="ba-body">
                 <h2 class="h4">${c.cat} 사례</h2>
@@ -319,7 +319,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
               .join('')
           )}
         </div>
-        <p style="text-align:center;color:var(--ink-3);margin-top:36px;font-size:0.9rem">실제 진료 사례는 환자분 동의 절차를 거쳐 순차적으로 공개됩니다. 자세한 사례가 궁금하시다면 <a href="/reservation" style="color:var(--acc);font-weight:700">내원 상담</a> 시 직접 확인하실 수 있습니다.</p>`
+        <p style="text-align:center;color:var(--ink-3);margin-top:36px;font-size:0.9rem">실제 진료 사례는 환자분 동의 절차를 거쳐 순차적으로 공개됩니다. 치료 후(After) 사진은 회원가입 후 확인하실 수 있으며, 자세한 상담이 필요하시다면 <a href="/reservation" style="color:var(--acc);font-weight:700">내원 예약</a>을 이용해 주세요.</p>`
           : html`
         <div class="ba-grid">
           ${raw(
@@ -334,7 +334,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
                 </div>
                 <div class="ba-img locked">
                   ${c.after_img ? `<img src="/media/${esc(c.after_img)}" alt="${esc(c.title)} 치료 후" loading="lazy" style="filter:blur(14px);transform:scale(1.1)" />` : ''}
-                  <div class="lock-ui"><i class="fa-solid fa-lock"></i><span>내원 상담 시<br />확인 가능</span></div>
+                  <div class="lock-ui"><i class="fa-solid fa-lock"></i><span>회원가입 시<br />확인 가능</span></div>
                 </div>
               </div>
               <div class="ba-body">
