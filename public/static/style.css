@@ -411,6 +411,15 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .fact:hover { background: var(--bg-1); }
 .fact + .fact { border-left: 1px solid var(--line-3); }
 .fact strong { display: block; font-size: 1.06rem; font-weight: 750; color: var(--text); letter-spacing: -0.015em; }
+.fact-num {
+  font-family: var(--display); font-size: clamp(1.7rem, 3vw, 2.3rem) !important;
+  font-weight: 600 !important; line-height: 1.15;
+  background: linear-gradient(115deg, var(--pine) 30%, #0087C9 90%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.fact-num em { font-style: normal; font-size: 0.52em; font-weight: 600; letter-spacing: 0; margin-left: 2px; }
+/* .fact span 전역 스타일이 카운트업 span을 오염시키지 않도록 리셋 */
+.fact-num span { display: inline !important; margin: 0 !important; font-size: inherit !important; color: inherit !important; font-family: inherit; }
 .fact span { display: block; margin-top: 7px; font-size: 0.84rem; color: var(--ink-3); }
 
 /* ============================================================
@@ -667,15 +676,34 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
    PAGE HERO (서브페이지)
    ============================================================ */
 .page-hero {
-  position: relative; padding: clamp(56px, 8vw, 100px) 0 clamp(40px, 6vw, 72px);
+  position: relative; padding: clamp(64px, 9vw, 116px) 0 clamp(44px, 6vw, 76px);
   border-bottom: 1px solid var(--line-3);
+  overflow: hidden;
   background:
-    radial-gradient(60% 120% at 85% -20%, rgba(62,142,240,0.10), transparent 60%),
-    radial-gradient(50% 110% at 10% -10%, rgba(12,91,157,0.08), transparent 60%);
+    radial-gradient(60% 120% at 85% -20%, rgba(62,142,240,0.12), transparent 60%),
+    radial-gradient(50% 110% at 10% -10%, rgba(12,91,157,0.09), transparent 60%),
+    linear-gradient(180deg, #F6F9FC 0%, #fff 100%);
 }
-.page-hero h1 { font-size: clamp(2.2rem, 5.4vw, 3.6rem); margin: 14px 0 16px; }
+/* 고스트 타이포 — data-ghost 속성으로 페이지별 영문 워터마크 */
+.page-hero::before {
+  content: attr(data-ghost);
+  position: absolute; right: -0.03em; bottom: -0.18em; z-index: 0;
+  font-family: var(--display); font-weight: 700; line-height: 1;
+  font-size: clamp(5.4rem, 15vw, 12.5rem); letter-spacing: 0.01em;
+  color: transparent; -webkit-text-stroke: 1.2px rgba(12,91,157,0.11);
+  user-select: none; pointer-events: none; white-space: nowrap;
+}
+/* 상단 그라디언트 라인 */
+.page-hero::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--pine) 0%, #00B4E5 45%, transparent 80%);
+  opacity: 0.85;
+}
+.page-hero .container { position: relative; z-index: 1; }
+.page-hero h1 { font-size: clamp(2.3rem, 5.6vw, 3.9rem); margin: 14px 0 18px; }
 .ph-sub { max-width: 640px; color: var(--ink-3); font-size: 1.02rem; }
 .page-hero.with-photo { border-bottom: none; padding: 0; background: none; }
+.page-hero.with-photo::before, .page-hero.with-photo::after { content: none; }
 
 .breadcrumb { display: flex; gap: 10px; align-items: center; font-size: 0.8rem; color: var(--ink-4); margin-bottom: 18px; flex-wrap: wrap; }
 .breadcrumb a:hover { color: var(--pine); }
@@ -972,6 +1000,13 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
   background: var(--ink); color: #fff; letter-spacing: 0.06em;
 }
 .ba-img.locked { background: var(--bg-2); }
+.ba-soon { display: grid; place-items: center; gap: 8px; color: var(--ink-3); font-size: 0.78rem; }
+.ba-soon i { font-size: 1.4rem; opacity: 0.45; color: var(--pine); }
+.ba-coming { position: relative; }
+.ba-coming::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 1;
+  background: linear-gradient(90deg, var(--pine), #00B4E5 70%, transparent);
+}
 .lock-ui { text-align: center; color: var(--ink-3); font-size: 0.76rem; line-height: 1.5; }
 .lock-ui i { font-size: 1.3rem; display: block; margin-bottom: 8px; color: var(--bronze-2); }
 .ba-body { padding: 20px 22px; }

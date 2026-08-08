@@ -67,7 +67,7 @@ export function NoticeListPage(posts: DbPost[]) {
   const normal = posts.filter((p) => !p.pinned)
   const ordered = [...pinned, ...normal]
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="NOTICE">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>공지사항</span></nav>
         <span class="eyebrow">NOTICE</span>
@@ -105,7 +105,7 @@ export function NoticeListPage(posts: DbPost[]) {
 // ============================================================
 export function NoticeDetailPage(post: DbPost, others: DbPost[]) {
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="NOTICE">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/notice">공지사항</a><span class="sep">/</span><span>상세</span></nav>
         <span class="eyebrow">NOTICE</span>
@@ -156,7 +156,7 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[]) {
   const doctor = DOCTORS[0]
   return html`
     <article>
-      <section class="page-hero">
+      <section class="page-hero" data-ghost="COLUMN">
         <div class="container">
           <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/blog">건강칼럼</a><span class="sep">/</span><span>${esc(post.category || '칼럼')}</span></nav>
           <span class="eyebrow">${esc(post.category || '건강 칼럼')}</span>
@@ -272,7 +272,7 @@ export function noticeSchema(post: DbPost, siteUrl: string) {
 export function DbCasesPage(rows: DbCase[], activeCat?: string) {
   const cats = Object.keys(CAT_TO_TX).filter((k, i, a) => a.findIndex((x) => CAT_TO_TX[x] === CAT_TO_TX[k]) === i)
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="CASES">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>진료사례</span></nav>
         <span class="eyebrow">진료 사례</span>
@@ -294,7 +294,32 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
         </nav>
 
         ${rows.length === 0
-          ? html`<p style="text-align:center;color:var(--ink-3);padding:60px 0"><i class="fa-regular fa-images" style="font-size:2rem;display:block;margin-bottom:16px;opacity:0.4"></i>진료 사례가 준비 중입니다. 곧 업데이트됩니다.</p>`
+          ? html`
+        <div class="ba-grid" aria-label="준비 중인 진료 사례">
+          ${raw(
+            [
+              { cat: '임플란트', desc: '자연치아 보존을 먼저 살핀 뒤 진행한 임플란트 사례가 준비 중입니다.' },
+              { cat: '충치치료', desc: '치아 삭제를 최소화한 단계별 충치치료 사례가 준비 중입니다.' },
+              { cat: '심미치료', desc: '자연스러운 색과 형태를 살린 심미치료 사례가 준비 중입니다.' }
+            ]
+              .map(
+                (c, i) => `
+            <div class="ba-card ba-coming reveal reveal-d${i + 1}">
+              <div class="ba-images">
+                <div class="ba-img"><span class="ba-tag">Before</span><span class="ba-soon"><i class="fa-regular fa-clock"></i>준비 중</span></div>
+                <div class="ba-img locked"><div class="lock-ui"><i class="fa-solid fa-lock"></i><span>내원 상담 시<br />확인 가능</span></div></div>
+              </div>
+              <div class="ba-body">
+                <h2 class="h4">${c.cat} 사례</h2>
+                <div class="ba-meta"><span>${c.cat}</span><span>순차 공개 예정</span></div>
+                <p style="margin-top:10px;font-size:0.88rem;color:var(--ink-2);line-height:1.7">${c.desc}</p>
+              </div>
+            </div>`
+              )
+              .join('')
+          )}
+        </div>
+        <p style="text-align:center;color:var(--ink-3);margin-top:36px;font-size:0.9rem">실제 진료 사례는 환자분 동의 절차를 거쳐 순차적으로 공개됩니다. 자세한 사례가 궁금하시다면 <a href="/reservation" style="color:var(--acc);font-weight:700">내원 상담</a> 시 직접 확인하실 수 있습니다.</p>`
           : html`
         <div class="ba-grid">
           ${raw(

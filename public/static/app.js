@@ -168,6 +168,62 @@
     });
   }
 
+  /* ---- 숫자 카운트업 (data-countup) ---- */
+  function initCountup() {
+    var els = document.querySelectorAll('[data-countup]');
+    if (!els.length) return;
+    if (reduceMotion || !('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        io.unobserve(e.target);
+        var el = e.target;
+        var target = parseFloat(el.getAttribute('data-countup') || el.textContent);
+        if (isNaN(target)) return;
+        var dur = 1100;
+        var t0 = null;
+        function tick(ts) {
+          if (!t0) t0 = ts;
+          var p = Math.min(1, (ts - t0) / dur);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = String(Math.round(target * eased));
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = String(target);
+        }
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.6 });
+    els.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---- 미세 패럴랙스 (미디어 밴드 — 과하지 않게) ---- */
+  function initMicroParallax() {
+    if (reduceMotion) return;
+    var targets = [];
+    document.querySelectorAll('.lb-img, .sd-media, .t-hero-img').forEach(function (wrap) {
+      var media = wrap.querySelector('video, img');
+      if (media) targets.push({ wrap: wrap, media: media });
+    });
+    if (!targets.length) return;
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var vh = window.innerHeight;
+      targets.forEach(function (t) {
+        var r = t.wrap.getBoundingClientRect();
+        if (r.bottom < -80 || r.top > vh + 80) return;
+        // 요소 중심의 화면 내 위치 (-1 ~ 1) → ±14px 이동
+        var c = (r.top + r.height / 2 - vh / 2) / (vh / 2);
+        var y = Math.max(-1, Math.min(1, c)) * -14;
+        t.media.style.transform = 'translateY(' + y.toFixed(1) + 'px) scale(1.06)';
+      });
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  }
+
   /* ---- 부드러운 앵커 스크롤 ---- */
   function initAnchors() {
     document.querySelectorAll('a[href^="#"]').forEach(function (a) {
@@ -231,6 +287,8 @@
     initParallax();
     initMagnetic();
     initToc();
+    initCountup();
+    initMicroParallax();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

@@ -14,7 +14,7 @@ export function AboutHubPage() {
     { href: '/directions', icon: 'fa-location-dot', title: '오시는 길', desc: `${CLINIC.directions}. 진료시간·주차 안내까지 한 번에.` }
   ]
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="ABOUT">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>소개</span></nav>
         <span class="eyebrow">ABOUT</span>
@@ -61,7 +61,7 @@ export function AboutHubPage() {
 export function MissionPage() {
   const d = DOCTORS[0]
   return html`
-    <section class="page-hero" style="text-align:center">
+    <section class="page-hero" data-ghost="PROMISE" style="text-align:center">
       <div class="container">
         <nav class="breadcrumb" style="justify-content:center"><a href="/">홈</a><span class="sep">/</span><span>병원소개</span></nav>
         <span class="eyebrow" style="display:inline-flex">우리의 약속</span>
@@ -133,7 +133,7 @@ export function MissionPage() {
 // ============================================================
 export function DirectionsPage() {
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="LOCATION">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>오시는 길</span></nav>
         <span class="eyebrow">오시는 길</span>
@@ -200,7 +200,7 @@ export function DirectionsPage() {
 // ============================================================
 export function PricingPage() {
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="PRICING">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>비용 안내</span></nav>
         <span class="eyebrow">비용 안내</span>
@@ -241,7 +241,7 @@ export function PricingPage() {
 // ============================================================
 export function FacilityPage() {
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="FACILITY">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>시설 둘러보기</span></nav>
         <span class="eyebrow">시설 안내</span>
@@ -329,7 +329,7 @@ export function FaqPage() {
     ...TREATMENTS.filter((t) => t.faqs).map((t) => ({ title: `${t.name} FAQ`, faqs: t.faqs!, icon: t.icon, slug: t.slug }))
   ]
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="FAQ">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>자주 묻는 질문</span></nav>
         <span class="eyebrow">자주 묻는 질문</span>
@@ -381,7 +381,7 @@ export function faqPageSchema() {
 // ============================================================
 export function ReservationPage() {
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="RESERVE">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>예약 문의</span></nav>
         <span class="eyebrow">예약 문의</span>
@@ -467,7 +467,7 @@ export function CasesPage(isLoggedIn = false) {
     { title: '투명교정 사례', cat: '교정', age: '20대', gender: '여성', area: '발산동', slug: 'ortho' }
   ]
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="CASES">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>진료사례</span></nav>
         <span class="eyebrow">진료 사례</span>
@@ -547,7 +547,7 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
   if (!area || !t) return null
   const faqs = areaFaqs(areaSlug, treatmentSlug)
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="${t.slug.toUpperCase()}">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/treatments/${t.slug}">${t.name}</a><span class="sep">/</span><span>${area.name}</span></nav>
         <span class="eyebrow">${area.full}</span>

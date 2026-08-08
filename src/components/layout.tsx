@@ -88,7 +88,7 @@ export function Head(meta: SeoMeta) {
         onload="this.media='all'"
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
-      <link rel="stylesheet" href="/static/style.css?v=design2" />
+      <link rel="stylesheet" href="/static/style.css?v=design3a" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->
@@ -417,7 +417,7 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
         <main>${body}</main>
         ${Footer()}
         ${FloatingCta()}
-        <script src="/static/app.js?v=logo1" defer></script>
+        <script src="/static/app.js?v=design3" defer></script>
       </body>
     </html>`
 }

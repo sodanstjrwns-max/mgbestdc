@@ -21,7 +21,7 @@ export function BlogListPage(activeCat?: string, dbPosts: DbPostLite[] = []) {
   const topicTx = activeCatDef && activeCatDef.slug !== 'news' ? getTreatment(activeCatDef.slug) : undefined
 
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="COLUMN">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>건강칼럼</span></nav>
         <span class="eyebrow">건강 칼럼</span>
@@ -142,7 +142,7 @@ export function BlogDetailPage(post: BlogPost) {
 
   return html`
     <article>
-      <section class="page-hero">
+      <section class="page-hero" data-ghost="COLUMN">
         <div class="container">
           <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/blog">건강칼럼</a><span class="sep">/</span><span>${post.category}</span></nav>
           <span class="eyebrow">${post.category}</span>

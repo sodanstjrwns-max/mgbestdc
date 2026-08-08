@@ -27,7 +27,7 @@ const LIST_IMG: Record<string, string> = {
 
 export function TreatmentsListPage() {
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="TREATMENT">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>진료안내</span></nav>
         <span class="eyebrow">진료 안내</span>
@@ -126,7 +126,7 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
   // 지역 칩 — 해당 과목이 지역페이지 대상(implant/ortho/cavity/cosmetic)이면 자기 slug, 아니면 implant로 연결
   const areaSlug = ['implant', 'ortho', 'cavity', 'cosmetic'].includes(t.slug) ? t.slug : 'implant'
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="${t.slug.toUpperCase()}">
       <div class="container">
         <nav class="breadcrumb">
           <a href="/">홈</a><span class="sep">/</span>

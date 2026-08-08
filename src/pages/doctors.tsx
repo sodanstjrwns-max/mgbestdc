@@ -4,7 +4,7 @@ import { srcset, SIZES } from '../components/img'
 
 export function DoctorsListPage() {
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="DOCTORS">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>의료진</span></nav>
         <span class="eyebrow">의료진 소개</span>
@@ -47,7 +47,7 @@ export function DoctorDetailPage(slug: string) {
   if (!d) return null
   const specialties = d.specialties.map((s) => getTreatment(s)).filter(Boolean)
   return html`
-    <section class="page-hero">
+    <section class="page-hero" data-ghost="PROFILE">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/doctors">의료진</a><span class="sep">/</span><span>${d.name} ${d.title}</span></nav>
         <span class="eyebrow">${d.title}</span>

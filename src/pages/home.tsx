@@ -70,10 +70,10 @@ export function HomePage() {
     <section class="pad-sm" aria-label="핵심 지표">
       <div class="container">
         <div class="fact-strip reveal">
-          <div class="fact"><strong>마곡나루역 도보 3분</strong><span>1번 출구 바로 앞</span></div>
-          <div class="fact"><strong>대표원장 1인 진료</strong><span>상담부터 치료까지 직접</span></div>
-          <div class="fact"><strong>정밀 진단 장비</strong><span>CT·구강스캐너 상시 운용</span></div>
-          <div class="fact"><strong>치료 후 정기 관리</strong><span>끝난 뒤에도 챙깁니다</span></div>
+          <div class="fact"><strong class="fact-num"><span data-countup="3">0</span><em>분</em></strong><span>마곡나루역 1번 출구 도보</span></div>
+          <div class="fact"><strong class="fact-num"><span data-countup="1">0</span><em>인 책임진료</em></strong><span>상담부터 치료까지 대표원장 직접</span></div>
+          <div class="fact"><strong class="fact-num">20<em>:30</em></strong><span>월·목 야간 진료</span></div>
+          <div class="fact"><strong class="fact-num"><span data-countup="310">0</span><em>호</em></strong><span>보타닉비즈타워 3층</span></div>
         </div>
       </div>
     </section>
