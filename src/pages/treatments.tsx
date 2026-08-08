@@ -94,11 +94,11 @@ const TX_IMG: Record<string, { src: string; alt: string }> = {
   implant: { src: '/static/img/tx-implant.webp', alt: '임플란트 정밀 진료 모습' },
   cavity: { src: '/static/img/consult.webp', alt: '충치치료 상담 모습' },
   cosmetic: { src: '/static/img/tx-cosmetic.webp', alt: '심미 보철물을 직접 보여주며 설명하는 대표원장' },
-  ortho: { src: '/static/img/tx-ortho.webp', alt: '교정 치료 모습' },
-  tmj: { src: '/static/img/tx-tmj.webp', alt: '턱관절 불편을 살피는 모습' },
-  gum: { src: '/static/img/tx-gum.webp', alt: '잇몸 상태를 점검하는 진료 모습' },
-  prosthesis: { src: '/static/img/tx-prosthesis.webp', alt: '디지털 보철 제작 과정' },
-  extraction: { src: '/static/img/tx-extraction.webp', alt: '파노라마 영상으로 사랑니 위치를 설명하는 모습' },
+  ortho: { src: '/static/img/tx-ortho.webp', alt: 'CT 영상을 짚어가며 치아 배열을 설명하는 모습' },
+  tmj: { src: '/static/img/tx-tmj.webp', alt: '체어사이드에서 환자 상태를 살피는 대표원장' },
+  gum: { src: '/static/img/tx-gum.webp', alt: '확대경을 착용하고 정밀 진료 중인 대표원장' },
+  prosthesis: { src: '/static/img/tx-prosthesis.webp', alt: '보철물을 직접 보여주며 설명하는 대표원장' },
+  extraction: { src: '/static/img/tx-extraction.webp', alt: '수술 가운을 갖추고 발치 시술 중인 모습' },
   preventive: { src: '/static/img/facility-room.webp', alt: '예방 진료 공간' }
 }
 
