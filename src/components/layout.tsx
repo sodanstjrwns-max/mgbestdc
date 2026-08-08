@@ -203,6 +203,7 @@ function Header() {
               <div class="mega" style="min-width:250px">
                 <div class="mega-grid" style="grid-template-columns:1fr">
                   <a href="/mission" class="mega-item"><i class="fa-solid fa-hand-holding-heart"></i><span><span class="mi-name">병원소개</span></span></a>
+                  <a href="/story" class="mega-item"><i class="fa-solid fa-book-open"></i><span><span class="mi-name">스토리</span></span></a>
                   <a href="/doctors" class="mega-item"><i class="fa-solid fa-user-doctor"></i><span><span class="mi-name">의료진</span></span></a>
                   <a href="/facility" class="mega-item"><i class="fa-solid fa-hospital"></i><span><span class="mi-name">시설·장비</span></span></a>
                   <a href="/directions" class="mega-item"><i class="fa-solid fa-location-dot"></i><span><span class="mi-name">오시는 길</span></span></a>
@@ -262,6 +263,7 @@ function Header() {
         <summary>소개</summary>
         <div class="sub">
           <a href="/mission">병원소개</a>
+          <a href="/story">스토리</a>
           <a href="/doctors">의료진</a>
           <a href="/facility">시설·장비</a>
           <a href="/directions">오시는 길</a>
@@ -320,6 +322,7 @@ function Footer() {
           <div class="footer-col">
             <div class="footer-h">바로가기</div>
             <a href="/about">병원 소개</a>
+            <a href="/story">스토리</a>
             <a href="/doctors">의료진</a>
             <a href="/cases">치료사례</a>
             <a href="/blog">건강칼럼</a>

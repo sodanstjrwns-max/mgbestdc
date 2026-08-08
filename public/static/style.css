@@ -292,6 +292,8 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .hero-bg { position: absolute; inset: 0; z-index: 0; }
 .hero-bg img { width: 100%; height: 112%; object-fit: cover; animation: heroZoom 14s var(--ease) forwards; }
 .hero-bg img.parallax { transform: translateY(var(--py, 0)); animation: none; will-change: transform; }
+.hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s ease; }
+.hero-video.on { opacity: 1; }
 @keyframes heroZoom { from { transform: scale(1.08); } to { transform: scale(1); } }
 .hero-bg::after {
   content: ''; position: absolute; inset: 0;
@@ -1219,3 +1221,58 @@ html, body { overflow-x: clip; }
 /* 터치 반응 정리: 더블탭 확대 방지 + iOS 회색 하이라이트 제거 */
 a, button, .btn, input, select, textarea, summary { touch-action: manipulation; }
 a, button, summary { -webkit-tap-highlight-color: transparent; }
+
+/* ============================================================
+   STORY 페이지 (영상 히어로 + 챕터 내러티브)
+   ============================================================ */
+.story-hero { position: relative; min-height: 88vh; display: flex; align-items: flex-end; color: #fff; overflow: hidden; }
+.sh-media { position: absolute; inset: 0; }
+.sh-media video { width: 100%; height: 100%; object-fit: cover; }
+.sh-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,25,45,0.25) 0%, rgba(7,25,45,0.4) 55%, rgba(6,20,38,0.82) 100%); }
+.sh-inner { position: relative; z-index: 2; padding: 120px 0 80px; }
+.sh-inner h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.22; letter-spacing: -0.03em; margin: 16px 0 18px; }
+.sh-sub { font-size: 1.05rem; color: rgba(255,255,255,0.86); line-height: 1.8; max-width: 640px; }
+.grad-light { background: linear-gradient(92deg, #7FD8F5, #B8E9FA); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.breadcrumb.light, .breadcrumb.light a { color: rgba(255,255,255,0.75); }
+.eyebrow.light { color: rgba(255,255,255,0.85); }
+.eyebrow.light::before { background: var(--brand-glow); }
+.sh-scroll { display: inline-flex; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,0.4); border-radius: 50%; align-items: center; justify-content: center; color: #fff; margin-top: 34px; animation: shBob 2.2s ease-in-out infinite; }
+@keyframes shBob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(7px) } }
+
+.sc-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+.sc-grid.flip .sc-photo { order: 2; }
+.sc-photo { position: relative; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(7,63,115,0.16); }
+.sc-photo img { width: 100%; height: auto; display: block; }
+.sc-no { position: absolute; top: 14px; left: 16px; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.14em; color: #fff; background: rgba(8,80,154,0.82); padding: 6px 13px; border-radius: 999px; }
+.sc-text h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.35; letter-spacing: -0.025em; margin: 12px 0 14px; }
+.sc-lead { font-weight: 700; color: var(--pine-2); margin-bottom: 16px; font-size: 1.04rem; line-height: 1.7; }
+.sc-p { color: var(--ink-2); line-height: 1.9; margin-bottom: 14px; }
+.sc-quote { margin: 22px 0 0; padding: 18px 22px; border-left: 3px solid var(--bronze); background: var(--brand-soft); border-radius: 0 12px 12px 0; font-weight: 700; color: var(--brand-dark); line-height: 1.7; }
+.sc-disclaimer { font-size: 0.82rem; color: var(--ink-4); text-align: center; margin-top: 22px; }
+
+.story-drone { position: relative; min-height: 62vh; display: flex; align-items: center; color: #fff; overflow: hidden; }
+.sd-media { position: absolute; inset: 0; }
+.sd-media video { width: 100%; height: 100%; object-fit: cover; }
+.sd-scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6,22,42,0.78) 0%, rgba(6,22,42,0.45) 55%, rgba(6,22,42,0.2) 100%); }
+.sd-inner { position: relative; z-index: 2; padding: 90px 0; }
+.sd-inner h2 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); line-height: 1.3; letter-spacing: -0.025em; margin: 14px 0 12px; color: #fff; }
+.sd-inner p { color: rgba(255,255,255,0.85); }
+
+.sv-frame { box-shadow: 0 28px 70px rgba(7,63,115,0.2); border-radius: 16px; }
+
+/* 의료진 페이지 — 실사 포트레이트 스트립 */
+.dr-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+.dr-strip img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; display: block; aspect-ratio: 4/5; }
+
+@media (max-width: 900px) {
+  .sc-grid { grid-template-columns: 1fr; }
+  .sc-grid.flip .sc-photo { order: 0; }
+  .sc-photo { max-width: 520px; }
+  .story-hero { min-height: 72vh; }
+  .pc-only { display: none; }
+}
+@media (max-width: 720px) {
+  .dr-strip { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .sh-inner { padding: 90px 0 60px; }
+  .story-drone { min-height: 52vh; }
+}

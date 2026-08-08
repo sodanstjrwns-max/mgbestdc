@@ -33,6 +33,9 @@ export function HomePage() {
     <section class="hero" id="hero">
       <div class="hero-bg" aria-hidden="true">
         <img src="/static/img/hero-clinic.webp" srcset="${srcset('/static/img/hero-clinic.webp', 1920)}" sizes="100vw" alt="" fetchpriority="high" />
+        <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="/static/img/hero-clinic.webp" onloadeddata="this.classList.add('on')">
+          <source src="/media/video/branding-hero.mp4" type="video/mp4" />
+        </video>
       </div>
       <div class="container">
         <div class="hero-meta">
@@ -181,10 +184,13 @@ export function HomePage() {
             <ul class="cred-list">
               ${raw(d.career.slice(0, 4).map((c) => `<li class="cred-item">${c}</li>`).join(''))}
             </ul>
-            <a href="/doctors/${d.slug}" class="btn btn-ghost">대표원장 진료 이야기 <i class="fa-solid fa-arrow-right"></i></a>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <a href="/story" class="btn btn-primary">원장의 스토리 보기 <i class="fa-solid fa-arrow-right"></i></a>
+              <a href="/doctors/${d.slug}" class="btn btn-ghost">프로필 자세히</a>
+            </div>
           </div>
           <div class="doctor-photo reveal reveal-wipe">
-            <img src="/static/img/doctor-care.webp" srcset="${srcset('/static/img/doctor-care.webp', 1045)}" sizes="${SIZES.half}" alt="${d.name} 대표원장 진료 모습" loading="lazy" decoding="async" />
+            <img src="/static/img/dr-kim-stool.webp" srcset="${srcset('/static/img/dr-kim-stool.webp', 1045)}" sizes="${SIZES.half}" alt="${d.name} 대표원장" loading="lazy" decoding="async" />
             <div class="ph-label">
               <div class="pn">${d.name} 대표원장</div>
               <div class="pc">${d.credential}</div>

@@ -19,7 +19,7 @@ export function DoctorsListPage() {
           DOCTORS.map(
             (d) => `
           <div class="doc-card reveal">
-            <div class="dc-photo"><img src="/static/img/doctor-care.webp" srcset="${srcset('/static/img/doctor-care.webp', 1045)}" sizes="${SIZES.card}" alt="${d.name} ${d.title} 진료 모습" loading="lazy" decoding="async" /></div>
+            <div class="dc-photo"><img src="/static/img/dr-kim-crossed.webp" srcset="${srcset('/static/img/dr-kim-crossed.webp', 1045)}" sizes="${SIZES.card}" alt="${d.name} ${d.title}" loading="lazy" decoding="async" /></div>
             <div>
               <h2>${d.name} <span style="font-size:1rem;color:var(--ink-3)">${d.title}</span></h2>
               <div class="dc-title">${d.credential}</div>
@@ -60,7 +60,7 @@ export function DoctorDetailPage(slug: string) {
       <div class="container">
         <div class="doctor-feature">
           <div class="doctor-photo reveal reveal-wipe">
-            <img src="/static/img/doctor-care.webp" srcset="${srcset('/static/img/doctor-care.webp', 1045)}" sizes="${SIZES.half}" alt="${d.name} ${d.title} 진료 모습" width="1045" height="1400" loading="lazy" decoding="async" />
+            <img src="/static/img/dr-kim-standing.webp" srcset="${srcset('/static/img/dr-kim-standing.webp', 1045)}" sizes="${SIZES.half}" alt="${d.name} ${d.title}" width="1045" height="1306" loading="lazy" decoding="async" />
             <div class="ph-label"><span class="pn">${d.name} ${d.title}</span><br /><span class="pc">${d.credential}</span></div>
           </div>
           <div class="reveal reveal-d1">
@@ -94,6 +94,11 @@ export function DoctorDetailPage(slug: string) {
             ${raw(PATIENT_VOICES.map((v) => `<span class="voice-chip">${v}</span>`).join(''))}
           </div>
           <p class="story-attr">— ${GOOD_HANDS.attribution}</p>
+          <div class="dr-strip">
+            <img src="/static/img/dr-kim-loupe.webp" srcset="${srcset('/static/img/dr-kim-loupe.webp', 1000)}" sizes="${SIZES.third}" alt="확대경을 착용한 김민 대표원장" loading="lazy" decoding="async" />
+            <img src="/static/img/dr-kim-stool.webp" srcset="${srcset('/static/img/dr-kim-stool.webp', 1045)}" sizes="${SIZES.third}" alt="김민 대표원장 프로필" loading="lazy" decoding="async" />
+            <img src="/static/img/dr-kim-side.webp" srcset="${srcset('/static/img/dr-kim-side.webp', 1045)}" sizes="${SIZES.third}" alt="김민 대표원장 프로필" loading="lazy" decoding="async" />
+          </div>
         </div>
       </div>
     </section>
@@ -139,7 +144,7 @@ export function personSchema(slug: string, siteUrl: string) {
     name: d.name,
     jobTitle: d.title,
     description: d.credential,
-    image: `${siteUrl}/static/img/doctor-care.webp`,
+    image: `${siteUrl}/static/img/dr-kim-standing.webp`,
     url: `${siteUrl}/doctors/${d.slug}`,
     medicalSpecialty: 'Dentistry',
     worksFor: { '@id': `${siteUrl}/#organization` },

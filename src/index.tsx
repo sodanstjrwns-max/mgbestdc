@@ -5,6 +5,7 @@ import { CLINIC, TREATMENTS, getTreatment, DOCTORS, AREAS, AREA_TREATMENTS, CORE
 import { HomePage } from './pages/home'
 import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema } from './pages/treatments'
 import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors'
+import { StoryPage, storySchema } from './pages/story'
 import {
   AboutHubPage, MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
   ReservationPage, AreaPage, areaSchema, areaFaqSchema
@@ -109,6 +110,26 @@ app.get('/mission', (c) =>
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '병원소개', path: '/mission' }])]
       },
       MissionPage()
+    )
+  )
+)
+
+// ============================================================
+// 스토리 — 김민 대표원장 인터뷰 내러티브 (영상 히어로)
+// ============================================================
+app.get('/story', (c) =>
+  c.html(
+    Layout(
+      {
+        title: `스토리 | ${CLINIC.name}`,
+        description: '강서구에서 나고 자란 김민 대표원장이 고향 마곡에 치과를 연 이유, 그리고 진료실에서 지키고 있는 원칙들을 소개합니다.',
+        path: '/story',
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '스토리', path: '/story' }]),
+          storySchema(SITE_URL)
+        ]
+      },
+      StoryPage()
     )
   )
 )
@@ -873,18 +894,52 @@ app.post('/api/admin/upload', async (c) => {
   }
 })
 
-// R2 이미지 서빙 (공개 — 캐시 1년)
+// R2 미디어 서빙 (공개 — 캐시 1년, 영상 Range 스트리밍 지원)
 app.get('/media/*', async (c) => {
   if (!c.env?.R2) return c.notFound()
   const key = c.req.path.replace(/^\/media\//, '')
   if (!key || key.includes('..')) return c.notFound()
+
+  const baseHeaders: Record<string, string> = {
+    'Cache-Control': 'public, max-age=31536000, immutable',
+    'X-Content-Type-Options': 'nosniff',
+    'Accept-Ranges': 'bytes'
+  }
+
+  // Range 요청 (영상 시킹/Safari 필수)
+  const range = c.req.header('range')
+  if (range) {
+    const m = range.match(/bytes=(\d*)-(\d*)/)
+    if (m) {
+      const head = await c.env.R2.head(key)
+      if (!head) return c.notFound()
+      const size = head.size
+      let start = m[1] ? parseInt(m[1], 10) : 0
+      let end = m[2] ? parseInt(m[2], 10) : size - 1
+      if (isNaN(start) || start >= size) start = 0
+      if (isNaN(end) || end >= size) end = size - 1
+      const length = end - start + 1
+      const obj = await c.env.R2.get(key, { range: { offset: start, length } })
+      if (!obj) return c.notFound()
+      return new Response(obj.body as any, {
+        status: 206,
+        headers: {
+          ...baseHeaders,
+          'Content-Type': head.httpMetadata?.contentType || 'application/octet-stream',
+          'Content-Range': `bytes ${start}-${end}/${size}`,
+          'Content-Length': String(length)
+        }
+      })
+    }
+  }
+
   const obj = await c.env.R2.get(key)
   if (!obj) return c.notFound()
   return new Response(obj.body as any, {
     headers: {
+      ...baseHeaders,
       'Content-Type': obj.httpMetadata?.contentType || 'image/jpeg',
-      'Cache-Control': 'public, max-age=31536000, immutable',
-      'X-Content-Type-Options': 'nosniff'
+      'Content-Length': String(obj.size)
     }
   })
 })
@@ -899,6 +954,7 @@ app.get('/sitemap.xml', async (c) => {
     { loc: '/notice', pri: '0.6', freq: 'weekly' },
     { loc: '/mission', pri: '0.8', freq: 'monthly' },
     { loc: '/doctors', pri: '0.8', freq: 'monthly' },
+    { loc: '/story', pri: '0.8', freq: 'monthly' },
     { loc: '/treatments', pri: '0.9', freq: 'monthly' },
     { loc: '/cases', pri: '0.7', freq: 'weekly' },
     { loc: '/blog', pri: '0.8', freq: 'weekly' },
