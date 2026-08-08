@@ -67,8 +67,8 @@
 
   /* ---- 타이포 ---- */
   --sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --serif: var(--sans);
-  --display: 'Pretendard Variable', 'Pretendard', sans-serif;
+  --serif: 'Noto Serif KR', 'Pretendard Variable', serif;
+  --display: 'Noto Serif KR', 'Pretendard Variable', serif;
   --mono: var(--sans);
 
   /* ---- 레이아웃 ---- */
@@ -136,25 +136,37 @@ body::before {
 .tone { background: var(--bg-1); }
 
 /* ============================================================
-   타이포 시스템
+   타이포 시스템 — 세리프 디스플레이 (에디토리얼 프리미엄)
    ============================================================ */
 h1, h2, h3, h4 { color: var(--ink); font-weight: 750; letter-spacing: -0.03em; line-height: 1.22; text-wrap: balance; }
 p { text-wrap: pretty; }
 
-.eyebrow, .label {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--sans); font-size: 0.88rem; font-weight: 700;
-  letter-spacing: -0.01em; color: var(--pine);
+/* 대형 헤드라인 = 명조 — 병원이 아닌 '브랜드'의 목소리 */
+.hero h1, .section-title, .creed-headline, .doctor-quote, .story-quote,
+.page-hero h1, .sh-inner h1, .sd-inner h2, .lb-body h2, .sc-text h2,
+.cta-band h2, .cta-inner h2 {
+  font-family: var(--display); font-weight: 600; letter-spacing: -0.015em;
 }
-.eyebrow::before, .label::before { content: ''; width: 18px; height: 2px; border-radius: 2px; background: var(--pine); opacity: 0.85; }
+.section-title b, .hero h1 b { font-weight: 700; }
+
+.eyebrow, .label {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--sans); font-size: 0.76rem; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--pine);
+}
+.eyebrow::before, .label::before { content: ''; width: 26px; height: 1px; background: linear-gradient(90deg, var(--bronze), var(--pine)); opacity: 0.9; }
 .label--line::after { content: none; }
 .label .idx { display: none; }
 
-.section-title { font-size: clamp(1.9rem, 4.2vw, 3.1rem); margin-top: 18px; }
-.section-title .thin { font-weight: 350; color: var(--ink-3); }
+.section-title { font-size: clamp(1.9rem, 4.2vw, 3.1rem); margin-top: 18px; line-height: 1.28; }
+.section-title .thin { font-weight: 500; color: var(--ink-3); }
 .section-lead { max-width: 460px; color: var(--ink-3); font-size: 1.02rem; }
 
-.grad { color: var(--pine); }
+.grad {
+  color: var(--pine);
+  background: linear-gradient(115deg, var(--pine) 30%, var(--bronze) 90%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
 em, .doctor-quote em { font-style: normal; color: var(--pine); }
 
 .sec-head {
@@ -176,8 +188,18 @@ em, .doctor-quote em { font-style: normal; color: var(--pine); }
 .btn i { font-size: 0.85em; transition: transform 0.35s var(--ease); }
 .btn:hover i.fa-arrow-right { transform: translateX(4px); }
 
-.btn-primary { background: var(--pine); color: #fff; box-shadow: 0 8px 22px rgba(12, 91, 157, 0.25); }
-.btn-primary:hover { background: var(--pine-2); transform: translateY(-2px); box-shadow: 0 14px 30px rgba(12, 91, 157, 0.3); }
+.btn-primary {
+  background: linear-gradient(120deg, #0C5B9D 20%, #0A6FB8 75%, #0087C9 110%);
+  color: #fff; box-shadow: 0 8px 22px rgba(12, 91, 157, 0.28);
+  position: relative; overflow: hidden;
+}
+.btn-primary::after {
+  content: ''; position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.28), transparent);
+  transform: skewX(-20deg); transition: left 0.55s var(--ease);
+}
+.btn-primary:hover::after { left: 130%; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(12, 91, 157, 0.36); }
 
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-2); }
 .btn-ghost:hover { border-color: var(--pine); color: var(--pine); transform: translateY(-2px); }
@@ -298,8 +320,14 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .hero-bg::after {
   content: ''; position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(14,27,46,0.18) 0%, rgba(14,27,46,0.02) 34%, rgba(14,27,46,0.62) 100%),
-    linear-gradient(100deg, rgba(14,27,46,0.42) 0%, transparent 55%);
+    linear-gradient(180deg, rgba(9,20,36,0.32) 0%, rgba(9,20,36,0.05) 32%, rgba(6,16,30,0.74) 100%),
+    linear-gradient(100deg, rgba(9,20,36,0.5) 0%, transparent 58%),
+    radial-gradient(120% 90% at 85% 10%, rgba(0,180,229,0.10), transparent 55%);
+}
+/* 필름 그레인 — 영상위 미세 질감 */
+.hero-bg::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
 }
 .hero .container { position: relative; z-index: 2; width: 100%; padding-bottom: clamp(44px, 6vw, 80px); }
 
@@ -314,15 +342,18 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .hero .coord { color: rgba(255,255,255,0.66); text-align: right; }
 
 .hero h1 {
-  color: #fff; font-size: clamp(2.6rem, 7vw, 5.4rem); line-height: 1.08;
-  letter-spacing: -0.035em; margin-bottom: clamp(24px, 3.5vw, 42px);
-  text-shadow: 0 4px 30px rgba(0,0,0,0.18);
+  color: #fff; font-size: clamp(2.7rem, 7.4vw, 5.9rem); line-height: 1.14;
+  letter-spacing: -0.02em; margin-bottom: clamp(24px, 3.5vw, 42px);
+  text-shadow: 0 4px 34px rgba(0,0,0,0.26);
 }
 .hero h1 .l { display: block; overflow: hidden; }
 .hero h1 .l > span { display: inline-block; transform: translateY(110%); animation: lineUp 1s var(--ease) forwards; }
 .hero h1 .l:nth-child(2) > span { animation-delay: 0.14s; }
 @keyframes lineUp { to { transform: translateY(0); } }
-.hero h1 .l-grad > span, .hero h1 .l-grad [data-split] { color: #A8CBF9; }
+.hero h1 .l-grad > span, .hero h1 .l-grad [data-split] {
+  background: linear-gradient(105deg, #BFDCFF 10%, #6BD8F7 90%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
 
 .hero-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; flex-wrap: wrap; }
 .hero-sub { max-width: 500px; color: rgba(255,255,255,0.86); font-size: 1.04rem; line-height: 1.75; margin-bottom: 22px; }
@@ -369,12 +400,18 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
    ============================================================ */
 .fact-strip {
   display: grid; grid-template-columns: repeat(4, 1fr);
-  border-top: 2px solid var(--dark); border-bottom: 1px solid var(--line);
+  background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius-lg);
+  box-shadow: var(--sh-md); overflow: hidden; position: relative;
 }
-.fact { padding: 26px 24px 26px 0; }
-.fact + .fact { padding-left: 24px; border-left: 1px solid var(--line); }
-.fact strong { display: block; font-size: 1.05rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-.fact span { display: block; margin-top: 6px; font-size: 0.85rem; color: var(--ink-3); }
+.fact-strip::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--pine), var(--bronze));
+}
+.fact { padding: 30px 28px; position: relative; transition: background 0.3s; }
+.fact:hover { background: var(--bg-1); }
+.fact + .fact { border-left: 1px solid var(--line-3); }
+.fact strong { display: block; font-size: 1.06rem; font-weight: 750; color: var(--text); letter-spacing: -0.015em; }
+.fact span { display: block; margin-top: 7px; font-size: 0.84rem; color: var(--ink-3); }
 
 /* ============================================================
    CREED (진료 철학)
@@ -387,11 +424,19 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 
 /* 진료 원칙 — 사진 + 흐르는 목록 (카드 그리드 아님) */
 .principle-flow { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(36px, 6vw, 80px); align-items: center; }
-.pf-photo { border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--sh-md); }
-.pf-photo img { width: 100%; height: 100%; min-height: 420px; object-fit: cover; display: block; }
-.pf-list { display: flex; flex-direction: column; }
-.pf-item { padding: 26px 0; border-bottom: 1px solid var(--line); }
+.pf-photo {
+  border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--sh-md);
+  position: relative; outline: 1px solid rgba(12,91,157,0.12); outline-offset: 10px;
+}
+.pf-photo img, .pf-photo video { width: 100%; height: 100%; min-height: 420px; object-fit: cover; display: block; }
+.pf-list { display: flex; flex-direction: column; counter-reset: pf; }
+.pf-item { padding: 26px 0 26px 52px; border-bottom: 1px solid var(--line); position: relative; counter-increment: pf; }
+.pf-item::before {
+  content: counter(pf, decimal-leading-zero); position: absolute; left: 0; top: 26px;
+  font-family: var(--display); font-size: 0.92rem; font-weight: 600; color: var(--bronze-2);
+}
 .pf-item:first-child { padding-top: 0; }
+.pf-item:first-child::before { top: 2px; }
 .pf-item:last-child { border-bottom: none; padding-bottom: 0; }
 .pf-item h3 { font-size: 1.12rem; margin-bottom: 8px; }
 .pf-item h3 b { color: var(--pine); font-weight: inherit; }
@@ -416,7 +461,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 }
 .cpc-body { position: relative; z-index: 1; padding: 26px; width: 100%; }
 .cpc-idx { font-size: 0.76rem; font-weight: 600; color: rgba(255,255,255,0.65); }
-.cpc-title { color: #fff; font-size: 1.5rem; margin: 8px 0 4px; }
+.cpc-title { color: #fff; font-size: 1.5rem; margin: 8px 0 4px; font-family: var(--display); font-weight: 600; }
 .cpc-tag { color: #BCD5FA; font-size: 0.88rem; font-weight: 600; }
 .cpc-desc {
   color: rgba(255,255,255,0.8); font-size: 0.85rem; line-height: 1.65; margin-top: 10px;
@@ -480,8 +525,15 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
    ============================================================ */
 .doctor-feature { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(36px, 6vw, 80px); align-items: center; }
 .doctor-quote {
-  font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; color: var(--ink);
-  line-height: 1.4; letter-spacing: -0.03em; margin-bottom: 22px;
+  font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 600; color: var(--ink);
+  line-height: 1.52; letter-spacing: -0.015em; margin-bottom: 22px; position: relative; padding-top: 40px;
+}
+.doctor-quote::before {
+  content: '“'; position: absolute; top: -14px; left: -6px;
+  font-family: var(--display); font-size: 5.2rem; line-height: 1;
+  background: linear-gradient(140deg, var(--pine) 20%, var(--bronze) 90%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  opacity: 0.85;
 }
 .doctor-note { color: var(--ink-3); max-width: 480px; margin-bottom: 26px; }
 .doctor-sign { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
@@ -494,8 +546,9 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .cred-item i { color: var(--pine); }
 
 .doctor-photo {
-  position: relative; border-radius: var(--radius-lg); overflow: hidden;
+  position: relative; border-radius: 200px 200px var(--radius-lg) var(--radius-lg); overflow: hidden;
   aspect-ratio: 4 / 5; box-shadow: var(--sh-lg);
+  outline: 1px solid rgba(12,91,157,0.14); outline-offset: 10px;
 }
 .doctor-photo img { width: 100%; height: 100%; object-fit: cover; }
 .doctor-photo::after {
@@ -543,12 +596,19 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 /* ============================================================
    FUNNEL — 환자 여정
    ============================================================ */
-.journey { border-top: 1px solid var(--line); }
+.journey { border-top: 1px solid var(--line); counter-reset: jr; }
 .journey-row {
   display: grid; grid-template-columns: 150px 1fr; gap: clamp(20px, 4vw, 60px);
   padding: 26px 0; border-bottom: 1px solid var(--line); align-items: baseline;
+  position: relative; transition: background 0.3s, padding 0.3s;
 }
-.journey-row .jt { font-weight: 750; font-size: 1.05rem; color: var(--ink); }
+.journey-row:hover { background: rgba(12,91,157,0.03); padding-left: 14px; }
+.journey-row .jt { font-weight: 750; font-size: 1.05rem; color: var(--ink); counter-increment: jr; display: flex; align-items: baseline; gap: 12px; }
+.journey-row .jt::before {
+  content: counter(jr, decimal-leading-zero);
+  font-family: var(--display); font-size: 0.82rem; font-weight: 600;
+  color: var(--bronze-2); letter-spacing: 0.04em;
+}
 .journey-row .jd { font-size: 0.95rem; color: var(--ink-3); line-height: 1.8; max-width: 640px; }
 
 /* ============================================================
@@ -562,8 +622,11 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .life-band .lb-img img { width: 100%; height: 100%; object-fit: cover; }
 .life-band .lb-img::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(95deg, rgba(14,27,46,0.72) 0%, rgba(14,27,46,0.32) 55%, transparent 100%);
+  background:
+    linear-gradient(95deg, rgba(9,22,40,0.78) 0%, rgba(9,22,40,0.36) 55%, rgba(9,22,40,0.06) 100%),
+    radial-gradient(100% 130% at 100% 0%, rgba(0,180,229,0.12), transparent 50%);
 }
+.life-band .lb-img video { width: 100%; height: 100%; object-fit: cover; }
 .lb-body { position: relative; z-index: 1; padding: clamp(36px, 6vw, 72px); max-width: 620px; }
 .lb-body .eyebrow { color: #BCD5FA; }
 .lb-body h2 { color: #fff; font-size: clamp(1.8rem, 3.8vw, 2.8rem); margin: 16px 0 18px; }
@@ -587,7 +650,7 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .cta-band::after {
   content: ''; position: absolute; width: 46%; aspect-ratio: 1; border-radius: 50%;
   bottom: -36%; left: -12%; filter: blur(80px);
-  background: radial-gradient(circle, rgba(46,107,87,0.4), transparent 70%);
+  background: radial-gradient(circle, rgba(0,180,229,0.28), transparent 70%);
 }
 .cta-band > * { position: relative; z-index: 1; }
 .cta-band .label, .cta-band .eyebrow { color: #9CC0F6; justify-content: center; }
