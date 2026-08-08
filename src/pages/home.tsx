@@ -32,8 +32,8 @@ export function HomePage() {
     <!-- ============ HERO — 풀블리드 포토 ============ -->
     <section class="hero" id="hero">
       <div class="hero-bg" aria-hidden="true">
-        <img src="/static/img/hero-clinic.webp" srcset="${srcset('/static/img/hero-clinic.webp', 1920)}" sizes="100vw" alt="" fetchpriority="high" />
-        <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="/static/img/hero-clinic.webp" onloadeddata="this.classList.add('on')">
+        <img src="/static/img/hero-lobby.webp" srcset="${srcset('/static/img/hero-lobby.webp', 1920)}" sizes="100vw" alt="" fetchpriority="high" />
+        <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="/static/img/hero-lobby.webp" onloadeddata="this.classList.add('on')">
           <source src="/media/video/branding-hero.mp4" type="video/mp4" />
         </video>
       </div>

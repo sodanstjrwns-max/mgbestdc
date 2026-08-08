@@ -162,7 +162,7 @@ export function DirectionsPage() {
           <div class="reveal reveal-d1">
             <a href="https://map.naver.com/v5/search/${encodeURIComponent(CLINIC.addressFull)}" target="_blank" rel="noopener"
                style="display:block;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--sh-md);position:relative;text-decoration:none">
-              <img src="/static/img/hero-clinic.webp" srcset="${srcset('/static/img/hero-clinic.webp', 1920)}" sizes="${SIZES.half}" alt="${CLINIC.name} 진료 공간" loading="lazy" decoding="async" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block" />
+              <img src="/static/img/hero-lobby.webp" srcset="${srcset('/static/img/hero-lobby.webp', 1920)}" sizes="${SIZES.half}" alt="${CLINIC.name} 진료 공간" loading="lazy" decoding="async" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block" />
               <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(23,32,28,0.82));display:flex;align-items:flex-end;padding:26px">
                 <div>
                   <div style="font-weight:800;color:#fff;font-size:1.2rem">${CLINIC.name}</div>
@@ -300,7 +300,7 @@ export function FacilityPage() {
               [
                 { src: '/static/img/facility-room.webp', label: '진료실', desc: '집중도 높은 컴팩트한 진료 공간' },
                 { src: '/static/img/consult.webp', label: '상담실', desc: '충분한 설명을 위한 독립 상담 공간' },
-                { src: '/static/img/hero-clinic.webp', label: '대기 공간', desc: '편안하게 기다리실 수 있는 공간' }
+                { src: '/static/img/hero-lobby.webp', label: '대기 공간', desc: '편안하게 기다리실 수 있는 공간' }
               ]
                 .map(
                   (s) => `
