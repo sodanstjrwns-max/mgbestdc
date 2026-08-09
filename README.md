@@ -22,7 +22,8 @@
 ## 배포 정보
 - **플랫폼**: Cloudflare Pages (사용자 계정 BYOK) — 프로젝트명 `magok-best-dental`, 프로덕션 브랜치 `main`
 - **D1**: `magok-best-dental-production` (id: fbcb5d25-f1a5-4d98-8f21-060299aa12a3), 마이그레이션 0001 적용 완료, 예약 API 실동작 검증 완료
-- **ADMIN_KEY**: Pages Secret으로 설정 완료 (기본키 `magok2026`는 프로덕션에서 차단 확인) — 실제 키는 별도 전달
+- **ADMIN_KEY**: Pages Secret = `magok2026` (핸드오버 문서와 일치하도록 재설정, 2026-08) — 인계 전 강한 키로 교체 권장
+- **SESSION_SECRET**: Pages Secret 설정 완료 (회원 세션 HMAC 서명용, openssl rand 64hex)
 - **재배포**: `npm run build && npx wrangler pages deploy dist --project-name magok-best-dental --branch main`
 - **SEO 후속(수동)**: 네이버 서치어드바이저·구글 서치콘솔에 `https://mgbestdc.kr/sitemap.xml` 제출, 네이버 스마트플레이스·구글 비즈니스 프로필 등록
 
@@ -44,7 +45,9 @@
 | 진료 목록 | `/treatments` | 핵심 TOP3 포토카드 + 일반진료 6종 |
 | 진료 상세 | `/treatments/:slug` | 히어로 이미지 + 확장 상세 + **토픽 허브 섹션**(같은 토픽 치료사례 3건 + 칼럼 3건 D1 자동 조회), MedicalProcedure+FAQPage 스키마 |
 | 통합 FAQ | `/faq` | 병원이용 + 진료별 FAQ, FAQPage 스키마 |
-| 진료사례 | `/cases` | **D1 연동** 비포·애프터 — 관리자 등록 사례 노출, After 블러+내원 안내 (의료법 준수) |
+| 진료사례 | `/cases`, `/cases/:id` | **D1 연동** 비포·애프터 — 사례별 고유 URL/상세, **비로그인 After 블러 / 로그인 시 원본 공개** (의료법 준수) |
+| 회원 | `/signup`, `/login`, `/logout` | **실제 회원 시스템** — PBKDF2-SHA256(100k) 비밀번호 해시 + HMAC 서명 세션 쿠키(30일, HttpOnly/Secure), 개인정보 동의 필수, noindex |
+| 회원 API | `POST /api/auth/signup·login`, `GET /api/auth/me` | D1 members 테이블 (0003 마이그레이션) |
 | 공지사항 | `/notice`, `/notice/:slug` | **D1 연동** 공지 목록(고정 배지)·상세, 조회수, 사이트맵 자동 포함 |
 | 오시는 길 | `/directions` | 주소·교통·진료시간, 포토 지도 카드 |
 | 비용 안내 | `/pricing` | 비급여 고지 (금액·이벤트 미표기, 의료법 준수) |
