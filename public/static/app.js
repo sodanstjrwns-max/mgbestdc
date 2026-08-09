@@ -278,6 +278,67 @@
     update();
   }
 
+  // 비포·애프터 드래그 비교 슬라이더
+  function initBaSlider() {
+    var sliders = document.querySelectorAll('.ba-slider');
+    if (!sliders.length) return;
+    sliders.forEach(function (slider) {
+      var insideLink = !!slider.closest('a');
+      var dragging = false;
+      var moved = false;
+      var startX = 0;
+
+      function setPos(clientX) {
+        var rect = slider.getBoundingClientRect();
+        var pct = ((clientX - rect.left) / rect.width) * 100;
+        pct = Math.max(0, Math.min(100, pct));
+        slider.style.setProperty('--ba-pos', pct.toFixed(2) + '%');
+      }
+
+      slider.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        moved = false;
+        startX = e.clientX;
+        if (!insideLink) setPos(e.clientX);
+        try { slider.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+
+      slider.addEventListener('pointermove', function (e) {
+        if (!dragging) return;
+        if (!moved && Math.abs(e.clientX - startX) < 5) return;
+        moved = true;
+        setPos(e.clientX);
+        e.preventDefault();
+      });
+
+      function endDrag(e) {
+        if (!dragging) return;
+        dragging = false;
+        try { slider.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+      slider.addEventListener('pointerup', endDrag);
+      slider.addEventListener('pointercancel', endDrag);
+
+      // 카드 링크 안에 있을 때: 드래그했으면 페이지 이동을 막고, 단순 클릭은 그대로 이동
+      slider.addEventListener('click', function (e) {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+          moved = false;
+        }
+      });
+
+      // 키보드 접근성: 좌우 화살표로 이동
+      slider.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        var cur = parseFloat(getComputedStyle(slider).getPropertyValue('--ba-pos')) || 50;
+        var next = Math.max(0, Math.min(100, cur + (e.key === 'ArrowRight' ? 5 : -5)));
+        slider.style.setProperty('--ba-pos', next + '%');
+      });
+    });
+  }
+
   function init() {
     initHeader();
     initReveal();
@@ -289,6 +350,7 @@
     initToc();
     initCountup();
     initMicroParallax();
+    initBaSlider();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

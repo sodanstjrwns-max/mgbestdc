@@ -266,15 +266,25 @@ export function noticeSchema(post: DbPost, siteUrl: string) {
   }
 }
 
-// After 이미지 렌더 — 로그인 시 원본, 비로그인 시 블러+잠금 (문자열 버전, raw 삽입용)
-function afterImgHtml(afterImg: string, title: string, isMember: boolean, returnPath: string): string {
-  if (isMember) {
-    return afterImg
-      ? `<img src="/media/${esc(afterImg)}" alt="${esc(title)} 치료 후" loading="lazy" />`
-      : `<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`
-  }
-  return `${afterImg ? `<img src="/media/${esc(afterImg)}" alt="${esc(title)} 치료 후" loading="lazy" style="filter:blur(14px);transform:scale(1.1)" />` : ''}
-    <a href="/login?redirect=${encodeURIComponent(returnPath)}" class="lock-ui" style="text-decoration:none" onclick="event.stopPropagation()"><i class="fa-solid fa-lock"></i><span>로그인 시<br />확인 가능</span></a>`
+// 비포·애프터 드래그 비교 슬라이더 — 로그인 시 After 원본, 비로그인 시 After 블러+잠금 배지
+// 주의: 카드 링크(<a class="ba-card">) 내부에 삽입되므로 앵커(<a>)를 절대 포함하지 않는다 (중첩 <a> = 레이아웃 파손)
+function baSliderHtml(beforeImg: string, afterImg: string, title: string, isMember: boolean): string {
+  const beforeEl = beforeImg
+    ? `<img src="/media/${esc(beforeImg)}" alt="${esc(title)} 치료 전" loading="lazy" draggable="false" />`
+    : `<span class="ba-slider-empty"><i class="fa-solid fa-image"></i></span>`
+  const afterEl = afterImg
+    ? `<img src="/media/${esc(afterImg)}" alt="${esc(title)} 치료 후" loading="lazy" draggable="false"${isMember ? '' : ' style="filter:blur(14px);transform:scale(1.08)"'} />`
+    : isMember
+      ? `<span class="ba-slider-empty"><i class="fa-solid fa-image"></i></span>`
+      : ''
+  return `<div class="ba-slider${isMember ? '' : ' is-locked'}" tabindex="0" role="img" aria-label="${esc(title)} 치료 전후 비교 슬라이더${isMember ? '' : ' (치료 후 사진은 로그인 시 확인 가능)'}">
+      <div class="ba-slider-before">${beforeEl}</div>
+      <div class="ba-slider-after">${afterEl}</div>
+      <span class="ba-tag">Before</span>
+      <span class="ba-tag ba-tag-after">After</span>
+      ${isMember ? '' : `<span class="lock-badge"><i class="fa-solid fa-lock"></i> 로그인 시 확인</span>`}
+      <div class="ba-slider-handle" aria-hidden="true"><span class="ba-slider-grip"><i class="fa-solid fa-arrows-left-right"></i></span></div>
+    </div>`
 }
 
 // ============================================================
@@ -311,17 +321,11 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) 
           <div>의료법에 따라 치료 후(After) 사진은 <a href="/login?redirect=${encodeURIComponent(myPath)}" style="color:var(--acc);font-weight:700">로그인</a> 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="/signup?redirect=${encodeURIComponent(myPath)}" style="color:var(--acc);font-weight:700">회원가입 →</a></div>
         </div>`}
 
-        <div class="case-detail-imgs reveal">
-          <figure class="ba-img" style="border-radius:var(--radius-lg);border:1px solid var(--line-3)">
-            <span class="ba-tag">Before</span>
-            ${c.before_img
-              ? raw(`<img src="/media/${esc(c.before_img)}" alt="${esc(c.title)} 치료 전" />`)
-              : raw(`<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`)}
-          </figure>
-          <figure class="ba-img${isMember ? '' : ' locked'}" style="border-radius:var(--radius-lg);border:1px solid var(--line-3)">
-            ${isMember ? raw(`<span class="ba-tag" style="background:var(--brand)">After</span>`) : ''}
-            ${raw(afterImgHtml(c.after_img, c.title, isMember, myPath))}
-          </figure>
+        <div class="case-detail-slider reveal">
+          ${raw(baSliderHtml(c.before_img, c.after_img, c.title, isMember))}
+          ${isMember
+            ? html`<p class="ba-slider-hint"><i class="fa-solid fa-arrows-left-right"></i> 가운데 손잡이를 좌우로 움직여 치료 전후를 비교해 보세요.</p>`
+            : html`<p class="ba-slider-hint"><i class="fa-solid fa-lock"></i> 치료 후(After) 사진은 <a href="/login?redirect=${encodeURIComponent(myPath)}" style="color:var(--acc);font-weight:700">로그인</a> 후 선명하게 확인하실 수 있습니다.</p>`}
         </div>
 
         ${c.description
@@ -352,16 +356,7 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) 
                 .map(
                   (o) => `
             <a href="/cases/${o.id}" class="ba-card">
-              <div class="ba-images">
-                <div class="ba-img">
-                  <span class="ba-tag">Before</span>
-                  ${o.before_img ? `<img src="/media/${esc(o.before_img)}" alt="${esc(o.title)} 치료 전" loading="lazy" />` : `<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`}
-                </div>
-                <div class="ba-img${isMember ? '' : ' locked'}">
-                  ${isMember ? `<span class="ba-tag" style="background:var(--brand)">After</span>` : ''}
-                  ${afterImgHtml(o.after_img, o.title, isMember, `/cases/${o.id}`)}
-                </div>
-              </div>
+              ${baSliderHtml(o.before_img, o.after_img, o.title, isMember)}
               <div class="ba-body">
                 <h3 class="h4">${esc(o.title)}</h3>
                 <div class="ba-meta"><span>${esc(o.category)}</span>${o.age_group ? `<span>${esc(o.age_group)}</span>` : ''}</div>
@@ -445,16 +440,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string, isMember = false
               .map(
                 (c) => `
             <a href="/cases/${c.id}" class="ba-card reveal" aria-label="${esc(c.title)} 사례 자세히 보기">
-              <div class="ba-images">
-                <div class="ba-img">
-                  <span class="ba-tag">Before</span>
-                  ${c.before_img ? `<img src="/media/${esc(c.before_img)}" alt="${esc(c.title)} 치료 전" loading="lazy" />` : `<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`}
-                </div>
-                <div class="ba-img${isMember ? '' : ' locked'}">
-                  ${isMember ? `<span class="ba-tag" style="background:var(--brand)">After</span>` : ''}
-                  ${afterImgHtml(c.after_img, c.title, isMember, listPath)}
-                </div>
-              </div>
+              ${baSliderHtml(c.before_img, c.after_img, c.title, isMember)}
               <div class="ba-body">
                 <h2 class="h4">${esc(c.title)}</h2>
                 <div class="ba-meta">
