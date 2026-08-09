@@ -248,7 +248,7 @@ export function BlogDetailPage(post: BlogPost) {
 export function blogPostingSchema(post: BlogPost, siteUrl: string) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'MedicalWebPage',
+    '@type': ['BlogPosting', 'MedicalWebPage'],
     '@id': `${siteUrl}/blog/${post.slug}/#article`,
     headline: post.title,
     description: post.excerpt,

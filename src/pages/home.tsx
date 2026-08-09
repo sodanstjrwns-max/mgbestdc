@@ -32,7 +32,7 @@ export function HomePage() {
     <!-- ============ HERO — 풀블리드 포토 ============ -->
     <section class="hero" id="hero">
       <div class="hero-bg" aria-hidden="true">
-        <img src="/static/img/hero-lobby.webp" srcset="${srcset('/static/img/hero-lobby.webp', 1920)}" sizes="100vw" alt="" fetchpriority="high" />
+        <img src="/static/img/hero-lobby.webp" srcset="${srcset('/static/img/hero-lobby.webp', 1920)}" sizes="100vw" alt="마곡베스트치과의원 로비 전경 — 마곡나루역 1번 출구 앞" fetchpriority="high" />
         <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="/static/img/hero-lobby.webp" onloadeddata="this.classList.add('on')">
           <source src="/media/video/branding-hero.mp4" type="video/mp4" />
         </video>

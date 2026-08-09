@@ -23,6 +23,14 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
+// SEO: 메타 디스크립션 최적화 — 짧으면(40자 미만) 병원 소개 문구를 덧붙여 50~160자 확보
+function seoDesc(base: string, suffix: string): string {
+  const t = (base || '').trim()
+  if (t.length >= 40) return t.length > 160 ? t.slice(0, 157) + '…' : t
+  const merged = `${t} ${suffix}`.trim()
+  return merged.length > 160 ? merged.slice(0, 157) + '…' : merged
+}
+
 // 보안 헤더 (동적 HTML 응답 — 정적 자산은 public/_headers)
 app.use('*', async (c, next) => {
   // 도메인 정규화: pages.dev·www → mgbestdc.kr 301 (SEO 신호 단일화)
@@ -397,7 +405,7 @@ app.get('/notice/:slug', async (c) => {
     Layout(
       {
         title: `${post.title} | ${CLINIC.shortName} 공지사항`,
-        description: post.excerpt || `${CLINIC.name} 공지사항 — ${post.title}`,
+        description: seoDesc(post.excerpt || post.title, `${CLINIC.name} 공지사항. 마곡나루역 1번 출구 앞, 평일 야간·토요일 진료.`),
         path: `/notice/${slug}`,
         ogType: 'article',
         jsonLd: [
@@ -489,7 +497,7 @@ app.get('/blog/:slug', async (c) => {
       Layout(
         {
           title: `${dbPost.title} | ${CLINIC.shortName} 건강칼럼`,
-          description: dbPost.excerpt || dbPost.title,
+          description: seoDesc(dbPost.excerpt || dbPost.title, `${CLINIC.name} 건강칼럼. 마곡나루역 1번 출구 앞, 서울대 출신 대표원장 직접 진료.`),
           path: `/blog/${slug}`,
           ogType: 'article',
           article: { published: (dbPost.published_at || dbPost.created_at || '').slice(0, 10), tags: [dbPost.category].filter(Boolean) },
@@ -989,7 +997,7 @@ app.get('/sitemap.xml', async (c) => {
   const today = new Date().toISOString().split('T')[0]
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE_URL}${u.loc}</loc><lastmod>${u.mod || today}</lastmod><changefreq>${u.freq || 'monthly'}</changefreq><priority>${u.pri}</priority></url>`).join('\n')}
+${urls.map((u) => `  <url><loc>${SITE_URL}${encodeURI(u.loc)}</loc><lastmod>${u.mod || today}</lastmod><changefreq>${u.freq || 'monthly'}</changefreq><priority>${u.pri}</priority></url>`).join('\n')}
 </urlset>`
   return c.body(xml, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
 })
@@ -1001,15 +1009,29 @@ app.get(`/${INDEXNOW_KEY}.txt`, (c) => c.body(INDEXNOW_KEY, 200, { 'Content-Type
 app.get('/robots.txt', (c) => {
   const txt = `User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/admin/
+
+# 네이버 검색로봇
+User-agent: Yeti
+Allow: /
 
 # AI crawlers welcome
 User-agent: GPTBot
 Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
 User-agent: ClaudeBot
+Allow: /
+User-agent: anthropic-ai
 Allow: /
 User-agent: PerplexityBot
 Allow: /
 User-agent: Google-Extended
+Allow: /
+User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: ${SITE_URL}/sitemap.xml

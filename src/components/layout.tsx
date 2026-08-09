@@ -17,7 +17,7 @@ const SITE_URL = 'https://mgbestdc.kr'
 // <head> — 페이지별 SEO 메타 + OG + 스키마
 // ============================================================
 export function Head(meta: SeoMeta) {
-  const canonical = SITE_URL + meta.path
+  const canonical = SITE_URL + encodeURI(meta.path)
   // 전 페이지 공통: Dentist 조직 스키마(@id 앵커)를 항상 먼저 출력 —
   // 개별 페이지 스키마는 { '@id': SITE_URL + '/#organization' } 참조로 연결 (블랑쉬 패턴)
   const ld = [organizationSchema(), ...(meta.jsonLd || [])]
@@ -28,6 +28,8 @@ export function Head(meta: SeoMeta) {
       <title>${meta.title}</title>
       <meta name="description" content="${meta.description}" />
       <link rel="canonical" href="${canonical}" />
+      <link rel="alternate" hreflang="ko" href="${canonical}" />
+      <link rel="alternate" hreflang="x-default" href="${canonical}" />
       <meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}" />
       <meta name="author" content="${CLINIC.name}" />
       <meta name="theme-color" content="#F7F9FC" />
