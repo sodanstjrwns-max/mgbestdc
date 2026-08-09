@@ -1482,3 +1482,28 @@ a, button, summary { -webkit-tap-highlight-color: transparent; }
   .sh-inner { padding: 90px 0 60px; }
   .story-drone { min-height: 52vh; }
 }
+
+/* ===== 모바일 터치 타깃 최적화 — 시각 레이아웃 불변, 탭 영역만 44px급 확장 ===== */
+@media (max-width: 720px) {
+  /* 브레드크럼: 인라인 유지 + 탭 영역 확장 */
+  .breadcrumb a { padding: 12px 11px; margin: -12px -11px; }
+  .breadcrumb { gap: 18px; }
+
+  /* 푸터 진료권·법적 고지 링크 */
+  .footer-areas .fa-links { gap: 10px 18px; }
+  .footer-areas .fa-links a { padding: 10px 4px; margin: -10px -4px; }
+  .footer-legal a { padding: 12px 6px; margin: -12px -6px; }
+  .footer-links a { padding: 8px 4px; margin: -8px -4px; }
+
+  /* 본문 인라인 링크(전화 문의·진료보기·사례 보기 등) */
+  .notice-box a, .t-note-link, .post-cross a, .section-title a,
+  a[href^="tel:"]:not(.btn):not(.btn-call):not(.fc-btn):not(.sb-item),
+  .ba-note a, section p > a, section div > a[style] { padding: 12px 6px; margin: -12px -6px; display: inline-block; }
+
+  /* 칩·필터: 실제 높이 확보 */
+  .t-area-chip { min-height: 38px; display: inline-flex; align-items: center; }
+
+  /* 12px 미만 장식 라벨 가독성 보정 */
+  .t-check-label { font-size: 0.75rem; }
+  .ba-tag { font-size: 0.72rem; padding: 5px 13px; }
+}
