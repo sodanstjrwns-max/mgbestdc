@@ -6,6 +6,7 @@ type SeoMeta = {
   description: string
   path: string
   ogType?: string
+  ogImage?: string
   jsonLd?: object[]
   noindex?: boolean
   article?: { published: string; modified?: string; tags?: string[] }
@@ -47,9 +48,8 @@ export function Head(meta: SeoMeta) {
       <meta property="og:description" content="${meta.description}" />
       <meta property="og:url" content="${canonical}" />
       <meta property="og:locale" content="ko_KR" />
-      <meta property="og:image" content="${SITE_URL}/static/img/og.png?v=2" />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
+      <meta property="og:image" content="${meta.ogImage || SITE_URL + '/static/img/og.png?v=2'}" />
+      ${meta.ogImage ? '' : raw('<meta property="og:image:width" content="1200" />\n      <meta property="og:image:height" content="630" />')}
       <meta property="og:image:alt" content="${CLINIC.name} — ${CLINIC.directions}" />
 
       ${meta.article
@@ -90,7 +90,7 @@ export function Head(meta: SeoMeta) {
         onload="this.media='all'"
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
-      <link rel="stylesheet" href="/static/style.css?v=design8" />
+      <link rel="stylesheet" href="/static/style.css?v=design9" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->

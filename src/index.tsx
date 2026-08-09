@@ -12,7 +12,7 @@ import {
 } from './pages/info'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
-import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
+import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations } from './pages/admin'
 
 type Bindings = {
@@ -519,12 +519,66 @@ app.get('/cases', async (c) => {
             mainEntity: {
               '@type': 'ItemList',
               numberOfItems: rows.length,
-              itemListElement: rows.slice(0, 20).map((r, i) => ({ '@type': 'ListItem', position: i + 1, name: r.title }))
+              itemListElement: rows.slice(0, 20).map((r, i) => ({ '@type': 'ListItem', position: i + 1, name: r.title, url: `${SITE_URL}/cases/${r.id}` }))
             }
           }
         ]
       },
       DbCasesPage(rows, cat)
+    )
+  )
+})
+
+// 진료사례 상세 — 사례별 고유 URL
+app.get('/cases/:id', async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id) || id <= 0) return c.notFound()
+  let row: DbCase | null = null
+  let others: DbCase[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT * FROM cases WHERE id = ? AND status = 'published'").bind(id).first()
+      row = (res as any) || null
+      if (row) {
+        const o = await c.env.DB.prepare("SELECT * FROM cases WHERE id != ? AND status = 'published' ORDER BY (category = ?) DESC, created_at DESC LIMIT 3").bind(id, row.category).all()
+        others = (o.results || []) as any
+      }
+    }
+  } catch (e) {}
+  if (!row) return c.notFound()
+  return c.html(
+    Layout(
+      {
+        title: `${row.title} | ${row.category} 진료사례 | ${CLINIC.name}`,
+        description: `${row.category} 진료 사례 — ${(row.description || row.title).slice(0, 140)}`,
+        path: `/cases/${id}`,
+        ogType: 'article',
+        ogImage: row.before_img ? `${SITE_URL}/media/${row.before_img}` : undefined,
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }, { name: row.title, path: `/cases/${id}` }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'MedicalWebPage',
+            '@id': `${SITE_URL}/cases/${id}#page`,
+            name: row.title,
+            url: `${SITE_URL}/cases/${id}`,
+            description: (row.description || row.title).slice(0, 200),
+            inLanguage: 'ko',
+            datePublished: (row.created_at || '').slice(0, 10),
+            about: { '@id': `${SITE_URL}/#organization` },
+            ...(row.before_img
+              ? {
+                  primaryImageOfPage: {
+                    '@type': 'ImageObject',
+                    url: `${SITE_URL}/media/${row.before_img}`,
+                    name: `${row.title} 치료 전`
+                  }
+                }
+              : {})
+          }
+        ]
+      },
+      DbCaseDetailPage(row, others)
     )
   )
 })
@@ -1172,6 +1226,17 @@ app.get('/sitemap.xml', async (c) => {
       for (const p of (res.results || []) as any[]) {
         const mod = String(p.updated_at || p.published_at || '').slice(0, 10) || undefined
         urls.push({ loc: p.type === 'notice' ? `/notice/${p.slug}` : `/blog/${p.slug}`, pri: p.type === 'notice' ? '0.5' : '0.7', mod, freq: 'monthly' })
+      }
+    }
+  } catch (e) {}
+
+  // DB 진료사례 — 사례별 고유 URL
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT id, created_at, updated_at FROM cases WHERE status = 'published' ORDER BY created_at DESC LIMIT 500").all()
+      for (const cs of (res.results || []) as any[]) {
+        const mod = String(cs.updated_at || cs.created_at || '').slice(0, 10) || undefined
+        urls.push({ loc: `/cases/${cs.id}`, pri: '0.6', mod, freq: 'monthly' })
       }
     }
   } catch (e) {}

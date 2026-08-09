@@ -364,7 +364,7 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
                     .slice(0, 3)
                     .map(
                       (cs) => `
-                  <a href="/cases?cat=${encodeURIComponent(cs.category || t.name)}" class="t-post-link">
+                  <a href="/cases/${cs.id}" class="t-post-link">
                     <strong>${esc(cs.title)}</strong>
                     <span>${[cs.age_group, cs.gender].filter(Boolean).map((v) => esc(String(v))).join(' · ') || '진료 사례'} — 사례 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
                   </a>`

@@ -267,6 +267,101 @@ export function noticeSchema(post: DbPost, siteUrl: string) {
 }
 
 // ============================================================
+// 비포·애프터 상세 (DB cases) — 개별 URL /cases/:id
+// ============================================================
+export function DbCaseDetailPage(c: DbCase, others: DbCase[]) {
+  const txSlug = txSlugOfCategory(c.category)
+  return html`
+    <section class="page-hero" data-ghost="CASE">
+      <div class="container">
+        <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/cases">진료사례</a><span class="sep">/</span><span>${esc(c.category)}</span></nav>
+        <span class="eyebrow">${esc(c.category)} 사례</span>
+        <h1 style="max-width:880px;font-size:clamp(1.5rem,3.4vw,2.2rem)">${esc(c.title)}</h1>
+        <div class="post-meta">
+          <span><i class="fa-solid fa-tooth"></i> ${esc(c.category)}</span>
+          ${c.age_group ? html`<span>${esc(c.age_group)}</span>` : ''}
+          ${c.gender ? html`<span>${esc(c.gender)}</span>` : ''}
+          ${c.area ? html`<span><i class="fa-solid fa-location-dot"></i> ${esc(c.area)}</span>` : ''}
+          <span><i class="fa-regular fa-calendar"></i> ${fmtDate(c.created_at)}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="pad">
+      <div class="container" style="max-width:920px">
+        <div class="notice-box reveal" style="margin-bottom:28px">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>의료법에 따라 치료 후(After) 사진은 회원가입 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a></div>
+        </div>
+
+        <div class="case-detail-imgs reveal">
+          <figure class="ba-img" style="border-radius:var(--radius-lg);border:1px solid var(--line-3)">
+            <span class="ba-tag">Before</span>
+            ${c.before_img
+              ? raw(`<img src="/media/${esc(c.before_img)}" alt="${esc(c.title)} 치료 전" />`)
+              : raw(`<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`)}
+          </figure>
+          <figure class="ba-img locked" style="border-radius:var(--radius-lg);border:1px solid var(--line-3)">
+            ${c.after_img ? raw(`<img src="/media/${esc(c.after_img)}" alt="${esc(c.title)} 치료 후" style="filter:blur(14px);transform:scale(1.1)" />`) : ''}
+            <div class="lock-ui"><i class="fa-solid fa-lock"></i><span>치료 후 사진은<br />회원가입 시 확인 가능</span></div>
+          </figure>
+        </div>
+
+        ${c.description
+          ? html`
+        <div class="post-body reveal" style="margin-top:32px">
+          <p style="font-size:0.98rem;line-height:1.9;color:var(--ink-2)">${esc(c.description)}</p>
+        </div>`
+          : ''}
+
+        <p class="post-disclaimer reveal" style="margin-top:24px">본 사례는 정보 제공을 위한 것으로, 치료 방법·기간·결과는 환자 개인의 구강 상태에 따라 차이가 있을 수 있습니다. 정확한 진단과 치료 계획은 반드시 내원하여 전문의와 상담하시기 바랍니다.</p>
+
+        <div style="margin-top:40px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <a href="/cases" class="btn btn-ghost"><i class="fa-solid fa-list"></i> 사례 목록</a>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            ${txSlug ? html`<a href="/treatments/${txSlug}" class="btn btn-ghost">${esc(c.category)} 진료 안내 <i class="fa-solid fa-arrow-right"></i></a>` : ''}
+            <a href="/reservation" class="btn btn-primary">예약 문의 <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        ${others.length
+          ? html`
+        <div style="margin-top:56px">
+          <h2 class="h4" style="margin-bottom:16px">다른 진료사례</h2>
+          <div class="ba-grid">
+            ${raw(
+              others
+                .slice(0, 3)
+                .map(
+                  (o) => `
+            <a href="/cases/${o.id}" class="ba-card">
+              <div class="ba-images">
+                <div class="ba-img">
+                  <span class="ba-tag">Before</span>
+                  ${o.before_img ? `<img src="/media/${esc(o.before_img)}" alt="${esc(o.title)} 치료 전" loading="lazy" />` : `<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`}
+                </div>
+                <div class="ba-img locked">
+                  ${o.after_img ? `<img src="/media/${esc(o.after_img)}" alt="${esc(o.title)} 치료 후" loading="lazy" style="filter:blur(14px);transform:scale(1.1)" />` : ''}
+                  <div class="lock-ui"><i class="fa-solid fa-lock"></i><span>회원가입 시<br />확인 가능</span></div>
+                </div>
+              </div>
+              <div class="ba-body">
+                <h3 class="h4">${esc(o.title)}</h3>
+                <div class="ba-meta"><span>${esc(o.category)}</span>${o.age_group ? `<span>${esc(o.age_group)}</span>` : ''}</div>
+              </div>
+            </a>`
+                )
+                .join('')
+            )}
+          </div>
+        </div>`
+          : ''}
+      </div>
+    </section>
+  `
+}
+
+// ============================================================
 // 비포·애프터 (DB cases) — 의료광고법: After는 내원 확인 안내
 // ============================================================
 export function DbCasesPage(rows: DbCase[], activeCat?: string) {
@@ -326,7 +421,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
             rows
               .map(
                 (c) => `
-            <div class="ba-card reveal">
+            <a href="/cases/${c.id}" class="ba-card reveal" aria-label="${esc(c.title)} 사례 자세히 보기">
               <div class="ba-images">
                 <div class="ba-img">
                   <span class="ba-tag">Before</span>
@@ -340,14 +435,15 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
               <div class="ba-body">
                 <h2 class="h4">${esc(c.title)}</h2>
                 <div class="ba-meta">
-                  ${txSlugOfCategory(c.category) ? `<a href="/treatments/${txSlugOfCategory(c.category)}" style="color:var(--acc);font-weight:700">${esc(c.category)} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.7em"></i></a>` : `<span>${esc(c.category)}</span>`}
+                  <span>${esc(c.category)}</span>
                   ${c.age_group ? `<span>${esc(c.age_group)}</span>` : ''}
                   ${c.gender ? `<span>${esc(c.gender)}</span>` : ''}
                   ${c.area ? `<span><i class="fa-solid fa-location-dot"></i> ${esc(c.area)}</span>` : ''}
                 </div>
                 ${c.description ? `<p style="margin-top:10px;font-size:0.88rem;color:var(--ink-2);line-height:1.7">${esc(c.description)}</p>` : ''}
+                <span class="ba-more">자세히 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
               </div>
-            </div>`
+            </a>`
               )
               .join('')
           )}

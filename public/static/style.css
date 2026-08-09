@@ -989,8 +989,13 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
    비포·애프터
    ============================================================ */
 .ba-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-.ba-card { background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--sh-sm); transition: all 0.4s var(--ease); }
-.ba-card:hover { transform: translateY(-4px); box-shadow: var(--sh-md); }
+.ba-card { display: block; color: inherit; text-decoration: none; background: #fff; border: 1px solid var(--line-3); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--sh-sm); transition: all 0.4s var(--ease); }
+.ba-card:hover { transform: translateY(-4px); box-shadow: var(--sh-md); border-color: var(--brand); }
+.ba-more { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 0.84rem; font-weight: 700; color: var(--acc); }
+.ba-more i { transition: transform 0.3s var(--ease); }
+.ba-card:hover .ba-more i { transform: translateX(4px); }
+.case-detail-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) { .case-detail-imgs { grid-template-columns: 1fr; } }
 .ba-images { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--line-3); }
 .ba-img { aspect-ratio: 1; background: var(--bg-1); display: grid; place-items: center; position: relative; overflow: hidden; }
 .ba-img img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
