@@ -90,7 +90,7 @@ export function Head(meta: SeoMeta) {
         onload="this.media='all'"
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
-      <link rel="stylesheet" href="/static/style.css?v=design7" />
+      <link rel="stylesheet" href="/static/style.css?v=design8" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->
@@ -136,15 +136,32 @@ export function organizationSchema() {
       availableLanguage: 'Korean',
       areaServed: 'KR'
     },
-    potentialAction: {
-      '@type': 'ReserveAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: SITE_URL + '/reservation',
-        actionPlatform: ['http://schema.org/DesktopWebPlatform', 'http://schema.org/MobileWebPlatform']
+    potentialAction: [
+      {
+        '@type': 'ReserveAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: SITE_URL + '/reservation',
+          actionPlatform: ['http://schema.org/DesktopWebPlatform', 'http://schema.org/MobileWebPlatform']
+        },
+        result: { '@type': 'Reservation', name: '진료 예약 문의' }
       },
-      result: { '@type': 'Reservation', name: '진료 예약 문의' }
-    },
+      {
+        '@type': 'ReserveAction',
+        name: '네이버 예약',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: CLINIC.social.naverBooking,
+          actionPlatform: ['http://schema.org/DesktopWebPlatform', 'http://schema.org/MobileWebPlatform']
+        },
+        result: { '@type': 'Reservation', name: '네이버 진료 예약' }
+      },
+      {
+        '@type': 'CommunicateAction',
+        name: '카카오톡 상담',
+        target: { '@type': 'EntryPoint', urlTemplate: CLINIC.social.kakao }
+      }
+    ],
     address: {
       '@type': 'PostalAddress',
       streetAddress: CLINIC.addressShort,
@@ -162,6 +179,18 @@ export function organizationSchema() {
       closes: h.closes
     })),
     medicalSpecialty: 'Dentistry',
+    paymentAccepted: '현금, 신용카드, 계좌이체',
+    currenciesAccepted: 'KRW',
+    isAccessibleForFree: false,
+    publicAccess: true,
+    smokingAllowed: false,
+    keywords: '마곡 치과, 마곡나루역 치과, 강서구 치과, 임플란트, 충치치료, 심미치료, 투명교정, 야간진료 치과, 토요일 치과',
+    amenityFeature: [
+      { '@type': 'LocationFeatureSpecification', name: '월·목 야간진료 (20:30까지)', value: true },
+      { '@type': 'LocationFeatureSpecification', name: '토요일 진료', value: true },
+      { '@type': 'LocationFeatureSpecification', name: '건물 내 주차', value: true },
+      { '@type': 'LocationFeatureSpecification', name: '디지털 구강 스캐너', value: true }
+    ],
     // 지역 SEO 핵심: 진료권 명시 (마곡 중심 강서구 일대)
     areaServed: AREAS.map((a) => ({ '@type': 'AdministrativeArea', name: a.full })),
     knowsAbout: [...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => t.name).concat(['마곡 치과', '마곡나루역 치과', '강서구 치과']),
@@ -176,7 +205,7 @@ export function organizationSchema() {
       name: t.name,
       url: SITE_URL + '/treatments/' + t.slug
     })),
-    sameAs: []
+    sameAs: [CLINIC.social.blog, CLINIC.social.instagram, CLINIC.social.naverPlace, 'https://pf.kakao.com/_xdjNsG'].filter(Boolean)
   }
 }
 

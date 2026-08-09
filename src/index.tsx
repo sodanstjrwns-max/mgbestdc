@@ -79,7 +79,32 @@ app.get('/', (c) =>
             isPartOf: { '@id': SITE_URL + '/#website' },
             about: { '@id': SITE_URL + '/#organization' },
             inLanguage: 'ko',
-            speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.hero-sub'] }
+            speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.hero-sub'] },
+            primaryImageOfPage: { '@type': 'ImageObject', url: SITE_URL + '/static/img/og.png', width: 1200, height: 630 }
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'VideoObject',
+            '@id': SITE_URL + '/#hero-video',
+            name: `${CLINIC.name} 브랜딩 영상`,
+            description: `${CLINIC.name} 진료 공간과 상담 모습을 담은 브랜딩 영상. ${CLINIC.directions}.`,
+            thumbnailUrl: SITE_URL + '/static/img/hero-lobby.webp',
+            contentUrl: SITE_URL + '/media/video/branding-hero.mp4',
+            uploadDate: '2026-07-01',
+            inLanguage: 'ko',
+            publisher: { '@id': SITE_URL + '/#organization' }
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            '@id': SITE_URL + '/#core-treatments',
+            name: '중점 진료',
+            itemListElement: CORE_TREATMENTS.map((t, i) => ({
+              '@type': 'ListItem',
+              position: i + 1,
+              name: t.name,
+              url: SITE_URL + '/treatments/' + t.slug
+            }))
           }
         ]
       },
@@ -98,7 +123,28 @@ app.get('/about', (c) =>
         title: `소개 | ${CLINIC.name}`,
         description: `${CLINIC.name} 소개 — 병원소개·의료진·시설·장비·오시는 길을 한눈에 확인하세요. ${CLINIC.directions}.`,
         path: '/about',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '소개', path: '/about' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '소개', path: '/about' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            '@id': SITE_URL + '/about#collection',
+            name: `${CLINIC.name} 소개`,
+            url: SITE_URL + '/about',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            mainEntity: {
+              '@type': 'ItemList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: '병원소개', url: SITE_URL + '/mission' },
+                { '@type': 'ListItem', position: 2, name: '스토리', url: SITE_URL + '/story' },
+                { '@type': 'ListItem', position: 3, name: '의료진 소개', url: SITE_URL + '/doctors' },
+                { '@type': 'ListItem', position: 4, name: '시설·장비 안내', url: SITE_URL + '/facility' },
+                { '@type': 'ListItem', position: 5, name: '오시는 길', url: SITE_URL + '/directions' }
+              ]
+            }
+          }
+        ]
       },
       AboutHubPage()
     )
@@ -115,7 +161,20 @@ app.get('/mission', (c) =>
         title: `병원소개 | ${CLINIC.name}`,
         description: `${CLINIC.mission} ${CLINIC.vision}를 향한 마곡베스트치과의원의 철학과 가치를 소개합니다.`,
         path: '/mission',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '병원소개', path: '/mission' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '병원소개', path: '/mission' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'AboutPage',
+            '@id': SITE_URL + '/mission#about',
+            name: `${CLINIC.name} 병원소개`,
+            url: SITE_URL + '/mission',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            mainEntity: { '@id': SITE_URL + '/#organization' },
+            description: `${CLINIC.mission} — ${CLINIC.vision}`
+          }
+        ]
       },
       MissionPage()
     )
@@ -152,7 +211,29 @@ app.get('/doctors', (c) =>
         title: `의료진 소개 | ${CLINIC.name}`,
         description: `${CLINIC.directorCredential} ${DOCTORS[0].name} 대표원장. 1인 책임 진료로 진단부터 사후 관리까지 함께합니다.`,
         path: '/doctors',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '의료진', path: '/doctors' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '의료진', path: '/doctors' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            '@id': SITE_URL + '/doctors#collection',
+            name: `${CLINIC.name} 의료진 소개`,
+            url: SITE_URL + '/doctors',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            mainEntity: {
+              '@type': 'ItemList',
+              numberOfItems: DOCTORS.length,
+              itemListElement: DOCTORS.map((d, i) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                name: `${d.name} ${d.title}`,
+                url: `${SITE_URL}/doctors/${d.slug}`,
+                item: { '@id': `${SITE_URL}/doctors/${d.slug}/#physician` }
+              }))
+            }
+          }
+        ]
       },
       DoctorsListPage()
     )
@@ -193,7 +274,28 @@ app.get('/treatments', (c) =>
         title: `진료 안내 | ${CLINIC.name}`,
         description: `임플란트·충치치료·심미치료·교정 등 마곡베스트치과의원의 전체 진료를 안내합니다. ${CLINIC.directions}.`,
         path: '/treatments',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            '@id': SITE_URL + '/treatments#collection',
+            name: `${CLINIC.name} 진료 안내`,
+            url: SITE_URL + '/treatments',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            mainEntity: {
+              '@type': 'ItemList',
+              numberOfItems: TREATMENTS.length,
+              itemListElement: TREATMENTS.map((t, i) => ({
+                '@type': 'ListItem',
+                position: i + 1,
+                name: t.name,
+                url: `${SITE_URL}/treatments/${t.slug}`
+              }))
+            }
+          }
+        ]
       },
       TreatmentsListPage()
     )
@@ -261,7 +363,27 @@ app.get('/directions', (c) =>
         title: `오시는 길 | ${CLINIC.name}`,
         description: `${CLINIC.addressFull}. ${CLINIC.directions}. 진료시간 및 주차 안내.`,
         path: '/directions',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '오시는 길', path: '/directions' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '오시는 길', path: '/directions' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ContactPage',
+            '@id': SITE_URL + '/directions/#contactpage',
+            name: `오시는 길 | ${CLINIC.name}`,
+            url: SITE_URL + '/directions',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            mainEntity: {
+              '@type': 'Place',
+              name: CLINIC.name,
+              address: { '@type': 'PostalAddress', streetAddress: CLINIC.addressShort, addressLocality: '강서구', addressRegion: '서울특별시', postalCode: CLINIC.postalCode, addressCountry: 'KR' },
+              geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
+              hasMap: CLINIC.social.naverPlace,
+              publicAccess: true
+            },
+            speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1'] }
+          }
+        ]
       },
       DirectionsPage()
     )
@@ -275,7 +397,26 @@ app.get('/pricing', (c) =>
         title: `비용 안내 | ${CLINIC.name}`,
         description: `마곡베스트치과의원 비급여 진료비 고지 안내. 임플란트·교정·심미치료 등 정확한 진료비는 정밀 진단 후 과장 없이 투명하게 안내드립니다.`,
         path: '/pricing',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용 안내', path: '/pricing' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용 안내', path: '/pricing' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            '@id': SITE_URL + '/pricing/#webpage',
+            name: `비용 안내 | ${CLINIC.name}`,
+            url: SITE_URL + '/pricing',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            mainEntity: {
+              '@type': 'OfferCatalog',
+              name: `${CLINIC.name} 비급여 진료 항목`,
+              itemListElement: [...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => ({
+                '@type': 'Offer',
+                itemOffered: { '@type': 'MedicalProcedure', name: t.name, url: SITE_URL + '/treatments/' + t.slug }
+              }))
+            }
+          }
+        ]
       },
       PricingPage()
     )
@@ -289,7 +430,20 @@ app.get('/facility', (c) =>
         title: `시설 둘러보기 | ${CLINIC.name}`,
         description: `프라임스캐너, 임플란트 카보 엔진, 에어플로우 등 마곡베스트치과의 디지털 장비와 진료 공간을 소개합니다.`,
         path: '/facility',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '시설 둘러보기', path: '/facility' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '시설 둘러보기', path: '/facility' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            '@id': SITE_URL + '/facility/#equipment',
+            name: `${CLINIC.name} 주요 장비`,
+            itemListElement: CLINIC.equipment.map((e, i) => ({
+              '@type': 'ListItem',
+              position: i + 1,
+              item: { '@type': 'Product', name: e.name, description: e.desc }
+            }))
+          }
+        ]
       },
       FacilityPage()
     )
@@ -317,7 +471,19 @@ app.get('/reservation', (c) =>
         title: `예약 문의 | ${CLINIC.name}`,
         description: `마곡베스트치과의원 예약 문의. ${CLINIC.phone}, ${CLINIC.directions}.`,
         path: '/reservation',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '예약 문의', path: '/reservation' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '예약 문의', path: '/reservation' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ContactPage',
+            '@id': SITE_URL + '/reservation/#contactpage',
+            name: `예약 문의 | ${CLINIC.name}`,
+            url: SITE_URL + '/reservation',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            significantLink: [CLINIC.social.naverBooking, CLINIC.social.kakao, `tel:${CLINIC.phoneRaw}`]
+          }
+        ]
       },
       ReservationPage()
     )
@@ -380,7 +546,23 @@ app.get('/notice', async (c) => {
         title: `공지사항 | ${CLINIC.name}`,
         description: `${CLINIC.name} 공지사항 — 진료 일정 변경, 병원 소식, 안내 말씀을 전해드립니다. ${CLINIC.directions}.`,
         path: '/notice',
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notice' }])]
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notice' }]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            '@id': SITE_URL + '/notice#collection',
+            name: `${CLINIC.name} 공지사항`,
+            url: SITE_URL + '/notice',
+            inLanguage: 'ko',
+            about: { '@id': SITE_URL + '/#organization' },
+            mainEntity: {
+              '@type': 'ItemList',
+              numberOfItems: rows.length,
+              itemListElement: rows.slice(0, 20).map((r, i) => ({ '@type': 'ListItem', position: i + 1, name: r.title, url: `${SITE_URL}/notice/${encodeURIComponent(r.slug)}` }))
+            }
+          }
+        ]
       },
       NoticeListPage(rows)
     )

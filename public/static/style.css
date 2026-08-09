@@ -1300,9 +1300,9 @@ select.form-input { appearance: none; background-image: url("data:image/svg+xml,
   .dc-photo { max-width: 340px; }
   .story-item { grid-template-columns: 1fr; gap: 14px; }
   .fact-strip { grid-template-columns: 1fr 1fr; }
-  .fact { padding: 20px 16px 20px 0; }
-  .fact + .fact { padding-left: 0; border-left: none; }
-  .fact:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--line); }
+  .fact { padding: 20px 16px 20px 18px; }
+  .fact + .fact { border-left: none; }
+  .fact:nth-child(even) { border-left: 1px solid var(--line); }
   .fact:nth-child(n+3) { border-top: 1px solid var(--line); }
   .blog-feature { grid-template-columns: 1fr; }
   .bf-visual { min-height: 220px; }
