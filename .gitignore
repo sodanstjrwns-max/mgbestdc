@@ -34,3 +34,4 @@ lerna-debug.log*
 *.mjs
 .shots/
 brand/*.ai
+.dev.vars.note
