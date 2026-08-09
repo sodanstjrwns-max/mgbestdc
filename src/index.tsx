@@ -14,11 +14,14 @@ import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogLis
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
 import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations } from './pages/admin'
+import { SignupPage, LoginPage } from './pages/member'
+import { hashPassword, verifyPassword, createSessionToken, getSessionUser, sessionSecret, sessionCookieHeader, clearSessionCookieHeader, isValidEmail } from './auth'
 
 type Bindings = {
   DB: D1Database
   R2: R2Bucket
   ADMIN_KEY?: string
+  SESSION_SECRET?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -490,8 +493,112 @@ app.get('/reservation', (c) =>
   )
 )
 
+// ============================================================
+// 회원 인증 — 회원가입/로그인/로그아웃 (After 사진 열람)
+// ============================================================
+const safeRedirect = (r: string | undefined) => {
+  const v = (r || '').trim()
+  return v.startsWith('/') && !v.startsWith('//') ? v : '/cases'
+}
+
+app.get('/signup', async (c) => {
+  const redirect = safeRedirect(c.req.query('redirect'))
+  const user = await getSessionUser(c)
+  if (user) return c.redirect(redirect)
+  return c.html(
+    Layout(
+      {
+        title: `회원가입 | ${CLINIC.name}`,
+        description: `${CLINIC.name} 회원가입 — 가입 후 치료 전·후 사진을 확인하실 수 있습니다.`,
+        path: '/signup',
+        noindex: true
+      },
+      SignupPage(redirect)
+    )
+  )
+})
+
+app.get('/login', async (c) => {
+  const redirect = safeRedirect(c.req.query('redirect'))
+  const user = await getSessionUser(c)
+  if (user) return c.redirect(redirect)
+  return c.html(
+    Layout(
+      {
+        title: `로그인 | ${CLINIC.name}`,
+        description: `${CLINIC.name} 로그인 — 로그인 후 치료 전·후 사진을 확인하실 수 있습니다.`,
+        path: '/login',
+        noindex: true
+      },
+      LoginPage(redirect)
+    )
+  )
+})
+
+app.get('/logout', (c) => {
+  c.header('Set-Cookie', clearSessionCookieHeader())
+  return c.redirect(safeRedirect(c.req.query('redirect')))
+})
+
+app.post('/api/auth/signup', async (c) => {
+  try {
+    if (!c.env?.DB) return c.json({ ok: false, error: '서비스 준비 중입니다.' }, 500)
+    const body = await c.req.json().catch(() => ({}))
+    const name = String(body.name || '').trim().slice(0, 40)
+    const email = String(body.email || '').trim().toLowerCase().slice(0, 120)
+    const password = String(body.password || '')
+    if (!name) return c.json({ ok: false, error: '이름을 입력해 주세요.' }, 400)
+    if (!isValidEmail(email)) return c.json({ ok: false, error: '올바른 이메일 주소를 입력해 주세요.' }, 400)
+    if (password.length < 8) return c.json({ ok: false, error: '비밀번호는 8자 이상이어야 합니다.' }, 400)
+    if (body.consent !== true) return c.json({ ok: false, error: '개인정보 수집·이용 동의가 필요합니다.' }, 400)
+
+    const exists = await c.env.DB.prepare('SELECT id FROM members WHERE email = ?').bind(email).first()
+    if (exists) return c.json({ ok: false, error: '이미 가입된 이메일입니다. 로그인해 주세요.' }, 409)
+
+    const { hash, salt } = await hashPassword(password)
+    const res = await c.env.DB.prepare(
+      "INSERT INTO members (email, password_hash, salt, name, consented_at, last_login_at) VALUES (?,?,?,?,datetime('now','+9 hours'),datetime('now','+9 hours'))"
+    ).bind(email, hash, salt, name).run()
+
+    const id = Number(res.meta.last_row_id)
+    const token = await createSessionToken(id, email, name, sessionSecret(c))
+    c.header('Set-Cookie', sessionCookieHeader(token))
+    return c.json({ ok: true, id })
+  } catch (e) {
+    return c.json({ ok: false, error: '가입 처리 중 오류가 발생했습니다.' }, 500)
+  }
+})
+
+app.post('/api/auth/login', async (c) => {
+  try {
+    if (!c.env?.DB) return c.json({ ok: false, error: '서비스 준비 중입니다.' }, 500)
+    const body = await c.req.json().catch(() => ({}))
+    const email = String(body.email || '').trim().toLowerCase()
+    const password = String(body.password || '')
+    if (!isValidEmail(email) || !password) return c.json({ ok: false, error: '이메일과 비밀번호를 입력해 주세요.' }, 400)
+
+    const row: any = await c.env.DB.prepare('SELECT id, email, name, password_hash, salt FROM members WHERE email = ?').bind(email).first()
+    if (!row) return c.json({ ok: false, error: '이메일 또는 비밀번호가 올바르지 않습니다.' }, 401)
+    const ok = await verifyPassword(password, row.salt, row.password_hash)
+    if (!ok) return c.json({ ok: false, error: '이메일 또는 비밀번호가 올바르지 않습니다.' }, 401)
+
+    await c.env.DB.prepare("UPDATE members SET last_login_at = datetime('now','+9 hours') WHERE id = ?").bind(row.id).run().catch(() => {})
+    const token = await createSessionToken(row.id, row.email, row.name || '', sessionSecret(c))
+    c.header('Set-Cookie', sessionCookieHeader(token))
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: '로그인 처리 중 오류가 발생했습니다.' }, 500)
+  }
+})
+
+app.get('/api/auth/me', async (c) => {
+  const user = await getSessionUser(c)
+  return c.json({ ok: true, user })
+})
+
 app.get('/cases', async (c) => {
   const cat = (c.req.query('cat') || '').trim() || undefined
+  const member = await getSessionUser(c)
   let rows: DbCase[] = []
   try {
     if (c.env?.DB) {
@@ -524,7 +631,8 @@ app.get('/cases', async (c) => {
           }
         ]
       },
-      DbCasesPage(rows, cat)
+      DbCasesPage(rows, cat, !!member),
+      { member }
     )
   )
 })
@@ -546,6 +654,7 @@ app.get('/cases/:id', async (c) => {
     }
   } catch (e) {}
   if (!row) return c.notFound()
+  const member = await getSessionUser(c)
   return c.html(
     Layout(
       {
@@ -578,7 +687,8 @@ app.get('/cases/:id', async (c) => {
           }
         ]
       },
-      DbCaseDetailPage(row, others)
+      DbCaseDetailPage(row, others, !!member),
+      { member }
     )
   )
 })
@@ -1406,9 +1516,15 @@ app.get('/privacy', (c) =>
       '개인정보처리방침',
       '/privacy',
       `<p>${CLINIC.name}(이하 '병원')은 「개인정보 보호법」에 따라 환자의 개인정보를 보호하고 관련 고충을 신속하게 처리하기 위해 다음과 같은 처리방침을 둡니다.</p><br/>
-      <p><b>1. 수집 항목 및 목적</b><br/>예약 상담을 위한 이름, 연락처, 문의내용을 수집하며, 예약 안내 목적으로만 사용합니다.</p><br/>
-      <p><b>2. 보유 및 이용기간</b><br/>수집 목적 달성 후 관련 법령에 따른 보존기간을 제외하고 지체 없이 파기합니다.</p><br/>
-      <p><b>3. 문의</b><br/>개인정보 관련 문의는 ${CLINIC.phone}으로 연락 주시기 바랍니다.</p>`
+      <p><b>1. 수집 항목 및 목적</b><br/>
+      ① 예약 상담: 이름, 연락처, 문의내용 — 예약 안내 목적으로만 사용합니다.<br/>
+      ② 홈페이지 회원: 이름, 이메일, 비밀번호(일방향 암호화 저장) — 회원 식별 및 치료 전·후 사진 열람 서비스 제공 목적으로만 사용합니다.</p><br/>
+      <p><b>2. 보유 및 이용기간</b><br/>
+      ① 예약 상담 정보: 수집 목적 달성 후 관련 법령에 따른 보존기간을 제외하고 지체 없이 파기합니다.<br/>
+      ② 회원 정보: 회원 탈퇴 시까지 보유하며, 탈퇴 요청 시 지체 없이 파기합니다. 탈퇴는 ${CLINIC.phone} 전화 또는 병원 이메일로 요청하실 수 있습니다.</p><br/>
+      <p><b>3. 제3자 제공 및 처리 위탁</b><br/>병원은 수집한 개인정보를 제3자에게 제공하지 않으며, 홈페이지 운영을 위한 클라우드 인프라(Cloudflare)에 암호화된 형태로 저장됩니다.</p><br/>
+      <p><b>4. 정보주체의 권리</b><br/>회원은 언제든지 본인 개인정보의 열람·정정·삭제·처리정지를 요청할 수 있습니다.</p><br/>
+      <p><b>5. 문의</b><br/>개인정보 관련 문의는 ${CLINIC.phone}으로 연락 주시기 바랍니다.</p>`
     )
   )
 )

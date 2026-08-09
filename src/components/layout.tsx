@@ -90,7 +90,7 @@ export function Head(meta: SeoMeta) {
         onload="this.media='all'"
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
-      <link rel="stylesheet" href="/static/style.css?v=design9" />
+      <link rel="stylesheet" href="/static/style.css?v=design10" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->
@@ -227,7 +227,9 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
 // ============================================================
 // HEADER (GNB + 메가드롭다운)
 // ============================================================
-function Header() {
+type MemberInfo = { id: number; email: string; name: string } | null
+
+function Header(member: MemberInfo = null) {
   return html`
     <header class="site-header">
       <div class="container">
@@ -290,6 +292,9 @@ function Header() {
         </nav>
 
         <div class="header-cta">
+          ${member
+            ? html`<a href="/logout" class="btn-member" title="${member.name}님 로그아웃"><i class="fa-solid fa-user-check"></i> 로그아웃</a>`
+            : html`<a href="/login" class="btn-member"><i class="fa-regular fa-user"></i> 로그인</a>`}
           <a href="tel:${CLINIC.phoneRaw}" class="btn-call"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
           <a href="/reservation" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> 예약문의</a>
           <button class="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
@@ -331,6 +336,9 @@ function Header() {
           <a href="/faq">자주 묻는 질문</a>
         </div>
       </details>
+      ${member
+        ? html`<a href="/logout" class="top-link"><i class="fa-solid fa-user-check"></i> ${member.name}님 · 로그아웃</a>`
+        : html`<a href="/login" class="top-link"><i class="fa-regular fa-user"></i> 로그인 / 회원가입</a>`}
       <div class="mobile-cta">
         <a href="tel:${CLINIC.phoneRaw}" class="btn btn-glass"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
         <a href="/reservation" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> 예약 문의하기</a>
@@ -447,14 +455,14 @@ function FloatingCta() {
 // ============================================================
 // 전체 페이지 래퍼
 // ============================================================
-export function Layout(meta: SeoMeta, body: ReturnType<typeof html>) {
+export function Layout(meta: SeoMeta, body: ReturnType<typeof html>, opts?: { member?: MemberInfo }) {
   return html`<!DOCTYPE html>
     <html lang="ko">
       ${Head(meta)}
       <body>
         <div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
         <div class="scroll-progress"></div>
-        ${Header()}
+        ${Header(opts?.member || null)}
         <main>${body}</main>
         ${Footer()}
         ${FloatingCta()}

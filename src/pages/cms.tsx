@@ -266,11 +266,23 @@ export function noticeSchema(post: DbPost, siteUrl: string) {
   }
 }
 
+// After 이미지 렌더 — 로그인 시 원본, 비로그인 시 블러+잠금 (문자열 버전, raw 삽입용)
+function afterImgHtml(afterImg: string, title: string, isMember: boolean, returnPath: string): string {
+  if (isMember) {
+    return afterImg
+      ? `<img src="/media/${esc(afterImg)}" alt="${esc(title)} 치료 후" loading="lazy" />`
+      : `<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`
+  }
+  return `${afterImg ? `<img src="/media/${esc(afterImg)}" alt="${esc(title)} 치료 후" loading="lazy" style="filter:blur(14px);transform:scale(1.1)" />` : ''}
+    <a href="/login?redirect=${encodeURIComponent(returnPath)}" class="lock-ui" style="text-decoration:none" onclick="event.stopPropagation()"><i class="fa-solid fa-lock"></i><span>로그인 시<br />확인 가능</span></a>`
+}
+
 // ============================================================
 // 비포·애프터 상세 (DB cases) — 개별 URL /cases/:id
 // ============================================================
-export function DbCaseDetailPage(c: DbCase, others: DbCase[]) {
+export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) {
   const txSlug = txSlugOfCategory(c.category)
+  const myPath = `/cases/${c.id}`
   return html`
     <section class="page-hero" data-ghost="CASE">
       <div class="container">
@@ -289,10 +301,15 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[]) {
 
     <section class="pad">
       <div class="container" style="max-width:920px">
-        <div class="notice-box reveal" style="margin-bottom:28px">
+        ${isMember
+          ? html`<div class="notice-box reveal" style="margin-bottom:28px">
+          <i class="fa-solid fa-circle-check" style="color:var(--brand)"></i>
+          <div>회원님은 치료 전·후 사진을 모두 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.</div>
+        </div>`
+          : html`<div class="notice-box reveal" style="margin-bottom:28px">
           <i class="fa-solid fa-circle-info"></i>
-          <div>의료법에 따라 치료 후(After) 사진은 회원가입 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a></div>
-        </div>
+          <div>의료법에 따라 치료 후(After) 사진은 <a href="/login?redirect=${encodeURIComponent(myPath)}" style="color:var(--acc);font-weight:700">로그인</a> 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="/signup?redirect=${encodeURIComponent(myPath)}" style="color:var(--acc);font-weight:700">회원가입 →</a></div>
+        </div>`}
 
         <div class="case-detail-imgs reveal">
           <figure class="ba-img" style="border-radius:var(--radius-lg);border:1px solid var(--line-3)">
@@ -301,9 +318,9 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[]) {
               ? raw(`<img src="/media/${esc(c.before_img)}" alt="${esc(c.title)} 치료 전" />`)
               : raw(`<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`)}
           </figure>
-          <figure class="ba-img locked" style="border-radius:var(--radius-lg);border:1px solid var(--line-3)">
-            ${c.after_img ? raw(`<img src="/media/${esc(c.after_img)}" alt="${esc(c.title)} 치료 후" style="filter:blur(14px);transform:scale(1.1)" />`) : ''}
-            <div class="lock-ui"><i class="fa-solid fa-lock"></i><span>치료 후 사진은<br />회원가입 시 확인 가능</span></div>
+          <figure class="ba-img${isMember ? '' : ' locked'}" style="border-radius:var(--radius-lg);border:1px solid var(--line-3)">
+            ${isMember ? raw(`<span class="ba-tag" style="background:var(--brand)">After</span>`) : ''}
+            ${raw(afterImgHtml(c.after_img, c.title, isMember, myPath))}
           </figure>
         </div>
 
@@ -340,9 +357,9 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[]) {
                   <span class="ba-tag">Before</span>
                   ${o.before_img ? `<img src="/media/${esc(o.before_img)}" alt="${esc(o.title)} 치료 전" loading="lazy" />` : `<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`}
                 </div>
-                <div class="ba-img locked">
-                  ${o.after_img ? `<img src="/media/${esc(o.after_img)}" alt="${esc(o.title)} 치료 후" loading="lazy" style="filter:blur(14px);transform:scale(1.1)" />` : ''}
-                  <div class="lock-ui"><i class="fa-solid fa-lock"></i><span>회원가입 시<br />확인 가능</span></div>
+                <div class="ba-img${isMember ? '' : ' locked'}">
+                  ${isMember ? `<span class="ba-tag" style="background:var(--brand)">After</span>` : ''}
+                  ${afterImgHtml(o.after_img, o.title, isMember, `/cases/${o.id}`)}
                 </div>
               </div>
               <div class="ba-body">
@@ -364,8 +381,9 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[]) {
 // ============================================================
 // 비포·애프터 (DB cases) — 의료광고법: After는 내원 확인 안내
 // ============================================================
-export function DbCasesPage(rows: DbCase[], activeCat?: string) {
+export function DbCasesPage(rows: DbCase[], activeCat?: string, isMember = false) {
   const cats = Object.keys(CAT_TO_TX).filter((k, i, a) => a.findIndex((x) => CAT_TO_TX[x] === CAT_TO_TX[k]) === i)
+  const listPath = activeCat ? `/cases?cat=${encodeURIComponent(activeCat)}` : '/cases'
   return html`
     <section class="page-hero" data-ghost="CASES">
       <div class="container">
@@ -378,10 +396,15 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
 
     <section class="pad">
       <div class="container">
-        <div class="notice-box reveal" style="margin-bottom:24px">
+        ${isMember
+          ? html`<div class="notice-box reveal" style="margin-bottom:24px">
+          <i class="fa-solid fa-circle-check" style="color:var(--brand)"></i>
+          <div>회원님은 치료 전·후 사진을 모두 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다.</div>
+        </div>`
+          : html`<div class="notice-box reveal" style="margin-bottom:24px">
           <i class="fa-solid fa-circle-info"></i>
-          <div>의료법에 따라 치료 후(After) 사진은 회원가입 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="tel:${CLINIC.phoneRaw}" style="color:var(--acc);font-weight:700">전화로 상담 문의 →</a></div>
-        </div>
+          <div>의료법에 따라 치료 후(After) 사진은 <a href="/login?redirect=${encodeURIComponent(listPath)}" style="color:var(--acc);font-weight:700">로그인</a> 후 확인하실 수 있습니다. 치료 결과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. <a href="/signup?redirect=${encodeURIComponent(listPath)}" style="color:var(--acc);font-weight:700">회원가입 →</a></div>
+        </div>`}
 
         <nav class="case-filter reveal" aria-label="진료 과목별 사례 필터" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px">
           <a href="/cases" class="t-area-chip${!activeCat ? ' is-active' : ''}" style="${!activeCat ? 'background:var(--brand);color:#fff;border-color:var(--brand)' : ''}">전체</a>
@@ -427,9 +450,9 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string) {
                   <span class="ba-tag">Before</span>
                   ${c.before_img ? `<img src="/media/${esc(c.before_img)}" alt="${esc(c.title)} 치료 전" loading="lazy" />` : `<i class="fa-solid fa-image" style="font-size:1.6rem;color:var(--ink-3);opacity:0.4"></i>`}
                 </div>
-                <div class="ba-img locked">
-                  ${c.after_img ? `<img src="/media/${esc(c.after_img)}" alt="${esc(c.title)} 치료 후" loading="lazy" style="filter:blur(14px);transform:scale(1.1)" />` : ''}
-                  <div class="lock-ui"><i class="fa-solid fa-lock"></i><span>회원가입 시<br />확인 가능</span></div>
+                <div class="ba-img${isMember ? '' : ' locked'}">
+                  ${isMember ? `<span class="ba-tag" style="background:var(--brand)">After</span>` : ''}
+                  ${afterImgHtml(c.after_img, c.title, isMember, listPath)}
                 </div>
               </div>
               <div class="ba-body">
