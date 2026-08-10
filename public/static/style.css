@@ -1029,13 +1029,13 @@ a.lock-ui:hover i { color: var(--brand); }
 .price-table tbody td { padding: 15px 20px; border-bottom: 1px solid var(--line-3); vertical-align: top; }
 .price-table tbody tr:last-child td { border-bottom: none; }
 .price-table tbody tr:nth-child(even) { background: var(--bg-1); }
-.price-table .pt-price { text-align: right; font-weight: 800; color: var(--brand); white-space: nowrap; width: 130px; }
+.price-table .pt-price { text-align: right; font-weight: 800; color: var(--brand); white-space: nowrap; width: 1%; min-width: 130px; }
 .price-table .pt-unit { text-align: right; color: var(--ink-3); font-size: 0.82rem; white-space: nowrap; width: 90px; }
 .price-table .pt-detail { display: block; font-weight: 400; color: var(--ink-3); font-size: 0.82rem; margin-top: 3px; line-height: 1.5; }
 @media (max-width: 640px) {
   .price-table thead th, .price-table tbody td { padding: 12px 14px; }
   .price-table { font-size: 0.88rem; }
-  .price-table .pt-price { width: 100px; }
+  .price-table .pt-price { min-width: 90px; white-space: normal; word-break: keep-all; }
   .price-table .pt-unit { width: 66px; }
 }
 .ba-img { aspect-ratio: 1; background: var(--bg-1); display: grid; place-items: center; position: relative; overflow: hidden; }

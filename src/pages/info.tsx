@@ -288,6 +288,16 @@ const PRICING_SECTIONS: { title: string; icon: string; note?: string; rows: { na
       { name: '다이아스테마 (치아 사이 벌어짐)', price: '300,000원', unit: '면당' },
       { name: '블랙트라이앵글 (2면 기준)', price: '400,000원', unit: '부위당' }
     ]
+  },
+  {
+    title: '투명교정',
+    icon: 'fa-teeth',
+    note: '교정 범위와 치아 이동량에 따라 비용이 결정되며, 정밀 진단 후 정확한 비용과 예상 기간을 안내드립니다.',
+    rows: [
+      { name: '투명교정 (부분)', detail: '앞니 등 일부 치아 교정', price: '1,000,000 ~ 1,500,000원' },
+      { name: '투명교정 (전체)', detail: '전체 치열 교정', price: '3,500,000 ~ 4,000,000원' },
+      { name: '유지장치', detail: '교정 후 치열 유지 장치', price: '200,000원', unit: '악당' }
+    ]
   }
 ]
 
@@ -306,7 +316,7 @@ export function PricingPage() {
       <div class="container" style="max-width:920px">
         <div class="notice-box reveal" style="margin-bottom:36px">
           <i class="fa-solid fa-circle-info"></i>
-          <div>아래 비용은 의료법 제45조에 따른 <b>비급여 진료비용 고지</b>입니다. 치아 상태·치료 범위·재료에 따라 실제 비용이 달라질 수 있으며, 정밀 진단 후 과장 없이 정확한 비용을 안내드립니다. 임플란트·교정 등 그 외 비급여 항목은 내원 상담 시 고지해 드립니다.</div>
+          <div>아래 비용은 의료법 제45조에 따른 <b>비급여 진료비용 고지</b>입니다. 치아 상태·치료 범위·재료에 따라 실제 비용이 달라질 수 있으며, 정밀 진단 후 과장 없이 정확한 비용을 안내드립니다. 임플란트 등 그 외 비급여 항목은 내원 상담 시 고지해 드립니다.</div>
         </div>
 
         ${raw(

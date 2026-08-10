@@ -398,7 +398,7 @@ app.get('/pricing', (c) =>
     Layout(
       {
         title: `비용 안내 (비급여 진료비용 고지) | ${CLINIC.name}`,
-        description: `마곡베스트치과의원 비급여 진료비용 고지. 인레이 30만원·온레이 35만원·크라운 45만원, 레진 충치치료 7~20만원, 앞니 파절·심미 레진 10~40만원. 정확한 비용은 진단 후 안내드립니다.`,
+        description: `마곡베스트치과의원 비급여 진료비용 고지. 인레이 30만원·온레이 35만원·크라운 45만원, 레진 충치치료 7~20만원, 앞니 파절·심미 레진 10~40만원, 투명교정 부분 100~150만원·전체 350~400만원. 정확한 비용은 진단 후 안내드립니다.`,
         path: '/pricing',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용 안내', path: '/pricing' }]),
@@ -427,11 +427,17 @@ app.get('/pricing', (c) =>
                 { name: '앞니 파절 레진(중간)', price: 200000 },
                 { name: '앞니 파절 레진(큰 파절)', price: 250000 },
                 { name: '다이아스테마 레진(면당)', price: 300000 },
-                { name: '블랙트라이앵글 레진(2면)', price: 400000 }
-              ].map((o) => ({
+                { name: '블랙트라이앵글 레진(2면)', price: 400000 },
+                { name: '투명교정(부분)', minPrice: 1000000, maxPrice: 1500000 },
+                { name: '투명교정(전체)', minPrice: 3500000, maxPrice: 4000000 },
+                { name: '교정 유지장치(악당)', price: 200000 }
+              ].map((o: { name: string; price?: number; minPrice?: number; maxPrice?: number }) => ({
                 '@type': 'Offer',
                 itemOffered: { '@type': 'MedicalProcedure', name: o.name },
-                priceSpecification: { '@type': 'PriceSpecification', price: o.price, priceCurrency: 'KRW' }
+                priceSpecification:
+                  o.minPrice != null
+                    ? { '@type': 'PriceSpecification', minPrice: o.minPrice, maxPrice: o.maxPrice, priceCurrency: 'KRW' }
+                    : { '@type': 'PriceSpecification', price: o.price, priceCurrency: 'KRW' }
               }))
             }
           }
