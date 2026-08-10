@@ -397,8 +397,8 @@ app.get('/pricing', (c) =>
   c.html(
     Layout(
       {
-        title: `비용 안내 | ${CLINIC.name}`,
-        description: `마곡베스트치과의원 비급여 진료비 고지 안내. 임플란트·교정·심미치료 등 정확한 진료비는 정밀 진단 후 과장 없이 투명하게 안내드립니다.`,
+        title: `비용 안내 (비급여 진료비용 고지) | ${CLINIC.name}`,
+        description: `마곡베스트치과의원 비급여 진료비용 고지. 인레이 30만원·온레이 35만원·크라운 45만원, 레진 충치치료 7~20만원, 앞니 파절·심미 레진 10~40만원. 정확한 비용은 진단 후 안내드립니다.`,
         path: '/pricing',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '비용 안내', path: '/pricing' }]),
@@ -412,10 +412,26 @@ app.get('/pricing', (c) =>
             about: { '@id': SITE_URL + '/#organization' },
             mainEntity: {
               '@type': 'OfferCatalog',
-              name: `${CLINIC.name} 비급여 진료 항목`,
-              itemListElement: [...CORE_TREATMENTS, ...GENERAL_TREATMENTS].map((t) => ({
+              name: `${CLINIC.name} 비급여 진료비용 고지`,
+              itemListElement: [
+                { name: '인레이', price: 300000 },
+                { name: '온레이', price: 350000 },
+                { name: '크라운', price: 450000 },
+                { name: '치아 기둥(파이버 포스트)', price: 100000 },
+                { name: '레진 충치치료(어금니 씹는면·좁은 부위)', price: 100000 },
+                { name: '레진 충치치료(어금니 빌드업·넓은 부위)', price: 200000 },
+                { name: '앞니 레진', price: 200000 },
+                { name: '치아 사이 충치 레진(면당)', price: 150000 },
+                { name: '치경부 마모 레진', price: 70000 },
+                { name: '앞니 파절 레진(협소)', price: 100000 },
+                { name: '앞니 파절 레진(중간)', price: 200000 },
+                { name: '앞니 파절 레진(큰 파절)', price: 250000 },
+                { name: '다이아스테마 레진(면당)', price: 300000 },
+                { name: '블랙트라이앵글 레진(2면)', price: 400000 }
+              ].map((o) => ({
                 '@type': 'Offer',
-                itemOffered: { '@type': 'MedicalProcedure', name: t.name, url: SITE_URL + '/treatments/' + t.slug }
+                itemOffered: { '@type': 'MedicalProcedure', name: o.name },
+                priceSpecification: { '@type': 'PriceSpecification', price: o.price, priceCurrency: 'KRW' }
               }))
             }
           }

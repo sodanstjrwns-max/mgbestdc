@@ -1020,6 +1020,24 @@ a.lock-ui:hover i { color: var(--brand); }
 .ba-slider-hint { margin-top: 12px; font-size: 0.85rem; color: var(--ink-3); text-align: center; }
 .ba-slider-hint i { margin-right: 4px; color: var(--brand); }
 .ba-card .ba-slider { border-radius: 0; }
+/* ---- 비급여 수가표 ---- */
+.price-sec-title { display: flex; align-items: center; gap: 14px; font-size: 1.25rem; margin-bottom: 10px; }
+.price-sec-note { color: var(--ink-3); font-size: 0.9rem; margin-bottom: 16px; }
+.price-table-wrap { border: 1px solid var(--line-3); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--sh-sm); background: #fff; }
+.price-table { width: 100%; border-collapse: collapse; font-size: 0.94rem; }
+.price-table thead th { background: var(--brand); color: #fff; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.03em; padding: 13px 20px; text-align: left; }
+.price-table tbody td { padding: 15px 20px; border-bottom: 1px solid var(--line-3); vertical-align: top; }
+.price-table tbody tr:last-child td { border-bottom: none; }
+.price-table tbody tr:nth-child(even) { background: var(--bg-1); }
+.price-table .pt-price { text-align: right; font-weight: 800; color: var(--brand); white-space: nowrap; width: 130px; }
+.price-table .pt-unit { text-align: right; color: var(--ink-3); font-size: 0.82rem; white-space: nowrap; width: 90px; }
+.price-table .pt-detail { display: block; font-weight: 400; color: var(--ink-3); font-size: 0.82rem; margin-top: 3px; line-height: 1.5; }
+@media (max-width: 640px) {
+  .price-table thead th, .price-table tbody td { padding: 12px 14px; }
+  .price-table { font-size: 0.88rem; }
+  .price-table .pt-price { width: 100px; }
+  .price-table .pt-unit { width: 66px; }
+}
 .ba-img { aspect-ratio: 1; background: var(--bg-1); display: grid; place-items: center; position: relative; overflow: hidden; }
 .ba-img img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
 .ba-tag {

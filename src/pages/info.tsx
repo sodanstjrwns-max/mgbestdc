@@ -252,34 +252,102 @@ export function DirectionsPage() {
 // ============================================================
 // 비용 안내 (비급여 진료비 고지)
 // ============================================================
+// 비급여 수가표 데이터 (의료법 제45조 비급여 진료비용 고지)
+const PRICING_SECTIONS: { title: string; icon: string; note?: string; rows: { name: string; detail?: string; price: string; unit?: string }[] }[] = [
+  {
+    title: '인레이 · 크라운',
+    icon: 'fa-crown',
+    note: '충치·파절 범위에 따라 인레이/온레이/크라운 중 치아를 가장 적게 깎는 방법을 우선 제안드립니다.',
+    rows: [
+      { name: '인레이', detail: '치아 색과 유사한 세라믹 부분 수복', price: '300,000원', unit: '치아당' },
+      { name: '온레이', detail: '교두를 덮는 넓은 범위 부분 수복', price: '350,000원', unit: '치아당' },
+      { name: '크라운', detail: '지르코니아 등 전체 수복 (코어 필요 시 70,000원 별도)', price: '450,000원', unit: '치아당' },
+      { name: '치아 기둥 (파이버 포스트)', detail: '신경치료 후 치아 보강 기둥', price: '100,000원', unit: '치아당' }
+    ]
+  },
+  {
+    title: '레진 — 충치 치료',
+    icon: 'fa-tooth',
+    note: '충치 위치와 범위에 따라 비용이 다르며, 진단 후 부위별로 정확히 안내드립니다.',
+    rows: [
+      { name: '어금니 씹는면 (좁은 부위)', price: '100,000원', unit: '치아당' },
+      { name: '어금니 씹는면 (넓은 부위 · 레진 빌드업)', price: '200,000원', unit: '치아당' },
+      { name: '앞니 레진', price: '200,000원', unit: '치아당' },
+      { name: '치아 사이 충치', price: '150,000원', unit: '면당' },
+      { name: '치아 목 부위 패임 (치경부 마모)', price: '70,000원', unit: '치아당' }
+    ]
+  },
+  {
+    title: '레진 — 파절 · 심미',
+    icon: 'fa-wand-magic-sparkles',
+    note: '파절 크기와 심미 개선 범위에 따라 비용이 결정됩니다.',
+    rows: [
+      { name: '앞니 파절 (협소한 파절)', price: '100,000원', unit: '치아당' },
+      { name: '앞니 파절 (중간 파절)', price: '200,000원', unit: '치아당' },
+      { name: '앞니 파절 (큰 파절)', price: '250,000원', unit: '치아당' },
+      { name: '다이아스테마 (치아 사이 벌어짐)', price: '300,000원', unit: '면당' },
+      { name: '블랙트라이앵글 (2면 기준)', price: '400,000원', unit: '부위당' }
+    ]
+  }
+]
+
 export function PricingPage() {
   return html`
     <section class="page-hero" data-ghost="PRICING">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>비용 안내</span></nav>
-        <span class="eyebrow">비용 안내</span>
+        <span class="eyebrow">비급여 진료비용 고지</span>
         <h1>비용 <span class="grad">안내</span></h1>
-        <p class="ph-sub">의료법에 따라 비급여 진료비는 내원 시 정확하게 고지해 드립니다. 진료비는 환자분의 구강 상태와 치료 범위에 따라 달라집니다.</p>
+        <p class="ph-sub">의료법 제45조에 따라 비급여 진료비용을 고지합니다. 실제 비용은 구강 상태와 치료 범위에 따라 달라질 수 있으며, 진단 후 치료 계획과 함께 정확히 안내드립니다.</p>
       </div>
     </section>
 
     <section class="pad">
-      <div class="container">
-        <div class="notice-box reveal" style="margin-bottom:32px">
+      <div class="container" style="max-width:920px">
+        <div class="notice-box reveal" style="margin-bottom:36px">
           <i class="fa-solid fa-circle-info"></i>
-          <div>비급여 진료비는 환자분의 상태·치료 범위·재료에 따라 개별적으로 결정되며, 의료광고 관련 법령에 따라 본 웹사이트에서는 구체적인 금액·할인 이벤트를 표기하지 않습니다. 정확한 비용은 정밀 진단 후 내원 시 안내해 드립니다.</div>
+          <div>아래 비용은 의료법 제45조에 따른 <b>비급여 진료비용 고지</b>입니다. 치아 상태·치료 범위·재료에 따라 실제 비용이 달라질 수 있으며, 정밀 진단 후 과장 없이 정확한 비용을 안내드립니다. 임플란트·교정 등 그 외 비급여 항목은 내원 상담 시 고지해 드립니다.</div>
         </div>
 
-        <div class="grid-2">
+        ${raw(
+          PRICING_SECTIONS.map(
+            (sec, si) => `
+        <div class="price-section reveal${si ? ` reveal-d${si}` : ''}" style="margin-bottom:44px">
+          <h2 class="price-sec-title"><span class="tico" style="margin:0;width:44px;height:44px;font-size:1rem;flex:none"><i class="fa-solid ${sec.icon}"></i></span>${sec.title}</h2>
+          ${sec.note ? `<p class="price-sec-note">${sec.note}</p>` : ''}
+          <div class="price-table-wrap">
+            <table class="price-table">
+              <thead><tr><th scope="col">진료 항목</th><th scope="col" class="pt-price">비용</th><th scope="col" class="pt-unit">기준</th></tr></thead>
+              <tbody>
+                ${sec.rows
+                  .map(
+                    (r) => `
+                <tr>
+                  <td><b>${r.name}</b>${r.detail ? `<span class="pt-detail">${r.detail}</span>` : ''}</td>
+                  <td class="pt-price">${r.price}</td>
+                  <td class="pt-unit">${r.unit || ''}</td>
+                </tr>`
+                  )
+                  .join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`
+          ).join('')
+        )}
+
+        <div class="grid-2" style="margin-top:8px">
           <div class="card reveal">
             <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-shield-heart" style="color:var(--brand)"></i> 급여 진료</h2>
             <p style="color:var(--ink-3)">국민건강보험이 적용되는 진료(충치치료 일부, 신경치료, 스케일링, 발치 등)는 건강보험 기준에 따라 비용이 산정됩니다. 본원은 국민건강보험공단 구강검진 지정 치과입니다.</p>
           </div>
           <div class="card reveal reveal-d1">
-            <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-tooth" style="color:var(--brand)"></i> 비급여 진료</h2>
-            <p style="color:var(--ink-3)">임플란트, 교정, 라미네이트, 미백 등 비급여 진료는 환자분의 상태에 따라 비용이 달라집니다. 진단 후 치료 계획과 함께 정확한 비용을 투명하게 안내드립니다.</p>
+            <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-scale-balanced" style="color:var(--brand)"></i> 비용 안내 원칙</h2>
+            <p style="color:var(--ink-3)">진단 결과와 다른 치료를 권하지 않습니다. 치료가 필요한 이유와 대안, 각 비용을 함께 설명드리고, 환자분이 충분히 이해하신 후 치료를 시작합니다.</p>
           </div>
         </div>
+
+        <p class="post-disclaimer reveal" style="margin-top:28px">본 고지 금액은 ${new Date().getFullYear()}년 기준이며 사전 안내 후 변경될 수 있습니다. 부위·범위·재료에 따라 실제 비용이 달라질 수 있으므로 정확한 비용은 내원 진단 후 안내드립니다.</p>
       </div>
     </section>
 
