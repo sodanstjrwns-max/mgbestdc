@@ -440,6 +440,37 @@ app.get('/pricing', (c) =>
                     : { '@type': 'PriceSpecification', price: o.price, priceCurrency: 'KRW' }
               }))
             }
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            '@id': SITE_URL + '/pricing/#faq',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: '왜 투명교정은 범위로 안내되나요?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: '교정은 치아 이동량과 교정 범위에 따라 장치 개수와 기간이 달라지기 때문입니다. 정밀 진단 후에는 범위가 아닌 확정 비용과 예상 기간을 함께 안내드립니다.'
+                }
+              },
+              {
+                '@type': 'Question',
+                name: '건강보험이 적용되는 치료는 무엇인가요?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: '신경치료, 스케일링(연 1회), 충치치료 일부, 발치, 잇몸치료 등은 건강보험이 적용됩니다. 본원은 보험 적용 가능 여부를 진료 전에 먼저 확인해 안내드립니다.'
+                }
+              },
+              {
+                '@type': 'Question',
+                name: '상담을 예약하면 무엇을 안내받나요?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: '김민 원장이 직접 진단한 뒤, 치료가 필요한 이유와 가능한 대안, 항목별 비용을 함께 설명드립니다. 당일 치료를 강요하지 않습니다.'
+                }
+              }
+            ]
           }
         ]
       },

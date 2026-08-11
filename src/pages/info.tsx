@@ -292,7 +292,7 @@ const PRICING_SECTIONS: { title: string; icon: string; note?: string; rows: { na
   {
     title: '투명교정',
     icon: 'fa-teeth',
-    note: '교정 범위와 치아 이동량에 따라 비용이 결정되며, 정밀 진단 후 정확한 비용과 예상 기간을 안내드립니다.',
+    note: '교정 범위와 치아 이동량에 따라 비용이 결정됩니다. 전체 교정 시 유지장치 비용은 별도이며, 상담 시 예상 기간과 함께 총비용 기준으로 안내드립니다.',
     rows: [
       { name: '투명교정 (부분)', detail: '앞니 등 일부 치아 교정', price: '1,000,000 ~ 1,500,000원' },
       { name: '투명교정 (전체)', detail: '전체 치열 교정', price: '3,500,000 ~ 4,000,000원' },
@@ -308,15 +308,20 @@ export function PricingPage() {
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>비용 안내</span></nav>
         <span class="eyebrow">비급여 진료비용 고지</span>
         <h1>비용 <span class="grad">안내</span></h1>
-        <p class="ph-sub">의료법 제45조에 따라 비급여 진료비용을 고지합니다. 실제 비용은 구강 상태와 치료 범위에 따라 달라질 수 있으며, 진단 후 치료 계획과 함께 정확히 안내드립니다.</p>
+        <p class="ph-sub">의료법 제45조에 따라 비급여 진료비용을 고지합니다. 숨은 비용 없이 항목별로 공개하며, 진단 후에는 치료 계획과 함께 확정 비용을 안내드립니다.</p>
       </div>
     </section>
 
     <section class="pad">
       <div class="container" style="max-width:920px">
-        <div class="notice-box reveal" style="margin-bottom:36px">
+        <div class="notice-box reveal" style="margin-bottom:20px">
           <i class="fa-solid fa-circle-info"></i>
-          <div>아래 비용은 의료법 제45조에 따른 <b>비급여 진료비용 고지</b>입니다. 치아 상태·치료 범위·재료에 따라 실제 비용이 달라질 수 있으며, 정밀 진단 후 과장 없이 정확한 비용을 안내드립니다. 임플란트 등 그 외 비급여 항목은 내원 상담 시 고지해 드립니다.</div>
+          <div>아래 비용은 의료법 제45조에 따른 <b>비급여 진료비용 고지</b>입니다. 치아 상태·치료 범위·재료에 따라 실제 비용이 달라질 수 있으며, 정밀 진단 후에는 확정 비용으로 안내드립니다. 임플란트 등 그 외 비급여 항목은 내원 상담 시 고지해 드립니다.</div>
+        </div>
+
+        <div class="card reveal" style="margin-bottom:40px;border-left:4px solid var(--brand)">
+          <h2 style="margin-bottom:12px;font-size:1.2rem"><i class="fa-solid fa-scale-balanced" style="color:var(--brand);margin-right:6px"></i> 비용을 보시기 전에 — 본원의 비용 안내 원칙</h2>
+          <p style="color:var(--ink-3)">진단 결과와 다른 치료를 권하지 않습니다. 치료가 필요한 이유와 가능한 대안, 각 비용을 함께 설명드리고 환자분이 충분히 이해하신 후 치료를 시작합니다. 코어·유지장치와 같은 부대 비용도 미리 표에 적어 두었습니다.</p>
         </div>
 
         ${raw(
@@ -346,23 +351,35 @@ export function PricingPage() {
           ).join('')
         )}
 
-        <div class="grid-2" style="margin-top:8px">
-          <div class="card reveal">
-            <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-shield-heart" style="color:var(--brand)"></i> 급여 진료</h2>
-            <p style="color:var(--ink-3)">국민건강보험이 적용되는 진료(충치치료 일부, 신경치료, 스케일링, 발치 등)는 건강보험 기준에 따라 비용이 산정됩니다. 본원은 국민건강보험공단 구강검진 지정 치과입니다.</p>
-          </div>
-          <div class="card reveal reveal-d1">
-            <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-scale-balanced" style="color:var(--brand)"></i> 비용 안내 원칙</h2>
-            <p style="color:var(--ink-3)">진단 결과와 다른 치료를 권하지 않습니다. 치료가 필요한 이유와 대안, 각 비용을 함께 설명드리고, 환자분이 충분히 이해하신 후 치료를 시작합니다.</p>
+        <div class="card reveal" style="margin-top:8px">
+          <h2 style="margin-bottom:14px;font-size:1.25rem"><i class="fa-solid fa-shield-heart" style="color:var(--brand)"></i> 급여 진료</h2>
+          <p style="color:var(--ink-3)">국민건강보험이 적용되는 진료(충치치료 일부, 신경치료, 스케일링, 발치 등)는 건강보험 기준에 따라 비용이 산정됩니다. 본원은 국민건강보험공단 구강검진 지정 치과로, 보험 적용 여부를 진료 전에 먼저 확인해 안내드립니다.</p>
+        </div>
+
+        <div class="reveal" style="margin-top:44px">
+          <h2 class="section-title" style="font-size:1.5rem;margin-bottom:18px"><i class="fa-solid fa-circle-question" style="color:var(--brand);margin-right:8px"></i>비용에 대해 자주 묻는 질문</h2>
+          <div class="faq-list">
+            <details class="faq-item">
+              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>왜 투명교정은 범위로 안내되나요?</span></summary>
+              <div class="faq-a">교정은 치아 이동량과 교정 범위에 따라 장치 개수와 기간이 달라지기 때문입니다. 진단 전에 확정 금액을 말씀드리는 것이 오히려 부정확한 안내가 됩니다. 정밀 진단 후에는 범위가 아닌 확정 비용과 예상 기간을 함께 안내드립니다.</div>
+            </details>
+            <details class="faq-item">
+              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>건강보험이 적용되는 치료는 무엇인가요?</span></summary>
+              <div class="faq-a">신경치료, 스케일링(연 1회), 충치치료 일부, 발치, 잇몸치료 등은 건강보험이 적용됩니다. 같은 충치라도 위치와 재료에 따라 급여/비급여가 달라질 수 있어, 본원은 보험 적용 가능 여부를 진료 전에 먼저 확인해 안내드립니다.</div>
+            </details>
+            <details class="faq-item">
+              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>상담을 예약하면 무엇을 안내받나요?</span></summary>
+              <div class="faq-a">김민 원장이 직접 진단한 뒤, 치료가 필요한 이유와 가능한 대안, 항목별 비용을 함께 설명드립니다. 충분히 이해하시고 결정하실 수 있도록 안내하며, 당일 치료를 강요하지 않습니다.</div>
+            </details>
           </div>
         </div>
 
-        <p class="post-disclaimer reveal" style="margin-top:28px">본 고지 금액은 ${new Date().getFullYear()}년 기준이며 사전 안내 후 변경될 수 있습니다. 부위·범위·재료에 따라 실제 비용이 달라질 수 있으므로 정확한 비용은 내원 진단 후 안내드립니다.</p>
+        <p class="post-disclaimer reveal" style="margin-top:28px">본 고지 금액은 ${new Date().getFullYear()}년 기준이며 사전 안내 후 변경될 수 있습니다.</p>
       </div>
     </section>
 
     <section class="pad-sm"><div class="cta-band"><div class="cta-inner"><div class="reveal" style="text-align:center">
-      <h2 style="color:#fff">정확한 비용이 궁금하시다면</h2><p style="color:rgba(255,255,255,0.9);max-width:560px;margin:14px auto 28px">진단 후 치료 계획과 함께 투명하게 안내드립니다.</p>
+      <h2 style="color:#fff">내 치아 기준의 정확한 비용은 진단에서 결정됩니다</h2><p style="color:rgba(255,255,255,0.9);max-width:560px;margin:14px auto 28px">김민 원장이 직접 진단하고, 치료가 필요한 이유·대안·비용을 함께 설명드립니다.</p>
       <div class="cta-actions"><a href="/reservation" class="btn btn-white btn-lg">상담 예약하기</a></div>
     </div></div></div></section>
   `
