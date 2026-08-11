@@ -11,17 +11,10 @@ const FUNNEL = [
   { n: '05', t: '치료 후 관리', d: '정기 검진과 전문 클리닝으로 치료 결과를 오래 유지하도록 함께합니다.' },
 ]
 
-// 브랜딩 영상 실촬영 프레임 (AI 이미지 배제 — EEAT)
 const CORE_IMG: Record<string, string> = {
-  implant: '/static/img/tx-implant.webp',
-  cavity: '/static/img/consult.webp',
-  cosmetic: '/static/img/tx-cosmetic.webp'
-}
-
-const CORE_ALT: Record<string, string> = {
-  implant: '임플란트 시술 중 토크렌치로 식립 토크를 확인하는 대표원장',
-  cavity: 'CT 영상을 함께 보며 충치 상태를 설명하는 대표원장',
-  cosmetic: '심미 보철물을 직접 보여주며 설명하는 대표원장'
+  implant: '/static/img/core-implant.webp',
+  cavity: '/static/img/core-cavity.webp',
+  cosmetic: '/static/img/core-cosmetic.webp'
 }
 
 // tx-index 호버 시 커서 옆에 뜨는 프리뷰 이미지
@@ -134,7 +127,7 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
             CORE_TREATMENTS.map(
               (t, i) => `
             <a href="/treatments/${t.slug}" class="core-photo-card reveal reveal-d${i + 1}" id="core-${t.slug}">
-              <span class="cpc-img"><img src="${CORE_IMG[t.slug] || '/static/img/facility-room.webp'}" srcset="${srcset(CORE_IMG[t.slug] || '/static/img/facility-room.webp')}" sizes="${SIZES.third}" alt="${CORE_ALT[t.slug] || t.name}" loading="lazy" decoding="async" /></span>
+              <span class="cpc-img"><img src="${CORE_IMG[t.slug] || '/static/img/facility-room.webp'}" srcset="${srcset(CORE_IMG[t.slug] || '/static/img/facility-room.webp')}" sizes="${SIZES.third}" alt="${t.name}" loading="lazy" decoding="async" /></span>
               <span class="cpc-arrow"><i class="fa-solid fa-arrow-right"></i></span>
               <span class="cpc-body">
                 <span class="cpc-title" style="display:block">${t.name}</span>
