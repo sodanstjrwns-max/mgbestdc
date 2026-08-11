@@ -50,7 +50,7 @@
 | 회원 API | `POST /api/auth/signup·login`, `GET /api/auth/me` | D1 members 테이블 (0003 마이그레이션) |
 | 공지사항 | `/notice`, `/notice/:slug` | **D1 연동** 공지 목록(고정 배지)·상세, 조회수, 사이트맵 자동 포함 |
 | 오시는 길 | `/directions` | 주소·교통·진료시간, 포토 지도 카드 |
-| 비용 안내 | `/pricing` | 비급여 고지 (금액·이벤트 미표기, 의료법 준수) |
+| 비용 안내 | `/pricing` | **비급여 수가표 4개 섹션**(인레이·크라운 / 레진 충치 / 레진 파절·심미 / 투명교정, 17항목) + 비용 원칙 카드 + 비용 FAQ 3문항, OfferCatalog·FAQPage 스키마, 의료법 45조 고지 프레임 (임플란트 제외 — 클라이언트 지시) |
 | 시설 | `/facility` | 장비 4종 + 실사진 공간 갤러리 |
 | 예약 문의 | `/reservation` | 폼 → `POST /api/reservation` → **D1 저장** |
 | **관리자 CMS** | `/admin?key=…` | 4탭 대시보드: 예약문의 / 공지사항 / 건강칼럼 / 비포애프터 — **Toast UI 에디터**(WYSIWYG·한국어·이미지 붙여넣기 업로드), 임시저장/발행, Ctrl+S 저장, noindex |
