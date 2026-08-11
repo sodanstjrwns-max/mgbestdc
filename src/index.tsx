@@ -54,8 +54,16 @@ app.use('*', async (c, next) => {
 // ============================================================
 // 메인
 // ============================================================
-app.get('/', (c) =>
-  c.html(
+app.get('/', async (c) => {
+  const member = await getSessionUser(c)
+  let homeCases: DbCase[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT * FROM cases WHERE status = 'published' ORDER BY created_at DESC LIMIT 3").all()
+      homeCases = (res.results || []) as any
+    }
+  } catch (e) { /* 테이블 미생성 시 빈 목록 */ }
+  return c.html(
     Layout(
       {
         title: `${CLINIC.name} | 마곡 치과, ${CLINIC.directions} — 임플란트·교정·심미치료`,
@@ -111,10 +119,11 @@ app.get('/', (c) =>
           }
         ]
       },
-      HomePage()
+      HomePage(homeCases, !!member),
+      { member }
     )
   )
-)
+})
 
 // ============================================================
 // 소개 허브 (/about) — 소개 카테고리 진입점

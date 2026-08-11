@@ -268,7 +268,7 @@ export function noticeSchema(post: DbPost, siteUrl: string) {
 
 // 비포·애프터 드래그 비교 슬라이더 — 로그인 시 After 원본, 비로그인 시 After 블러+잠금 배지
 // 주의: 카드 링크(<a class="ba-card">) 내부에 삽입되므로 앵커(<a>)를 절대 포함하지 않는다 (중첩 <a> = 레이아웃 파손)
-function baSliderHtml(beforeImg: string, afterImg: string, title: string, isMember: boolean): string {
+export function baSliderHtml(beforeImg: string, afterImg: string, title: string, isMember: boolean): string {
   const beforeEl = beforeImg
     ? `<img src="/media/${esc(beforeImg)}" alt="${esc(title)} 치료 전" loading="lazy" draggable="false" />`
     : `<span class="ba-slider-empty"><i class="fa-solid fa-image"></i></span>`

@@ -1,13 +1,14 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS, CARE_CREED, CARE_PRINCIPLES } from '../data/clinic'
 import { srcset, SIZES } from '../components/img'
+import { baSliderHtml, esc, type DbCase } from './cms'
 
 const FUNNEL = [
-  { n: '01', t: '인지', d: '마곡나루역 인근에서 치과를 찾는 순간, 정확한 정보로 첫 신뢰를 만듭니다.' },
-  { n: '02', t: '내원·상담', d: '서두르지 않고, 현재 상태와 가능한 치료 선택지를 충분히 설명드립니다.' },
-  { n: '03', t: '맞춤 계획', d: '구강 스캔과 검진 데이터를 토대로 환자에게 맞는 치료 계획을 함께 정합니다.' },
-  { n: '04', t: '책임 진료', d: '처음 상담한 전문의가 치료의 시작부터 마무리까지 직접 책임집니다.' },
-  { n: '05', t: '사후 관리', d: '치료 후에도 정기 검진과 전문 클리닝으로 건강을 오래 함께 지킵니다.' },
+  { n: '01', t: '예약', d: '전화·온라인으로 편하게 예약하세요. 뭐부터 해야 할지 모르셔도 괜찮습니다.' },
+  { n: '02', t: '첫날 — 검진과 설명', d: '현재 상태와 가능한 선택지를 충분히 설명드립니다. 당일 치료를 강요하지 않습니다.' },
+  { n: '03', t: '계획과 비용 확정', d: '구강 스캔과 검진 데이터를 토대로, 치료 계획과 확정 비용을 함께 정합니다.' },
+  { n: '04', t: '처음 그 원장이 끝까지', d: '상담한 대표원장이 치료의 시작부터 마무리까지 직접 진행합니다. 담당이 바뀌지 않습니다.' },
+  { n: '05', t: '치료 후 관리', d: '정기 검진과 전문 클리닝으로 치료 결과를 오래 유지하도록 함께합니다.' },
 ]
 
 const CORE_IMG: Record<string, string> = {
@@ -26,7 +27,7 @@ const TX_PREVIEW: Record<string, string> = {
   preventive: '/static/img/life-smile.webp'
 }
 
-export function HomePage() {
+export function HomePage(cases: DbCase[] = [], isMember = false) {
   const d = DOCTORS[0]
   return html`
     <!-- ============ HERO — 풀블리드 포토 ============ -->
@@ -73,7 +74,7 @@ export function HomePage() {
           <div class="fact"><strong class="fact-num"><span data-countup="3">0</span><em>분</em></strong><span>마곡나루역 1번 출구 도보</span></div>
           <div class="fact"><strong class="fact-num"><span data-countup="1">0</span><em>인 책임진료</em></strong><span>상담부터 치료까지 대표원장 직접</span></div>
           <div class="fact"><strong class="fact-num">20<em>:30</em></strong><span>월·목 야간 진료</span></div>
-          <div class="fact"><strong class="fact-num"><span data-countup="310">0</span><em>호</em></strong><span>보타닉비즈타워 3층</span></div>
+          <a href="/pricing" class="fact" style="text-decoration:none;color:inherit"><strong class="fact-num"><span data-countup="17">0</span><em>항목</em></strong><span>비급여 비용 공개 — 보러가기 <i class="fa-solid fa-arrow-right" style="font-size:0.7em"></i></span></a>
         </div>
       </div>
     </section>
@@ -136,6 +137,11 @@ export function HomePage() {
             </a>`
             ).join('')
           )}
+        </div>
+
+        <div class="reveal" style="margin-top:36px;text-align:center">
+          <p style="color:var(--ink-3);margin-bottom:14px">내 경우는 어떤 치료가 맞을까? — 진단 후 가능한 선택지를 함께 비교해 드립니다.</p>
+          <a href="/reservation" class="btn btn-ghost">진단 예약하기 <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
     </section>
@@ -200,6 +206,47 @@ export function HomePage() {
       </div>
     </section>
 
+    <!-- ============ CASES — 치료사례 (주장 뒤에 증거) ============ -->
+    ${cases.length > 0
+      ? html`
+    <section class="pad" aria-label="치료사례" id="home-cases">
+      <div class="container">
+        <div class="sec-head">
+          <div class="reveal">
+            <span class="label">치료사례</span>
+            <h2 class="section-title">말보다,<br /><span class="grad">결과로</span> 보여드립니다</h2>
+          </div>
+          <p class="section-lead reveal reveal-d2">환자분 동의를 거쳐 공개하는 실제 치료 기록입니다. 슬라이더를 움직여 치료 전·후를 직접 비교해 보세요.</p>
+        </div>
+        <div class="ba-grid">
+          ${raw(
+            cases
+              .map(
+                (cs, i) => `
+            <a href="/cases/${cs.id}" class="ba-card reveal reveal-d${i + 1}" aria-label="${esc(cs.title)} 사례 자세히 보기">
+              ${baSliderHtml(cs.before_img, cs.after_img, cs.title, isMember)}
+              <div class="ba-body">
+                <h3 class="h4">${esc(cs.title)}</h3>
+                <div class="ba-meta">
+                  <span>${esc(cs.category)}</span>
+                  ${cs.age_group ? `<span>${esc(cs.age_group)}</span>` : ''}
+                  ${cs.gender ? `<span>${esc(cs.gender)}</span>` : ''}
+                </div>
+                <span class="ba-more">자세히 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
+              </div>
+            </a>`
+              )
+              .join('')
+          )}
+        </div>
+        <div class="reveal" style="margin-top:32px;text-align:center">
+          <a href="/cases" class="btn btn-primary">치료사례 전체 보기 <i class="fa-solid fa-arrow-right"></i></a>
+          <p style="color:var(--ink-3);font-size:0.85rem;margin-top:12px">치료 후(After) 사진은 의료광고법에 따라 회원가입 후 확인하실 수 있습니다.</p>
+        </div>
+      </div>
+    </section>`
+      : ''}
+
     <!-- ============ LIFE — 풀블리드 포토 밴드 (장비 안내는 /facility로 유도 — 홈 밀도 다이어트) ============ -->
     <section class="pad-sm" aria-label="치료 그 이후의 삶">
       <div class="container">
@@ -245,7 +292,7 @@ export function HomePage() {
         <div class="cta-band reveal">
           <span class="label" style="justify-content:center">예약 안내</span>
           <h2>지금, 가장 편한<br /><em>시간</em>을 알려주세요</h2>
-          <p>증상이 가벼울 때 확인하는 것이 가장 좋은 치료의 시작입니다. 부담 없이 문의해 주세요.</p>
+          <p>증상이 가벼울 때 확인하는 것이 가장 좋은 치료의 시작입니다. 진단과 상담만 받고 결정하셔도 괜찮습니다 — 부담 없이 문의해 주세요.</p>
           <div class="cta-actions">
             <a href="/reservation" class="btn btn-primary">예약 문의하기 <i class="fa-solid fa-arrow-right"></i></a>
             <a href="tel:${CLINIC.phoneRaw}" class="btn btn-ghost"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
