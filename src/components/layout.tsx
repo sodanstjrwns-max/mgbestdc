@@ -466,7 +466,7 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>, opts?: { me
         <main>${body}</main>
         ${Footer()}
         ${FloatingCta()}
-        <script src="/static/app.js?v=design4" defer></script>
+        <script src="/static/app.js?v=design5" defer></script>
       </body>
     </html>`
 }

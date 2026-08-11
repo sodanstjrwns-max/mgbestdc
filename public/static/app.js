@@ -122,11 +122,27 @@
         }
       });
     });
-    index.addEventListener('mouseleave', function () {
+    function hide() {
       visible = false;
       box.classList.remove('show');
       if (raf) { cancelAnimationFrame(raf); raf = null; }
-    });
+    }
+    index.addEventListener('mouseleave', hide);
+    /* 스크롤 중에는 mouse 이벤트가 발생하지 않아 프리뷰가 화면에 남는 문제 방지:
+       스크롤이 시작되면 즉시 숨기고, 이후 실제 마우스 이동 시 행 위에 있을 때만 다시 표시 */
+    window.addEventListener('scroll', function () { if (visible) hide(); }, { passive: true });
+    index.addEventListener('mousemove', function (e) {
+      if (visible) return;
+      var el = document.elementFromPoint(e.clientX, e.clientY);
+      var row = el && el.closest ? el.closest('.tx-row[data-preview]') : null;
+      if (row) {
+        Object.keys(imgs).forEach(function (k) { imgs[k].classList.toggle('on', k === row.dataset.preview); });
+        visible = true;
+        cx = e.clientX; cy = e.clientY;
+        box.classList.add('show');
+        if (!raf) raf = requestAnimationFrame(loop);
+      }
+    }, { passive: true });
   }
 
   /* ---- 히어로 패럴랙스 (스크롤 연동) ---- */
