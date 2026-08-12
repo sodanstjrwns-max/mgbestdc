@@ -340,7 +340,7 @@ function Header(member: MemberInfo = null) {
         ? html`<a href="/logout" class="top-link"><i class="fa-solid fa-user-check"></i> ${member.name}님 · 로그아웃</a>`
         : html`<a href="/login" class="top-link"><i class="fa-regular fa-user"></i> 로그인 / 회원가입</a>`}
       <div class="mobile-cta">
-        <a href="tel:${CLINIC.phoneRaw}" class="btn btn-glass"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
+        <a href="tel:${CLINIC.phoneRaw}" class="btn btn-ghost"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
         <a href="/reservation" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i> 예약 문의하기</a>
       </div>
     </div>
