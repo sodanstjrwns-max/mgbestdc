@@ -423,7 +423,8 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
 .fact-num em { font-style: normal; font-size: 0.52em; font-weight: 600; letter-spacing: 0; margin-left: 2px; }
 /* .fact span 전역 스타일이 카운트업 span을 오염시키지 않도록 리셋 */
 .fact-num span { display: inline !important; margin: 0 !important; font-size: inherit !important; color: inherit !important; font-family: inherit; }
-.fact span { display: block; margin-top: 7px; font-size: 0.84rem; color: var(--ink-3); }
+.fact span { display: block; margin-top: 7px; font-size: 0.84rem; color: var(--ink-3); word-break: keep-all; overflow-wrap: break-word; }
+.fact strong { word-break: keep-all; }
 
 /* ============================================================
    CREED (진료 철학)
