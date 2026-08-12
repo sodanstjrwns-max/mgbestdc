@@ -257,7 +257,7 @@ const PRICING_SECTIONS: { title: string; icon: string; note?: string; rows: { na
   {
     title: '인레이 · 크라운',
     icon: 'fa-crown',
-    note: '충치·파절 범위에 따라 인레이/온레이/크라운 중 치아를 가장 적게 깎는 방법을 우선 제안드립니다.',
+    note: '충치·파절 범위에 따라 인레이/온레이/크라운 중 치아를 가장 적게 깎는 방법을 우선 제안드립니다. 안내된 비용에는 임시치아(임시 수복)와 치료 후 체크 내원 비용이 모두 포함되어 있습니다.',
     rows: [
       { name: '인레이', detail: '치아 색과 유사한 세라믹 부분 수복', price: '300,000원', unit: '치아당' },
       { name: '온레이', detail: '교두를 덮는 넓은 범위 부분 수복', price: '350,000원', unit: '치아당' },
@@ -322,6 +322,10 @@ export function PricingPage() {
         <div class="card reveal" style="margin-bottom:40px;border-left:4px solid var(--brand)">
           <h2 style="margin-bottom:12px;font-size:1.2rem"><i class="fa-solid fa-scale-balanced" style="color:var(--brand);margin-right:6px"></i> 비용을 보시기 전에 — 본원의 비용 안내 원칙</h2>
           <p style="color:var(--ink-3)">진단 결과와 다른 치료를 권하지 않습니다. 치료가 필요한 이유와 가능한 대안, 각 비용을 함께 설명드리고 환자분이 충분히 이해하신 후 치료를 시작합니다. 코어·유지장치와 같은 부대 비용도 미리 표에 적어 두었습니다.</p>
+          <ul style="margin-top:14px;display:grid;gap:8px;list-style:none;padding:0">
+            <li style="display:flex;gap:10px;align-items:flex-start;color:var(--ink-3)"><i class="fa-solid fa-circle-check" style="color:var(--brand);margin-top:4px;font-size:0.9rem"></i><span><b>임시치아·체크 내원 포함</b> — 인레이·크라운 비용에는 임시 수복(임시치아)과 치료 후 체크 내원 비용이 모두 포함되어 있어, 중간에 추가 비용이 발생하지 않습니다.</span></li>
+            <li style="display:flex;gap:10px;align-items:flex-start;color:var(--ink-3)"><i class="fa-solid fa-circle-check" style="color:var(--brand);margin-top:4px;font-size:0.9rem"></i><span><b>치료계획 서면 안내</b> — 상담 시 치료 계획과 비용을 출력물로 드립니다. 집에서 천천히 비교하고 결정하셔도 됩니다.</span></li>
+          </ul>
         </div>
 
         ${raw(

@@ -68,7 +68,7 @@ export function DoctorDetailPage(slug: string) {
             <p class="section-lead">${d.philosophy}</p>
             <p style="margin-top:16px;color:var(--ink-2)">${d.intro}</p>
             <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px">
-              ${raw(specialties.map((t: any) => `<a href="/treatments/${t.slug}" class="btn btn-glass"><i class="fa-solid ${t.icon}"></i> ${t.name}</a>`).join(''))}
+              ${raw(specialties.map((t: any) => `<a href="/treatments/${t.slug}" class="btn btn-ghost"><i class="fa-solid ${t.icon}"></i> ${t.name}</a>`).join(''))}
             </div>
           </div>
         </div>
