@@ -26,7 +26,7 @@ export function BlogListPage(activeCat?: string, dbPosts: DbPostLite[] = []) {
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>건강칼럼</span></nav>
         <span class="eyebrow">건강 칼럼</span>
         <h1>건강 <span class="grad">칼럼</span></h1>
-        <p class="ph-sub">${DOCTORS[0].name} 대표원장이 전하는 치아 건강 이야기. 임플란트·충치치료·심미치료부터 일상 속 구강 관리까지, 정확하고 도움이 되는 정보를 꾸준히 업데이트합니다.</p>
+        <p class="ph-sub">${DOCTORS[0].name} 대표원장이 전하는 치아 건강 이야기. 임플란트·충치치료·심미치료부터 일상 속 구강 관리까지,<br />정확하고 도움이 되는 정보를 꾸준히 업데이트합니다.</p>
       </div>
     </section>
 

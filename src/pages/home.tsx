@@ -73,7 +73,7 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
         <div class="fact-strip reveal">
           <div class="fact"><strong class="fact-num"><span data-countup="3">0</span><em>분</em></strong><span>마곡나루역 1번 출구 도보</span></div>
           <div class="fact"><strong class="fact-num"><span data-countup="1">0</span><em>인 책임진료</em></strong><span>상담부터 치료까지 대표원장 직접</span></div>
-          <div class="fact"><strong class="fact-num">20<em>:30</em></strong><span>월·목 야간 진료</span></div>
+          <div class="fact"><strong class="fact-num">20:30</strong><span>월·목 야간 진료</span></div>
           <a href="/pricing" class="fact" style="text-decoration:none;color:inherit"><strong class="fact-num"><span data-countup="18">0</span><em>항목</em></strong><span>비급여 비용 공개 — 보러가기 <i class="fa-solid fa-arrow-right" style="font-size:0.7em"></i></span></a>
         </div>
       </div>

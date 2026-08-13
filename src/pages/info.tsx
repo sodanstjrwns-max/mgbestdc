@@ -65,8 +65,8 @@ export function MissionPage() {
       <div class="container">
         <nav class="breadcrumb" style="justify-content:center"><a href="/">홈</a><span class="sep">/</span><span>병원소개</span></nav>
         <span class="eyebrow" style="display:inline-flex">우리의 약속</span>
-        <h1 style="font-size:clamp(2.2rem,6vw,3.6rem);max-width:900px;margin:0 auto 18px">${CLINIC.mission}</h1>
-        <p class="ph-sub" style="margin:0 auto">${CLINIC.vision}를 향해, 마곡베스트치과의원이 환자 한 분 한 분과 함께합니다.</p>
+        <h1 style="font-size:clamp(2.2rem,6vw,3.6rem);max-width:900px;margin:0 auto 18px">정직한 진료와 맞춤 치료로<br />환자의 삶을 끝까지 함께하겠습니다</h1>
+        <p class="ph-sub" style="margin:0 auto">${CLINIC.vision}를 향해,<br />마곡베스트치과의원이 환자 한 분 한 분과 함께합니다.</p>
       </div>
     </section>
 

@@ -146,8 +146,8 @@ export function StoryPage() {
     <!-- ============ 병원 전경 — 드론 영상 밴드 ============ -->
     <section class="story-drone" aria-label="마곡베스트치과 전경">
       <div class="sd-media" aria-hidden="true">
-        <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/drone-poster.jpg">
-          <source src="/media/video/drone-main.mp4" type="video/mp4" />
+        <video autoplay muted loop playsinline preload="metadata" poster="/static/img/video/drone-wide-poster.jpg">
+          <source src="/media/video/drone-wide.mp4" type="video/mp4" />
         </video>
         <div class="sd-scrim"></div>
       </div>
