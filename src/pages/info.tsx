@@ -110,10 +110,10 @@ export function MissionPage() {
           <h2 class="section-title">마곡베스트치과의<br /><span class="grad">네 가지 약속</span></h2>
         </div>
         <div class="promise-grid">
-          <div class="promise-card reveal"><span class="pc-no">01</span><span class="pc-ico"><i class="fa-solid fa-scale-balanced"></i></span><h3>정직한 진료</h3><p>필요한 치료를 정확하게, 과하지 않게 안내합니다. 지금 하지 않아도 되는 치료는 그렇게 말씀드립니다.</p></div>
-          <div class="promise-card reveal reveal-d1"><span class="pc-no">02</span><span class="pc-ico"><i class="fa-solid fa-user-gear"></i></span><h3>맞춤 치료</h3><p>같은 증상이라도 구강 상태와 생활 패턴은 다릅니다. 환자 개개인에 맞춘 치료 계획을 세웁니다.</p></div>
-          <div class="promise-card reveal reveal-d2"><span class="pc-no">03</span><span class="pc-ico"><i class="fa-solid fa-handshake-angle"></i></span><h3>끝까지 함께</h3><p>치료 후 정기 검진과 관리까지. 한 번의 치료가 아니라 오래 가는 구강 건강을 함께 만듭니다.</p></div>
-          <div class="promise-card reveal reveal-d3"><span class="pc-no">04</span><span class="pc-ico"><i class="fa-solid fa-couch"></i></span><h3>환자 중심</h3><p>진단 설명부터 통증 관리까지, 환자분의 불편을 최소화하는 진료 환경을 만듭니다.</p></div>
+          <div class="promise-card reveal"><span class="pc-no">01</span><span class="pc-ico"><i class="fa-solid fa-scale-balanced"></i></span><h3>하지 않아도 되는 치료는, 그렇게 말합니다</h3><p>자연치아를 살릴 수 있다면 임플란트보다 보존을 먼저 안내합니다. 지금 하지 않아도 되는 치료는 그렇게 말씀드립니다.</p></div>
+          <div class="promise-card reveal reveal-d1"><span class="pc-no">02</span><span class="pc-ico"><i class="fa-solid fa-user-gear"></i></span><h3>스캐너로 보고, 이해하면 시작합니다</h3><p>프라임스캐너 디지털 스캔으로 현재 상태를 화면으로 직접 보여드리고, 환자분이 충분히 이해한 뒤 치료를 시작합니다.</p></div>
+          <div class="promise-card reveal reveal-d2"><span class="pc-no">03</span><span class="pc-ico"><i class="fa-solid fa-handshake-angle"></i></span><h3>치료한 원장이 끝까지 봅니다</h3><p>진단부터 치료, 사후 관리까지 김민 대표원장이 직접 담당합니다. 담당이 바뀌지 않아 치료 방향이 중간에 달라지지 않습니다.</p></div>
+          <div class="promise-card reveal reveal-d3"><span class="pc-no">04</span><span class="pc-ico"><i class="fa-solid fa-couch"></i></span><h3>통증이 걱정되시는 분께</h3><p>마취부터 천천히, 아프면 언제든 손을 들어 멈추실 수 있게 안내합니다. 월·목 야간 20:30까지 진료해 톴근 후에도 다녀가실 수 있습니다.</p></div>
         </div>
       </div>
     </section>

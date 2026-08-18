@@ -359,7 +359,7 @@ function Footer() {
             <div class="logo">
               <img src="/static/img/logo-h-white.png?v=2" alt="마곡베스트치과 로고" class="logo-img" width="977" height="141" loading="lazy" />
             </div>
-            <p>${CLINIC.mission}<br />${CLINIC.directions}에 위치한 ${CLINIC.region} 강서구의 환자 중심 치과입니다.</p>
+            <p>${CLINIC.mission}<br />${CLINIC.directions} — 보건복지부 인증 통합치의학과 전문의가 진단부터 사후 관리까지 직접 진료합니다.</p>
           </div>
           <div class="footer-col">
             <div class="footer-h">진료안내</div>
