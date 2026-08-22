@@ -45,6 +45,11 @@ app.use('*', async (c, next) => {
     return c.redirect(url.toString(), 301)
   }
   await next()
+  // 동적 HTML은 항상 재검증 — 글 수정 후 이전 JSON-LD·본문이 캐시에 남지 않도록 보장
+  const ct = c.res.headers.get('Content-Type') || ''
+  if (ct.includes('text/html') && !c.res.headers.get('Cache-Control')) {
+    c.header('Cache-Control', 'no-cache, must-revalidate')
+  }
   c.header('X-Content-Type-Options', 'nosniff')
   c.header('X-Frame-Options', 'SAMEORIGIN')
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
@@ -674,7 +679,7 @@ app.get('/cases', async (c) => {
     Layout(
       {
         title: cat ? `${cat} 진료사례 | ${CLINIC.name}` : `비포·애프터 진료사례 | ${CLINIC.name}`,
-        description: `마곡베스트치과의원의 실제 ${cat ? cat + ' ' : ''}진료 사례 모음. 임플란트·충치치료·심미치료 과정을 확인하세요. 치료 전후 사진은 의료광고법에 따라 회원가입 후 확인 가능합니다.`,
+        description: `마곡베스트치과의원의 실제 ${cat ? cat + ' ' : ''}진료 사례 모음. 임플란트·충치치료·심미치료 과정을 사례별로 확인하실 수 있습니다.`,
         path: '/cases',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }]),
@@ -770,7 +775,7 @@ app.get('/notice', async (c) => {
     Layout(
       {
         title: `공지사항 | ${CLINIC.name}`,
-        description: `${CLINIC.name} 공지사항 — 진료 일정 변경, 병원 소식, 안내 말씀을 전해드립니다. ${CLINIC.directions}.`,
+        description: `${CLINIC.name} 공지사항 — 진료 일정 변경과 병원 소식을 안내드립니다.`,
         path: '/notice',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '공지사항', path: '/notice' }]),
@@ -841,7 +846,7 @@ app.get('/blog', async (c) => {
     Layout(
       {
         title: `건강칼럼 | ${CLINIC.name} (${CLINIC.station} 도보 3분)`,
-        description: `${DOCTORS[0].name} 대표원장이 전하는 치아 건강 칼럼. 임플란트·충치치료·심미치료·구강관리 정보를 꾸준히 업데이트합니다. ${CLINIC.directions}.`,
+        description: `${DOCTORS[0].name} 대표원장이 직접 쓰는 치아 건강 칼럼 — 임플란트·충치치료·심미치료·구강관리 정보를 전해드립니다.`,
         path: '/blog',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }]),
@@ -1132,7 +1137,8 @@ app.post('/api/admin/posts', async (c) => {
     if (!title) return c.json({ ok: false, error: '제목이 비어 있습니다' }, 400)
     if (title.length > 200) return c.json({ ok: false, error: '제목은 200자 이내로 입력해 주세요' }, 400)
     const status = b.status === 'published' ? 'published' : 'draft'
-    let slug = String(b.slug || '').trim() || slugify(title)
+    // 사용자 입력 슬러그도 반드시 정규화 — 슬래시·특수문자 유입 시 sitemap에 깨진 URL(//)이 생겨 색인 실패
+    let slug = slugify(String(b.slug || '')) || slugify(title)
     if (!slug) slug = `${type}-${Date.now()}`
     slug = slug.slice(0, 120)
     const contentHtml = String(b.content_html || '')

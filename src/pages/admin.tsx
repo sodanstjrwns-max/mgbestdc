@@ -268,12 +268,27 @@ export function AdminPostEditor(type: string, post: DbPost | null, adminKey: str
       });
       ${post ? raw(`editor.setHTML(${JSON.stringify(post.content_html).replace(/</g, '\\u003c')});`) : ''}
 
+      // 본문 이미지에 width/height 자동 주입 — 레이아웃 이동(CLS) 방지
+      async function injectImgSizes(htmlStr) {
+        const tmp = document.createElement('div'); tmp.innerHTML = htmlStr;
+        const imgs = Array.from(tmp.querySelectorAll('img'));
+        await Promise.all(imgs.map(img => new Promise((resolve) => {
+          if (img.getAttribute('width') && img.getAttribute('height')) return resolve();
+          const probe = new Image();
+          const done = () => { if (probe.naturalWidth) { img.setAttribute('width', probe.naturalWidth); img.setAttribute('height', probe.naturalHeight); } resolve(); };
+          probe.onload = done; probe.onerror = () => resolve();
+          probe.src = img.getAttribute('src');
+          setTimeout(resolve, 4000);
+        })));
+        return tmp.innerHTML;
+      }
+
       let saving = false;
       async function save(status) {
         if (saving) return;
         const title = document.getElementById('f-title').value.trim();
         if (!title) { toast('제목을 입력해 주세요', true); document.getElementById('f-title').focus(); return; }
-        const contentHtml = editor.getHTML();
+        const contentHtml = await injectImgSizes(editor.getHTML());
         if (status === 'published' && (!contentHtml || contentHtml === '<p><br></p>')) { toast('본문을 입력해 주세요', true); return; }
         saving = true;
         const payload = {
