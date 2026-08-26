@@ -241,7 +241,7 @@ export function DirectionsPage() {
       <div class="container sd-inner">
         <div class="reveal">
           <span class="eyebrow light">BOTANIC BIZ TOWER 3F</span>
-          <h2>마곡나루역 1번 출구 앞,<br />보타닉비즈타워 310호입니다.</h2>
+          <h2>마곡나루역 1번 출구 앞,<br />보타닉비즈타워 310~312호입니다.</h2>
           <p>${CLINIC.station} 1번 출구 도보 3분 · 건물 내 주차 가능</p>
         </div>
       </div>
@@ -695,7 +695,7 @@ export function areaFaqs(areaSlug: string, treatmentSlug: string) {
     },
     {
       q: `${area.name}에서 마곡베스트치과의원까지 어떻게 가나요?`,
-      a: `마곡베스트치과의원은 서울 강서구 마곡중앙5로 1길 20 보타닉비즈타워 310호에 있습니다. 지하철 9호선·공항철도 마곡나루역 1번 출구에서 도보 3분 거리이며, ${area.full}에서 대중교통과 자가용 모두 접근이 편리하고 건물 내 주차가 가능합니다.`
+      a: `마곡베스트치과의원은 서울 강서구 마곡중앙5로1길 20 보타닉비즈타워 310~312호에 있습니다. 지하철 9호선·공항철도 마곡나루역 1번 출구에서 도보 3분 거리이며, ${area.full}에서 대중교통과 자가용 모두 접근이 편리하고 건물 내 주차가 가능합니다.`
     },
     {
       q: `${t.name} 상담만 받아봐도 되나요?`,
