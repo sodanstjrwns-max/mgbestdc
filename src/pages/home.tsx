@@ -117,7 +117,7 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
         <div class="sec-head">
           <div class="reveal">
             <span class="label">중점 진료</span>
-            <h2 class="section-title">가장 <span class="grad">신중하게</span><br />다루는 진료</h2>
+            <h2 class="section-title">씹을 때 아프고, 시리고,<br /><span class="grad">거울 볼 때 신경 쓰인다면</span></h2>
           </div>
           <p class="section-lead reveal reveal-d2">정밀 진단을 바탕으로, 환자분 한 분 한 분께 맞는 치료 계획을 세웁니다. 임플란트·충치·심미, 세 가지를 가장 깊게 다룹니다.</p>
         </div>
@@ -152,7 +152,7 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
         <div class="sec-head">
           <div class="reveal">
             <span class="label">전체 진료 안내</span>
-            <h2 class="section-title">필요한 모든 진료를,<br /><span class="thin">한 곳에서</span></h2>
+            <h2 class="section-title">어느 진료가 필요한지<br /><span class="thin">몰라도 괜찮습니다</span></h2>
           </div>
           <p class="section-lead reveal reveal-d2">교정·턱관절·잇몸·보철·발치·예방까지. 마곡베스트치과 한 곳에서 이어집니다.</p>
         </div>
@@ -268,7 +268,7 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
         <div class="sec-head">
           <div class="reveal">
             <span class="label">진료 과정</span>
-            <h2 class="section-title">인지부터 사후관리까지<br /><span class="thin">전 과정을 설계</span></h2>
+            <h2 class="section-title">처음 방문하신 날부터<br /><span class="thin">치료가 끝난 뒤까지</span></h2>
           </div>
           <p class="section-lead reveal reveal-d2">치과를 알게 된 순간부터 치료 후 관리까지. 환자의 여정 전체를 책임지고 동행합니다.</p>
         </div>
