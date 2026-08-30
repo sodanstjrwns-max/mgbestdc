@@ -331,7 +331,7 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) 
         ${c.description
           ? html`
         <div class="post-body reveal" style="margin-top:32px">
-          <p style="font-size:0.98rem;line-height:1.9;color:var(--ink-2)">${esc(c.description)}</p>
+          <p style="font-size:0.98rem;line-height:1.9;color:var(--ink-2);white-space:pre-line">${esc(c.description)}</p>
         </div>`
           : ''}
 
@@ -449,7 +449,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string, isMember = false
                   ${c.gender ? `<span>${esc(c.gender)}</span>` : ''}
                   ${c.area ? `<span><i class="fa-solid fa-location-dot"></i> ${esc(c.area)}</span>` : ''}
                 </div>
-                ${c.description ? `<p style="margin-top:10px;font-size:0.88rem;color:var(--ink-2);line-height:1.7">${esc(c.description)}</p>` : ''}
+                ${c.description ? `<p style="margin-top:10px;font-size:0.88rem;color:var(--ink-2);line-height:1.7;white-space:pre-line">${esc(c.description)}</p>` : ''}
                 <span class="ba-more">자세히 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
               </div>
             </a>`
