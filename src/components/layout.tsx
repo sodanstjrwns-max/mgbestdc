@@ -99,6 +99,8 @@ export function Head(meta: SeoMeta) {
           .map((obj) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`)
           .join('\n')
       )}
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYKCDVQMQE"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZYKCDVQMQE',{anonymize_ip:true});</script>
     </head>
   `
 }
