@@ -26,6 +26,7 @@ export function Head(meta: SeoMeta) {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="naver-site-verification" content="dc262d0d13e7b3aed2514747a1d6b435503b9fb6" />
       <title>${meta.title}</title>
       <meta name="description" content="${meta.description}" />
       <link rel="canonical" href="${canonical}" />
