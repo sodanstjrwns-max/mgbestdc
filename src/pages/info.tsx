@@ -539,7 +539,7 @@ export function ReservationPage() {
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>예약 문의</span></nav>
         <span class="eyebrow">예약 문의</span>
         <h1>예약 <span class="grad">문의</span></h1>
-        <p class="ph-sub">아래 양식을 작성해 주시면 확인 후 연락드립니다. 빠른 예약은 전화로 문의해 주세요.</p>
+        <p class="ph-sub">아래 양식을 작성해 주시면 진료시간 내 문의는 당일, 진료 종료 후 문의는 다음 진료일에 연락드립니다. 빠른 예약은 전화로 문의해 주세요.</p>
       </div>
     </section>
 
@@ -611,7 +611,7 @@ export function ReservationPage() {
           result.style.display = 'block';
           if (json.ok) {
             result.style.background = 'var(--brand-soft)'; result.style.color = 'var(--brand-dark)';
-            result.innerHTML = '<i class="fa-solid fa-circle-check"></i> 예약 문의가 접수되었습니다. 확인 후 연락드리겠습니다.';
+            result.innerHTML = '<i class="fa-solid fa-circle-check"></i> 예약 문의가 접수되었습니다. 진료시간 내 문의는 당일, 진료 종료 후 문의는 다음 진료일에 연락드립니다.';
             e.target.reset();
           } else { throw new Error(); }
         } catch (err) {
