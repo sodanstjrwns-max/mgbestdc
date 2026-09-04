@@ -16,7 +16,8 @@ export function AdminShell(title: string, adminKey: string, active: string, body
     { id: 'reservations', name: '예약 문의', icon: 'fa-calendar-check', href: '/admin' },
     { id: 'notice', name: '공지사항', icon: 'fa-bullhorn', href: '/admin/posts?type=notice' },
     { id: 'column', name: '건강칼럼', icon: 'fa-pen-nib', href: '/admin/posts?type=column' },
-    { id: 'cases', name: '비포애프터', icon: 'fa-images', href: '/admin/cases' }
+    { id: 'cases', name: '비포애프터', icon: 'fa-images', href: '/admin/cases' },
+    { id: 'stats', name: '통계', icon: 'fa-chart-line', href: '/admin/stats' }
   ]
   return html`<!DOCTYPE html>
 <html lang="ko">
