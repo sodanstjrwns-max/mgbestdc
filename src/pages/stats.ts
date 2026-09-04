@@ -154,6 +154,53 @@ const AI_SOURCE_LABELS: Record<string, string> = {
   chatgpt: 'ChatGPT', perplexity: 'Perplexity', claude: 'Claude', gemini: 'Gemini', etc: '기타 AI',
 }
 
+// ---------- 행동 분석 (Microsoft Clarity) ----------
+const CLARITY_URL = 'https://clarity.microsoft.com/projects/view/yc8341dz7r/dashboard'
+
+function secFmt(n: any): string {
+  if (n == null || isNaN(Number(n))) return '—'
+  const s = Math.round(Number(n))
+  return s >= 60 ? `${Math.floor(s / 60)}분 ${s % 60}초` : `${s}초`
+}
+const pct1 = (n: any) => (n == null || isNaN(Number(n)) ? '—' : `${Number(n).toFixed(1)}%`)
+
+function clarityInsights(cl: any): string[] {
+  const out: string[] = []
+  if ((cl.rageClickPct ?? 0) >= 1 || (cl.deadClickPct ?? 0) >= 5) out.push('화면 반응이 없어 반복 클릭하는 사용자가 있습니다 (UI 답답 신호)')
+  if (cl.avgScrollDepth != null && cl.avgScrollDepth < 40 && (cl.sessions ?? 0) >= 30) out.push('첫 화면에서 이탈이 많습니다')
+  if ((cl.scriptErrors ?? 0) > 0) out.push(`스크립트 오류 ${fmt(cl.scriptErrors)}건 감지 — 점검 필요`)
+  if ((cl.quickbackPct ?? 0) >= 8) out.push('들어왔다 바로 나가는 비율이 높습니다')
+  if (!out.length && (cl.sessions ?? 0) > 0) out.push('특이 신호 없음')
+  return out
+}
+
+function claritySub(s: string): string {
+  return `<span class="stx-sub">${s}</span>`
+}
+
+function claritySection(cl: any): string {
+  let s = `<div class="stx-sec">행동 분석 <span>Clarity · 최근 3일</span><a class="stx-clarity-link" href="${CLARITY_URL}" target="_blank" rel="noopener">Clarity 대시보드 <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>`
+  if (!cl) {
+    s += `<div class="stx-empty">Clarity 수집 대기 중</div>`
+    return s
+  }
+  s += `<div class="stx-grid">
+    ${metricCard('세션', fmt(cl.sessions), cl.botSessions != null ? claritySub(`봇 ${fmt(cl.botSessions)}`) : '', 'fa-users')}
+    ${metricCard('사용자', fmt(cl.users), '', 'fa-user')}
+    ${metricCard('평균 스크롤', pct1(cl.avgScrollDepth), '', 'fa-angles-down')}
+    ${metricCard('참여시간', secFmt(cl.engagementSec), cl.activeSec != null ? claritySub(`활성 ${secFmt(cl.activeSec)}`) : '', 'fa-stopwatch')}
+    ${metricCard('레이지 클릭', cl.rageClicks != null ? `${fmt(cl.rageClicks)}건` : '—', claritySub(pct1(cl.rageClickPct)), 'fa-bolt')}
+    ${metricCard('데드 클릭', cl.deadClicks != null ? `${fmt(cl.deadClicks)}건` : '—', claritySub(pct1(cl.deadClickPct)), 'fa-ban')}
+    ${metricCard('퀵백', cl.quickbacks != null ? `${fmt(cl.quickbacks)}건` : '—', claritySub(pct1(cl.quickbackPct)), 'fa-rotate-left')}
+    ${metricCard('스크립트 오류', cl.scriptErrors != null ? `${fmt(cl.scriptErrors)}건` : '—', claritySub(pct1(cl.scriptErrorPct)), 'fa-bug')}
+  </div>`
+  const ins = clarityInsights(cl)
+  if (ins.length) {
+    s += `<section class="stx-insight"><h3><i class="fa-solid fa-magnifying-glass-chart"></i> 행동 신호</h3><ul>${ins.map((l) => `<li>${l}</li>`).join('')}</ul></section>`
+  }
+  return s
+}
+
 const STATS_CSS = `
 .stx-range{color:var(--ink-3);font-size:0.82rem}
 .stx-expect{background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-bottom:22px}
@@ -175,6 +222,10 @@ const STATS_CSS = `
 .stx-pending p{color:var(--ink-3);font-size:0.86rem;line-height:1.7}
 .stx-sec{font-size:0.95rem;font-weight:800;margin:26px 0 12px;color:var(--ink)}
 .stx-sec span{font-size:0.72rem;color:var(--ink-3);font-weight:600;margin-left:8px}
+.stx-clarity-link{font-size:0.72rem;color:var(--brand);font-weight:700;margin-left:10px;border:1px solid #C6D8F0;padding:3px 10px;border-radius:99px;text-decoration:none;transition:background .2s}
+.stx-clarity-link:hover{background:#EAF1FD}
+.stx-clarity-link i{font-size:0.62rem;margin-left:2px}
+.stx-sub{font-size:0.72rem;color:var(--ink-3);font-weight:600}
 .stx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
 @media(max-width:820px){.stx-grid{grid-template-columns:repeat(2,1fr)}}
 .stx-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
@@ -258,6 +309,8 @@ export function AdminStats(d: any) {
   } else {
     inner += `<div class="stx-empty">${d.hasGa ? '애널리틱스 데이터 수집 중입니다' : '애널리틱스 연동 대기 중입니다'}</div>`
   }
+
+  inner += claritySection(d?.clarity)
 
   inner += `<section class="stx-insight"><h3><i class="fa-solid fa-lightbulb"></i> 자동 인사이트</h3><ul>${buildInsights(d).map((l) => `<li>${l}</li>`).join('')}</ul></section>`
 
