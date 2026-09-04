@@ -32,6 +32,7 @@ export function Head(meta: SeoMeta) {
       <link rel="canonical" href="${canonical}" />
       <link rel="alternate" hreflang="ko" href="${canonical}" />
       <link rel="alternate" hreflang="x-default" href="${canonical}" />
+      <link rel="alternate" type="application/rss+xml" title="${CLINIC.shortName} 건강칼럼 RSS" href="${SITE_URL}/rss.xml" />
       <meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}" />
       <meta name="author" content="${CLINIC.name}" />
       <meta name="theme-color" content="#F7F9FC" />
@@ -118,7 +119,7 @@ export function orgRef() {
 export function organizationSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Dentist',
+    '@type': ['Dentist', 'LocalBusiness'],
     '@id': SITE_URL + '/#organization',
     name: CLINIC.name,
     alternateName: [CLINIC.nameEn, '마곡베스트치과', '마곡 베스트치과'],

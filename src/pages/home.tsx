@@ -1,5 +1,5 @@
 import { html, raw } from 'hono/html'
-import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS, CARE_CREED, CARE_PRINCIPLES } from '../data/clinic'
+import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS, CARE_CREED, CARE_PRINCIPLES, GENERAL_FAQS, AREAS } from '../data/clinic'
 import { srcset, SIZES } from '../components/img'
 import { baSliderHtml, esc, type DbCase } from './cms'
 
@@ -171,6 +171,34 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
       </div>
     </section>
 
+    <!-- ============ TX DETAIL — 진료과목별 상세 소개 (AEO 텍스트 확충) ============ -->
+    <section class="pad" aria-label="진료과목 상세 안내" id="tx-detail-section">
+      <div class="container">
+        <div class="sec-head">
+          <div class="reveal">
+            <span class="label">진료과목 안내</span>
+            <h2 class="section-title">마곡베스트치과에서<br /><span class="grad">받으실 수 있는 진료</span></h2>
+          </div>
+          <p class="section-lead reveal reveal-d2">각 진료가 어떤 치료인지, 어떤 경우에 필요한지 간단히 정리했습니다. 자세한 과정과 자주 묻는 질문은 진료별 상세 페이지에서 확인하실 수 있습니다.</p>
+        </div>
+        <div class="proc-grid reveal">
+          ${raw(
+            [...CORE_TREATMENTS, ...GENERAL_TREATMENTS]
+              .map(
+                (t) => `
+            <article class="proc-card">
+              <h3><i class="fa-solid ${t.icon}" style="color:var(--brand);margin-right:8px"></i>${t.name} <span style="font-weight:500;color:var(--ink-3)">— ${t.tagline}</span></h3>
+              <p>${t.summary}</p>
+              ${t.procedures ? `<p style="margin-top:8px"><strong style="color:var(--pine-2)">세부 진료</strong> · ${t.procedures.map((p) => p.name).join(' · ')}</p>` : ''}
+              <a href="/treatments/${t.slug}" style="display:inline-block;margin-top:10px;font-size:0.85rem;font-weight:600;color:var(--brand)">${t.name} 자세히 보기 <i class="fa-solid fa-arrow-right" style="font-size:0.7em"></i></a>
+            </article>`
+              )
+              .join('')
+          )}
+        </div>
+      </div>
+    </section>
+
     <!-- ============ DOCTOR ============ -->
     <section class="pad tone" aria-label="대표원장" id="doctor-section">
       <div class="container">
@@ -282,6 +310,59 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
             </div>`
             ).join('')
           )}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ — 자주 묻는 질문 (FAQPage 스키마와 동일 내용) ============ -->
+    <section class="pad" aria-label="자주 묻는 질문" id="faq-section">
+      <div class="container" style="max-width:840px">
+        <div class="sec-head">
+          <div class="reveal">
+            <span class="label">자주 묻는 질문</span>
+            <h2 class="section-title">내원 전에 자주<br /><span class="thin">궁금해하시는 것들</span></h2>
+          </div>
+          <p class="section-lead reveal reveal-d2">위치·진료 시간·예약 방법 등 병원 이용에 관한 질문을 모았습니다. 진료별 궁금증은 FAQ 페이지에서 더 보실 수 있습니다.</p>
+        </div>
+        <div class="faq-list reveal">
+          ${raw(
+            GENERAL_FAQS.map(
+              (f) => `
+            <details class="faq-item">
+              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>${f.q}</span></summary>
+              <div class="faq-a">${f.a}</div>
+            </details>`
+            ).join('')
+          )}
+        </div>
+        <div class="reveal" style="margin-top:28px;text-align:center">
+          <a href="/faq" class="btn btn-ghost">진료별 FAQ 전체 보기 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LOCAL — 마곡·발산 지역 안내 ============ -->
+    <section class="pad tone" aria-label="마곡·발산 지역 안내" id="local-section">
+      <div class="container">
+        <div class="sec-head">
+          <div class="reveal">
+            <span class="label">지역 안내</span>
+            <h2 class="section-title">마곡·발산에서<br /><span class="grad">가까운 치과</span></h2>
+          </div>
+          <p class="section-lead reveal reveal-d2">${CLINIC.name}은 지하철 9호선·공항철도 ${CLINIC.station} 1번 출구에서 도보 3분, 보타닉비즈타워 310~312호에 있습니다.</p>
+        </div>
+        <div class="reveal" style="max-width:760px">
+          <p style="color:var(--ink-2);line-height:1.9;margin-bottom:16px">마곡동과 마곡나루역 일대는 물론, 발산·내발산·가양·등촌·염창 등 강서구 곳곳에서 대중교통과 자가용으로 방문하시기 편한 위치입니다. 건물 내 주차가 가능해 차량 이용 시에도 부담이 적고, 월·목요일은 야간 20:30까지, 토요일은 오전 09:30부터 14:30까지 진료해 평일 낮 시간을 내기 어려운 직장인 분들도 퇴근 후나 주말에 내원하실 수 있습니다.</p>
+          <p style="color:var(--ink-2);line-height:1.9;margin-bottom:16px">김민 대표원장은 강서구에서 나고 자라 이 지역에 치과를 열었습니다. 어린아이부터 부모님 세대까지 가족 모두가 한자리에서 오래 다닐 수 있는 동네 치과를 지향하며, 국민건강보험공단 구강검진 지정 치과로 정기 구강검진도 받으실 수 있습니다.</p>
+          <p style="color:var(--ink-2);line-height:1.9">지역별 진료 안내는 아래 페이지에서 확인하실 수 있으며, 자세한 교통·주차 안내는 오시는 길 페이지를 참고해 주세요.</p>
+        </div>
+        <div class="reveal reveal-d1" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">
+          ${raw(
+            AREAS.map(
+              (a) => `<a href="/area/${a.slug}-implant" class="btn btn-ghost" style="font-size:0.85rem;padding:9px 16px">${a.name} 치과 안내</a>`
+            ).join('')
+          )}
+          <a href="/directions" class="btn btn-primary" style="font-size:0.85rem;padding:9px 16px">오시는 길 <i class="fa-solid fa-arrow-right"></i></a>
         </div>
       </div>
     </section>

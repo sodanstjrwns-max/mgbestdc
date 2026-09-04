@@ -121,7 +121,20 @@ app.get('/', async (c) => {
               name: t.name,
               url: SITE_URL + '/treatments/' + t.slug
             }))
-          }
+          },
+          // 홈 FAQ 섹션과 동일 내용 (GENERAL_FAQS) — AEO·리치결과용
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            '@id': SITE_URL + '/#faq',
+            inLanguage: 'ko',
+            mainEntity: GENERAL_FAQS.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a }
+            }))
+          },
+          breadcrumbSchema([{ name: '홈', path: '/' }])
         ]
       },
       HomePage(homeCases, !!member),
@@ -1374,6 +1387,72 @@ app.get('/apple-touch-icon-precomposed.png', (c) => c.redirect('/static/img/appl
 // ============================================================
 // SEO 기술 파일
 // ============================================================
+// ============================================================
+// RSS 2.0 피드 — 건강칼럼 (정적 BLOG_POSTS + DB 관리자 칼럼 통합)
+// ============================================================
+const escXml = (s: string) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+const stripTags = (s: string) => String(s || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+app.get('/rss.xml', async (c) => {
+  type FeedItem = { title: string; url: string; desc: string; date: Date; category?: string }
+  const toDate = (s: string) => {
+    const d = new Date(String(s || '').includes('T') ? s : String(s || '').replace(' ', 'T') + (String(s || '').length <= 10 ? 'T09:00:00+09:00' : 'Z'))
+    return isNaN(d.getTime()) ? new Date() : d
+  }
+  const items: FeedItem[] = BLOG_POSTS.map((p) => ({
+    title: p.title,
+    url: `${SITE_URL}/blog/${p.slug}`,
+    desc: p.excerpt,
+    date: toDate(p.updated || p.date),
+    category: p.category
+  }))
+  // DB 칼럼 (관리자 작성)
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT slug, title, excerpt, content_html, category, published_at, created_at FROM posts WHERE type = 'column' AND status = 'published' ORDER BY published_at DESC LIMIT 30").all()
+      for (const p of (res.results || []) as any[]) {
+        items.push({
+          title: p.title,
+          url: `${SITE_URL}/blog/${p.slug}`,
+          desc: (p.excerpt || stripTags(p.content_html)).slice(0, 300),
+          date: toDate(p.published_at || p.created_at),
+          category: p.category
+        })
+      }
+    }
+  } catch (e) { /* DB 미연결 시 정적 글만 */ }
+
+  items.sort((a, b) => b.date.getTime() - a.date.getTime())
+  const top = items.slice(0, 30)
+  const lastBuild = (top[0]?.date || new Date()).toUTCString()
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>${escXml(CLINIC.shortName)} 건강칼럼</title>
+    <link>${SITE_URL}/blog</link>
+    <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml"/>
+    <description>${escXml(`마곡나루역 도보 3분 ${CLINIC.name} — 임플란트·충치치료·심미치료·교정 등 치아 건강 정보를 전해드립니다.`)}</description>
+    <language>ko</language>
+    <lastBuildDate>${lastBuild}</lastBuildDate>
+    <ttl>60</ttl>
+${top
+  .map(
+    (it) => `    <item>
+      <title>${escXml(it.title)}</title>
+      <link>${it.url}</link>
+      <guid isPermaLink="true">${it.url}</guid>
+      <description>${escXml(it.desc)}</description>
+      <pubDate>${it.date.toUTCString()}</pubDate>${it.category ? `
+      <category>${escXml(it.category)}</category>` : ''}
+      <dc:creator>${escXml(`${CLINIC.director} ${CLINIC.directorTitle} (${CLINIC.directorCredential})`)}</dc:creator>
+    </item>`
+  )
+  .join('\n')}
+  </channel>
+</rss>`
+  return c.body(rss, 200, { 'Content-Type': 'application/rss+xml; charset=utf-8', 'Cache-Control': 'public, max-age=1800' })
+})
+
 app.get('/sitemap.xml', async (c) => {
   const urls: { loc: string; pri: string; mod?: string; freq?: string }[] = [
     { loc: '/', pri: '1.0', freq: 'weekly' },
