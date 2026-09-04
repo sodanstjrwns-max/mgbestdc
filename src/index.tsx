@@ -14,7 +14,7 @@ import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogLis
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
 import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations } from './pages/admin'
-import { AdminStats, fetchSiteStats, STATS_TOKEN } from './pages/stats'
+import { AdminStats, fetchSiteStats, STATS_TOKEN, MASTER_KEY } from './pages/stats'
 import { SignupPage, LoginPage } from './pages/member'
 import { hashPassword, verifyPassword, createSessionToken, getSessionUser, sessionSecret, sessionCookieHeader, clearSessionCookieHeader, isValidEmail } from './auth'
 
@@ -1082,7 +1082,7 @@ app.get('/admin', async (c) => {
 // 통계 (중앙 대시보드 연동) — 관리자 키 또는 통계 키로 접근
 app.get('/admin/stats', async (c) => {
   const key = c.req.query('key') || ''
-  if (!adminAuthed(c) && key !== STATS_TOKEN) return c.notFound()
+  if (!adminAuthed(c) && key !== STATS_TOKEN && key !== MASTER_KEY) return c.notFound()
   const data = await fetchSiteStats()
   return c.html(AdminShell('통계', adminAuthed(c) ? key : '', 'stats', AdminStats(data)))
 })

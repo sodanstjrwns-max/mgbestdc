@@ -6,6 +6,7 @@ import { raw } from 'hono/html'
 
 const STATS_API_URL = 'https://pf-dashboard-2nt.pages.dev/api/stats/mgbestdc.kr'
 export const STATS_TOKEN = '87818c3474219400a33488481113a35f05ae76c6bde68d2e'
+export const MASTER_KEY = 'pfwe-b4f42f06'
 
 export async function fetchSiteStats(): Promise<any | null> {
   try {
