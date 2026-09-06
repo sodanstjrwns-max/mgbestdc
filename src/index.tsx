@@ -8,12 +8,12 @@ import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors
 import { StoryPage, storySchema } from './pages/story'
 import {
   AboutHubPage, MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
-  ReservationPage, AreaPage, areaSchema, areaFaqSchema
+  ReservationPage, AreaPage, areaSchema, areaFaqSchema, buildPricingSections, type DbFee
 } from './pages/info'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
 import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
-import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations } from './pages/admin'
+import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations, AdminFees } from './pages/admin'
 import { AdminStats, fetchSiteStats, STATS_TOKEN, MASTER_KEY } from './pages/stats'
 import { SignupPage, LoginPage } from './pages/member'
 import { hashPassword, verifyPassword, createSessionToken, getSessionUser, sessionSecret, sessionCookieHeader, clearSessionCookieHeader, isValidEmail } from './auth'
@@ -421,8 +421,17 @@ app.get('/directions', (c) =>
   )
 )
 
-app.get('/pricing', (c) =>
-  c.html(
+app.get('/pricing', async (c) => {
+  // 발행(공개)된 수가 항목만 로드 — DB 없거나 비어 있으면 정적 기본 수가표로 폴백(빈 화면 방지)
+  let feeSections: ReturnType<typeof buildPricingSections> | undefined
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare('SELECT * FROM fees WHERE is_published = 1 ORDER BY sort, id').all()
+      const rows = (res.results || []) as unknown as DbFee[]
+      if (rows.length) feeSections = buildPricingSections(rows)
+    }
+  } catch (e) {}
+  return c.html(
     Layout(
       {
         title: `비용 안내 (비급여 진료비용 고지) | ${CLINIC.name}`,
@@ -502,10 +511,10 @@ app.get('/pricing', (c) =>
           }
         ]
       },
-      PricingPage()
+      PricingPage(feeSections)
     )
   )
-)
+})
 
 app.get('/facility', (c) =>
   c.html(
@@ -1085,6 +1094,56 @@ app.get('/admin/stats', async (c) => {
   if (!adminAuthed(c) && key !== STATS_TOKEN && key !== MASTER_KEY) return c.notFound()
   const data = await fetchSiteStats()
   return c.html(AdminShell('통계', adminAuthed(c) ? key : '', 'stats', AdminStats(data)))
+})
+
+// 비급여 수가표 편집 (관리자)
+app.get('/admin/fees', async (c) => {
+  if (!adminAuthed(c)) return c.redirect('/admin')
+  const key = c.req.query('key') || ''
+  let rows: DbFee[] = []
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare('SELECT * FROM fees ORDER BY sort, id').all()
+      rows = (res.results || []) as unknown as DbFee[]
+    }
+  } catch (e) {}
+  return c.html(AdminShell('비급여 수가', key, 'fees', AdminFees(rows, key)))
+})
+
+// 수가표 전체 저장 (교체) — 발행/비발행 플래그 포함
+app.post('/api/admin/fees', async (c) => {
+  if (!adminAuthed(c)) return c.json({ ok: false, error: 'unauthorized' }, 401)
+  if (!c.env?.DB) return c.json({ ok: false, error: 'no database' }, 500)
+  try {
+    const b = await c.req.json()
+    const items = Array.isArray(b.items) ? b.items : []
+    // 빈 배열은 거부 — 실수로 수가표 전체가 비워지는 것 방지
+    if (items.length === 0) return c.json({ ok: false, error: '최소 1개 항목이 필요합니다' }, 400)
+    const clean = items
+      .map((it: any, i: number) => ({
+        section: String(it.section || '').trim().slice(0, 120),
+        name: String(it.name || '').trim().slice(0, 200),
+        detail: String(it.detail || '').trim().slice(0, 300),
+        price: String(it.price || '').trim().slice(0, 100),
+        unit: String(it.unit || '').trim().slice(0, 40),
+        sort: (i + 1) * 10,
+        is_published: it.is_published ? 1 : 0
+      }))
+      .filter((it: any) => it.section && it.name && it.price)
+    if (clean.length === 0) return c.json({ ok: false, error: '그룹·항목명·비용이 있는 항목이 없습니다' }, 400)
+    const stmts = [c.env.DB.prepare('DELETE FROM fees')]
+    for (const it of clean) {
+      stmts.push(
+        c.env.DB.prepare(
+          "INSERT INTO fees (section, name, detail, price, unit, sort, is_published, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now','+9 hours'))"
+        ).bind(it.section, it.name, it.detail, it.price, it.unit, it.sort, it.is_published)
+      )
+    }
+    await c.env.DB.batch(stmts)
+    return c.json({ ok: true, count: clean.length })
+  } catch (e) {
+    return c.json({ ok: false, error: String(e) }, 500)
+  }
 })
 
 app.post('/api/admin/reservation/:id/status', async (c) => {

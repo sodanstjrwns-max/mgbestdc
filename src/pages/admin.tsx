@@ -5,6 +5,7 @@
 // ============================================================
 import { html, raw } from 'hono/html'
 import { esc, type DbPost, type DbCase } from './cms'
+import type { DbFee } from './info'
 
 const fmtDT = (d: string) => (d || '').slice(0, 16).replace('T', ' ')
 
@@ -17,6 +18,7 @@ export function AdminShell(title: string, adminKey: string, active: string, body
     { id: 'notice', name: '공지사항', icon: 'fa-bullhorn', href: '/admin/posts?type=notice' },
     { id: 'column', name: '건강칼럼', icon: 'fa-pen-nib', href: '/admin/posts?type=column' },
     { id: 'cases', name: '비포애프터', icon: 'fa-images', href: '/admin/cases' },
+    { id: 'fees', name: '비급여 수가', icon: 'fa-won-sign', href: '/admin/fees' },
     { id: 'stats', name: '통계', icon: 'fa-chart-line', href: '/admin/stats' }
   ]
   return html`<!DOCTYPE html>
@@ -525,6 +527,128 @@ export function AdminReservations(rows: any[], dbError: string, counts: { posts:
       async function updateStatus(id, status) {
         const j = await api('/api/admin/reservation/' + id + '/status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
         if (j.ok) toast('상태가 변경되었습니다'); else toast('상태 변경 실패: ' + (j.error || ''), true);
+      }
+    </script>
+  `
+}
+
+// ------------------------------------------------------------
+// 비급여 수가표 편집 — 항목별 공개/비공개 토글 + 가격 직접 수정
+// ------------------------------------------------------------
+export function AdminFees(rows: DbFee[], adminKey: string) {
+  const sections = Array.from(new Set(rows.map((r) => r.section).filter(Boolean)))
+  const pubCnt = rows.filter((r) => r.is_published).length
+  return html`
+    <div class="adm-head">
+      <div>
+        <h1>비급여 수가표 관리</h1>
+        <div class="sub">총 ${rows.length}개 항목 · 공개 ${pubCnt}개 · <b>공개</b>로 표시된 항목만 <a href="/pricing" target="_blank" style="color:var(--brand)">비용 안내</a> 페이지에 노출됩니다. 항목이 모두 비공개이면 해당 그룹은 표시되지 않습니다.</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn" onclick="addRow()"><i class="fa-solid fa-plus"></i> 항목 추가</button>
+        <button class="btn btn-primary" onclick="saveFees()"><i class="fa-solid fa-floppy-disk"></i> 전체 저장</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:14px 18px;margin-bottom:18px;color:var(--ink-2);font-size:0.86rem;background:#FAFCFF">
+      <i class="fa-solid fa-circle-info" style="color:var(--brand)"></i>
+      <b>그룹(섹션)</b>은 같은 이름끼리 자동으로 묶여 표시됩니다. 그룹명을 정확히 같게 입력하세요 (예: <code>인레이 · 크라운</code>, <code>레진 — 충치 치료</code>, <code>레진 — 파절 · 심미</code>, <code>투명교정</code>). 가격은 <code>300,000원</code>, <code>1,000,000 ~ 1,500,000원</code>처럼 자유롭게 입력할 수 있습니다.
+    </div>
+
+    <div class="card" style="overflow-x:auto">
+      <table style="min-width:940px" id="fee-table">
+        <thead><tr>
+          <th style="width:150px">그룹</th>
+          <th style="width:170px">항목명</th>
+          <th>부가 설명</th>
+          <th style="width:150px">비용</th>
+          <th style="width:80px">기준</th>
+          <th style="width:96px">공개</th>
+          <th style="width:56px"></th>
+        </tr></thead>
+        <tbody id="fee-body">
+          ${rows.length === 0 ? html`<tr id="fee-empty"><td colspan="7"><div class="empty"><i class="fa-solid fa-won-sign"></i>등록된 수가 항목이 없습니다.<br/>오른쪽 위 "항목 추가"로 추가하세요.</div></td></tr>` : ''}
+          ${raw(
+            rows
+              .map(
+                (r) => `
+            <tr class="fee-row">
+              <td><input class="inp f-section" list="fee-sections" value="${esc(r.section)}" placeholder="그룹명" /></td>
+              <td><input class="inp f-name" value="${esc(r.name)}" placeholder="항목명" /></td>
+              <td><input class="inp f-detail" value="${esc(r.detail || '')}" placeholder="(선택) 설명" /></td>
+              <td><input class="inp f-price" value="${esc(r.price)}" placeholder="예: 300,000원" /></td>
+              <td><input class="inp f-unit" value="${esc(r.unit || '')}" placeholder="치아당" /></td>
+              <td>
+                <label class="fee-toggle">
+                  <input type="checkbox" class="f-pub" ${r.is_published ? 'checked' : ''} onchange="syncToggle(this)" />
+                  <span class="fee-toggle-txt">${r.is_published ? '공개' : '비공개'}</span>
+                </label>
+              </td>
+              <td style="text-align:center"><button class="btn btn-sm btn-danger" onclick="delRow(this)" title="삭제"><i class="fa-solid fa-trash"></i></button></td>
+            </tr>`
+              )
+              .join('')
+          )}
+        </tbody>
+      </table>
+    </div>
+    <datalist id="fee-sections">${raw(sections.map((s) => `<option value="${esc(s)}"></option>`).join(''))}</datalist>
+
+    <style>
+      #fee-table .inp{padding:8px 10px;font-size:0.86rem}
+      .fee-toggle{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-weight:700;font-size:0.82rem;color:var(--ink-2)}
+      .fee-toggle input{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
+      .fee-toggle input:not(:checked)+.fee-toggle-txt{color:var(--ink-3)}
+    </style>
+
+    <script>
+      const SECTION_HINT = ${raw(JSON.stringify(sections))};
+      function syncToggle(cb){ cb.parentElement.querySelector('.fee-toggle-txt').textContent = cb.checked ? '공개' : '비공개'; }
+      function delRow(btn){ btn.closest('tr').remove(); }
+      function addRow(){
+        const empty = document.getElementById('fee-empty'); if (empty) empty.remove();
+        const body = document.getElementById('fee-body');
+        const lastSection = body.querySelector('.fee-row:last-child .f-section');
+        const sec = lastSection ? lastSection.value : (SECTION_HINT[0] || '');
+        const tr = document.createElement('tr');
+        tr.className = 'fee-row';
+        tr.innerHTML =
+          '<td><input class="inp f-section" list="fee-sections" placeholder="그룹명"></td>' +
+          '<td><input class="inp f-name" placeholder="항목명"></td>' +
+          '<td><input class="inp f-detail" placeholder="(선택) 설명"></td>' +
+          '<td><input class="inp f-price" placeholder="예: 300,000원"></td>' +
+          '<td><input class="inp f-unit" placeholder="치아당"></td>' +
+          '<td><label class="fee-toggle"><input type="checkbox" class="f-pub" checked onchange="syncToggle(this)"><span class="fee-toggle-txt">공개</span></label></td>' +
+          '<td style="text-align:center"><button class="btn btn-sm btn-danger" onclick="delRow(this)"><i class="fa-solid fa-trash"></i></button></td>';
+        body.appendChild(tr);
+        tr.querySelector('.f-section').value = sec;
+        tr.querySelector('.f-name').focus();
+      }
+      let savingFees = false;
+      async function saveFees(){
+        if (savingFees) return;
+        const items = [];
+        let bad = false;
+        document.querySelectorAll('#fee-body .fee-row').forEach((tr) => {
+          const section = tr.querySelector('.f-section').value.trim();
+          const name = tr.querySelector('.f-name').value.trim();
+          const price = tr.querySelector('.f-price').value.trim();
+          const detail = tr.querySelector('.f-detail').value.trim();
+          const unit = tr.querySelector('.f-unit').value.trim();
+          const is_published = tr.querySelector('.f-pub').checked ? 1 : 0;
+          if (!name && !price && !section) return; // 완전 빈 줄 무시
+          if (!section || !name || !price) { bad = true; }
+          items.push({ section, name, detail, price, unit, is_published });
+        });
+        if (bad) { toast('그룹·항목명·비용은 필수입니다', true); return; }
+        if (items.length === 0) { toast('최소 1개 항목이 필요합니다', true); return; }
+        savingFees = true;
+        try {
+          const j = await api('/api/admin/fees', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ items }) });
+          if (j.ok) { toast('저장되었습니다 (' + j.count + '개 항목)'); setTimeout(()=>location.reload(), 700); }
+          else toast('저장 실패: ' + (j.error || ''), true);
+        } catch(e){ toast('저장 중 오류가 발생했습니다', true); }
+        savingFees = false;
       }
     </script>
   `

@@ -253,7 +253,11 @@ export function DirectionsPage() {
 // 비용 안내 (비급여 진료비 고지)
 // ============================================================
 // 비급여 수가표 데이터 (의료법 제45조 비급여 진료비용 고지)
-const PRICING_SECTIONS: { title: string; icon: string; note?: string; rows: { name: string; detail?: string; price: string; unit?: string }[] }[] = [
+export type FeeRow = { name: string; detail?: string; price: string; unit?: string }
+export type FeeSection = { title: string; icon: string; note?: string; rows: FeeRow[] }
+export type DbFee = { id: number; section: string; name: string; detail: string; price: string; unit: string; sort: number; is_published: number }
+
+export const PRICING_SECTIONS: FeeSection[] = [
   {
     title: '인레이 · 크라운',
     icon: 'fa-crown',
@@ -301,7 +305,29 @@ const PRICING_SECTIONS: { title: string; icon: string; note?: string; rows: { na
   }
 ]
 
-export function PricingPage() {
+// 섹션(그룹)별 아이콘·설명 — 룩 보존을 위해 코드측에서 유지 (DB에는 항목만 저장)
+const SECTION_META: Record<string, { icon: string; note?: string }> = Object.fromEntries(
+  PRICING_SECTIONS.map((s) => [s.title, { icon: s.icon, note: s.note }])
+)
+
+// DB 수가 행(발행분) → 섹션 구조로 그룹핑. 섹션 첫 등장 순서 보존, 빈 그룹 제외.
+export function buildPricingSections(rows: DbFee[]): FeeSection[] {
+  const order: string[] = []
+  const map = new Map<string, FeeSection>()
+  for (const r of rows) {
+    const title = (r.section || '').trim() || '기타'
+    if (!map.has(title)) {
+      const meta = SECTION_META[title] || { icon: 'fa-tooth', note: '' }
+      map.set(title, { title, icon: meta.icon, note: meta.note, rows: [] })
+      order.push(title)
+    }
+    map.get(title)!.rows.push({ name: r.name, detail: r.detail || undefined, price: r.price, unit: r.unit || undefined })
+  }
+  return order.map((t) => map.get(t)!).filter((s) => s.rows.length > 0)
+}
+
+export function PricingPage(sections?: FeeSection[]) {
+  const SECTIONS = sections && sections.length ? sections : PRICING_SECTIONS
   return html`
     <section class="page-hero" data-ghost="PRICING">
       <div class="container">
@@ -329,7 +355,7 @@ export function PricingPage() {
         </div>
 
         ${raw(
-          PRICING_SECTIONS.map(
+          SECTIONS.map(
             (sec, si) => `
         <div class="price-section reveal${si ? ` reveal-d${si}` : ''}" style="margin-bottom:44px">
           <h2 class="price-sec-title"><span class="tico" style="margin:0;width:44px;height:44px;font-size:1rem;flex:none"><i class="fa-solid ${sec.icon}"></i></span>${sec.title}</h2>
