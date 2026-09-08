@@ -23,9 +23,21 @@ type Bindings = {
   R2: R2Bucket
   ADMIN_KEY?: string
   SESSION_SECRET?: string
+  RESEND_API_KEY?: string       // Resend 이메일 발송 키 (예약 알림)
+  NOTIFICATION_EMAIL?: string   // 예약 알림 수신 메일 (원장)
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
+
+// 끝 슬래시 URL(/area/xxx/, /reservation/)은 404가 나서 GSC에 오류로 잡힘 → 슬래시 없는 정규 URL로 301
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url)
+  if (url.pathname.length > 1 && url.pathname.endsWith('/') && !url.pathname.startsWith('/api/')) {
+    url.pathname = url.pathname.replace(/\/+$/, '')
+    return c.redirect(url.toString(), 301)
+  }
+  await next()
+})
 
 // SEO: 메타 디스크립션 최적화 — 짧으면(40자 미만) 병원 소개 문구를 덧붙여 50~160자 확보
 function seoDesc(base: string, suffix: string): string {
@@ -1024,11 +1036,58 @@ app.post('/api/reservation', async (c) => {
       console.log('[예약문의/db-error]', String(dbErr), JSON.stringify({ name, phone, treatment, message }))
     }
 
+    // 원장 알림 메일 (시크릿 설정 시에만 · 응답은 기다리지 않음)
+    if (c.env?.RESEND_API_KEY && c.env?.NOTIFICATION_EMAIL) {
+      const p = sendReservationEmail(c.env, { name, phone, treatment, message })
+      if (c.executionCtx) c.executionCtx.waitUntil(p)
+      else await p
+    }
+
     return c.json({ ok: true, message: '예약 문의가 접수되었습니다.' })
   } catch {
     return c.json({ ok: false, error: 'invalid request' }, 400)
   }
 })
+
+// 예약 문의 알림 메일 — Resend (from 도메인은 Resend에 mgbestdc.kr 인증 필요)
+async function sendReservationEmail(env: Bindings, r: { name: string; phone: string; treatment: string; message: string }) {
+  try {
+    const adminUrl = `${SITE_URL}/admin`
+    const when = new Date().toLocaleString('ko-KR', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Seoul' })
+    const phoneDigits = r.phone.replace(/[^0-9]/g, '')
+    const esc = (v: any) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const row = (k: string, v: string) =>
+      `<tr><td style="padding:11px 16px;background:#E3EEF8;width:100px;color:#073F73;font-weight:600;vertical-align:top">${k}</td><td style="padding:11px 16px;white-space:pre-wrap">${v}</td></tr>`
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: '마곡베스트치과 <noreply@mgbestdc.kr>',
+        to: [env.NOTIFICATION_EMAIL],
+        subject: `[예약문의] ${r.name} · ${r.treatment || '진료 미선택'}`,
+        html: `
+          <div style="font-family:-apple-system,'Malgun Gothic',sans-serif;max-width:560px;margin:0 auto;color:#17202E">
+            <div style="background:#0E1B2E;color:#fff;padding:18px 22px;border-radius:8px 8px 0 0">
+              <div style="font-size:13px;letter-spacing:.08em;color:#33C4EC">마곡베스트치과 · 새 예약문의</div>
+              <div style="font-size:20px;font-weight:700;margin-top:4px">${esc(r.name)} 님의 예약 문의</div>
+            </div>
+            <table style="width:100%;border-collapse:collapse;border:1px solid #E0E8F2;border-top:none">
+              ${row('접수일시', esc(when))}
+              ${row('이름', `<strong>${esc(r.name)}</strong>`)}
+              ${row('연락처', `<a href="tel:${phoneDigits}" style="color:#0C5B9D;font-weight:700">${esc(r.phone)}</a>`)}
+              ${row('진료', esc(r.treatment) || '-')}
+              ${row('문의내용', esc(r.message) || '-')}
+            </table>
+            <div style="text-align:center;padding:20px 0">
+              <a href="${adminUrl}" style="display:inline-block;background:#0C5B9D;color:#fff;text-decoration:none;padding:13px 30px;border-radius:6px;font-weight:700;font-size:15px">→ 관리자 화면에서 처리하기</a>
+            </div>
+            <p style="text-align:center;font-size:12px;color:#999;margin:0 0 8px">관리자 페이지 로그인 후 예약 문의 탭에서 상태를 변경할 수 있습니다.</p>
+          </div>`,
+      }),
+    })
+    if (!res.ok) console.log('[예약문의/mail-error]', res.status, await res.text())
+  } catch (e) { console.log('[예약문의/mail-error]', String(e)) }
+}
 
 // ============================================================
 // 관리자 — 예약 문의 조회 (간단한 키 인증)
@@ -1737,7 +1796,7 @@ app.get('/privacy', (c) =>
       <p><b>2. 보유 및 이용기간</b><br/>
       ① 예약 상담 정보: 수집 목적 달성 후 관련 법령에 따른 보존기간을 제외하고 지체 없이 파기합니다.<br/>
       ② 회원 정보: 회원 탈퇴 시까지 보유하며, 탈퇴 요청 시 지체 없이 파기합니다. 탈퇴는 ${CLINIC.phone} 전화 또는 병원 이메일로 요청하실 수 있습니다.</p><br/>
-      <p><b>3. 제3자 제공 및 처리 위탁</b><br/>병원은 수집한 개인정보를 제3자에게 제공하지 않으며, 홈페이지 운영을 위한 클라우드 인프라(Cloudflare)에 암호화된 형태로 저장됩니다.</p><br/>
+      <p><b>3. 제3자 제공 및 처리 위탁</b><br/>병원은 수집한 개인정보를 제3자에게 제공하지 않으며, 홈페이지 운영을 위한 클라우드 인프라(Cloudflare)에 암호화된 형태로 저장됩니다. 예약 문의 접수 시 병원 담당자에게 알림 메일을 발송하기 위해 이메일 발송 업무를 Resend(Plus Five Five, Inc.)에 위탁합니다.</p><br/>
       <p><b>4. 정보주체의 권리</b><br/>회원은 언제든지 본인 개인정보의 열람·정정·삭제·처리정지를 요청할 수 있습니다.</p><br/>
       <p><b>5. 문의</b><br/>개인정보 관련 문의는 ${CLINIC.phone}으로 연락 주시기 바랍니다.</p>`
     )
