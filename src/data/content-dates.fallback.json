@@ -1,0 +1,63 @@
+{
+  "pages": {
+    "home": "2026-09-04",
+    "about": "2026-08-26",
+    "mission": "2026-08-26",
+    "story": "2026-08-14",
+    "directions": "2026-08-26",
+    "pricing": "2026-09-06",
+    "facility": "2026-08-08",
+    "faq": "2026-09-03",
+    "reservation": "2026-09-03",
+    "doctorsList": "2026-08-08",
+    "doctorTemplate": "2026-08-12",
+    "areaTemplate": "2026-09-29"
+  },
+  "doctors": {
+    "kim-min": "2026-06-02"
+  },
+  "areas": {
+    "magok": "2026-09-29",
+    "magoknaru": "2026-09-29",
+    "gayang": "2026-09-29",
+    "balsan": "2026-09-29",
+    "naebalsan": "2026-09-29",
+    "deungchon": "2026-09-29",
+    "yeomchang": "2026-09-29",
+    "gangseo": "2026-09-29"
+  },
+  "combos": {
+    "magok-implant": "2026-09-29",
+    "magoknaru-implant": "2026-09-29",
+    "gayang-implant": "2026-09-29",
+    "balsan-implant": "2026-09-29",
+    "naebalsan-implant": "2026-09-29",
+    "deungchon-implant": "2026-09-29",
+    "yeomchang-implant": "2026-09-29",
+    "gangseo-implant": "2026-09-29",
+    "magok-ortho": "2026-09-29",
+    "magoknaru-ortho": "2026-09-29",
+    "gayang-ortho": "2026-09-29",
+    "balsan-ortho": "2026-09-29",
+    "naebalsan-ortho": "2026-09-29",
+    "deungchon-ortho": "2026-09-29",
+    "yeomchang-ortho": "2026-09-29",
+    "gangseo-ortho": "2026-09-29",
+    "magok-cavity": "2026-09-29",
+    "magoknaru-cavity": "2026-09-29",
+    "gayang-cavity": "2026-09-29",
+    "balsan-cavity": "2026-09-29",
+    "naebalsan-cavity": "2026-09-29",
+    "deungchon-cavity": "2026-09-29",
+    "yeomchang-cavity": "2026-09-29",
+    "gangseo-cavity": "2026-09-29",
+    "magok-cosmetic": "2026-09-29",
+    "magoknaru-cosmetic": "2026-09-29",
+    "gayang-cosmetic": "2026-09-29",
+    "balsan-cosmetic": "2026-09-29",
+    "naebalsan-cosmetic": "2026-09-29",
+    "deungchon-cosmetic": "2026-09-29",
+    "yeomchang-cosmetic": "2026-09-29",
+    "gangseo-cosmetic": "2026-09-29"
+  }
+}

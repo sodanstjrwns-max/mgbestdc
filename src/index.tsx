@@ -3,7 +3,7 @@ import { html } from 'hono/html'
 import { Layout, breadcrumbSchema, SITE_URL } from './components/layout'
 import { CLINIC, TREATMENTS, getTreatment, DOCTORS, AREAS, AREA_TREATMENTS, CORE_TREATMENTS, GENERAL_TREATMENTS, GENERAL_FAQS } from './data/clinic'
 import { HomePage } from './pages/home'
-import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema, treatmentWebPageSchema } from './pages/treatments'
+import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema, treatmentWebPageSchema, txLastReviewed, TX_LAST_REVIEWED } from './pages/treatments'
 import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors'
 import { StoryPage, storySchema } from './pages/story'
 import {
@@ -12,6 +12,7 @@ import {
 } from './pages/info'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
+import { CONTENT_DATES, latestDate } from './data/content-dates'
 import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations, AdminFees } from './pages/admin'
 import { AdminStats, fetchSiteStats, STATS_TOKEN, MASTER_KEY } from './pages/stats'
@@ -1531,10 +1532,10 @@ const escXml = (s: string) => String(s || '').replace(/&/g, '&amp;').replace(/</
 const stripTags = (s: string) => String(s || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
 app.get('/rss.xml', async (c) => {
-  type FeedItem = { title: string; url: string; desc: string; date: Date; category?: string }
+  type FeedItem = { title: string; url: string; desc: string; date: Date | null; category?: string }
   const toDate = (s: string) => {
     const d = new Date(String(s || '').includes('T') ? s : String(s || '').replace(' ', 'T') + (String(s || '').length <= 10 ? 'T09:00:00+09:00' : 'Z'))
-    return isNaN(d.getTime()) ? new Date() : d
+    return isNaN(d.getTime()) ? null : d // 날짜 없음 → pubDate 생략 (오늘로 채우지 않음)
   }
   const items: FeedItem[] = BLOG_POSTS.map((p) => ({
     title: p.title,
@@ -1559,9 +1560,10 @@ app.get('/rss.xml', async (c) => {
     }
   } catch (e) { /* DB 미연결 시 정적 글만 */ }
 
-  items.sort((a, b) => b.date.getTime() - a.date.getTime())
+  items.sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0))
   const top = items.slice(0, 30)
-  const lastBuild = (top[0]?.date || new Date()).toUTCString()
+  // lastBuildDate = 최신 항목 날짜 (없으면 생략 — 요청 시각 아님)
+  const lastBuild = top[0]?.date ? top[0].date.toUTCString() : ''
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -1570,8 +1572,7 @@ app.get('/rss.xml', async (c) => {
     <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml"/>
     <description>${escXml(`마곡나루역 도보 3분 ${CLINIC.name} — 임플란트·충치치료·심미치료·교정 등 치아 건강 정보를 전해드립니다.`)}</description>
     <language>ko</language>
-    <lastBuildDate>${lastBuild}</lastBuildDate>
-    <ttl>60</ttl>
+${lastBuild ? `    <lastBuildDate>${lastBuild}</lastBuildDate>\n` : ''}    <ttl>60</ttl>
 ${top
   .map(
     (it) => `    <item>
@@ -1579,7 +1580,7 @@ ${top
       <link>${it.url}</link>
       <guid isPermaLink="true">${it.url}</guid>
       <description>${escXml(it.desc)}</description>
-      <pubDate>${it.date.toUTCString()}</pubDate>${it.category ? `
+${it.date ? `      <pubDate>${it.date.toUTCString()}</pubDate>` : ''}${it.category ? `
       <category>${escXml(it.category)}</category>` : ''}
       <dc:creator>${escXml(`${CLINIC.director} ${CLINIC.directorTitle} (${CLINIC.directorCredential})`)}</dc:creator>
     </item>`
@@ -1590,66 +1591,82 @@ ${top
   return c.body(rss, 200, { 'Content-Type': 'application/rss+xml; charset=utf-8', 'Cache-Control': 'public, max-age=1800' })
 })
 
+// 사이트맵 lastmod = 콘텐츠 실제 수정일 (날짜를 모르면 태그 생략 — 오늘 날짜로 채우지 않음)
+//  - 진료: TX_LAST_REVIEWED (화면 '최종 검토'·lastReviewed 와 동일), 진료 목록 = 최신 진료
+//  - 정적 페이지·의료진·지역: src/data/content-dates.ts (본문 줄의 마지막 수정 커밋 날짜, 빌드 시 고정)
+//  - 칼럼(정적 BLOG_POSTS·DB)·공지·사례: updated/date·updated_at/published_at/created_at, 목록·분류 = 최신 항목
+//  - 비용: fees 공개 항목 최신 updated_at (없으면 기본 수가표 커밋 날짜)
+// ※ 예전엔 날짜 없는 URL 에 new Date()(매일 오늘)를 찍었다 (2026-09-29 교정).
 app.get('/sitemap.xml', async (c) => {
-  const urls: { loc: string; pri: string; mod?: string; freq?: string }[] = [
-    { loc: '/', pri: '1.0', freq: 'weekly' },
-    { loc: '/about', pri: '0.8', freq: 'monthly' },
-    { loc: '/notice', pri: '0.6', freq: 'weekly' },
-    { loc: '/mission', pri: '0.8', freq: 'monthly' },
-    { loc: '/doctors', pri: '0.8', freq: 'monthly' },
-    { loc: '/story', pri: '0.8', freq: 'monthly' },
-    { loc: '/treatments', pri: '0.9', freq: 'monthly' },
-    { loc: '/cases', pri: '0.7', freq: 'weekly' },
-    { loc: '/blog', pri: '0.8', freq: 'weekly' },
-    { loc: '/faq', pri: '0.7', freq: 'monthly' },
-    { loc: '/directions', pri: '0.7', freq: 'yearly' },
-    { loc: '/pricing', pri: '0.6', freq: 'monthly' },
-    { loc: '/facility', pri: '0.6', freq: 'yearly' },
-    { loc: '/reservation', pri: '0.6', freq: 'yearly' }
-  ]
-  DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly' }))
-  TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7', freq: 'monthly' }))
-  // 칼럼이 0건인 분류는 noindex라 사이트맵에서 뺀다 (DB 조회 실패 시엔 모두 유지)
-  let dbColumnCats: Set<string> | null = new Set()
+  const P = CONTENT_DATES.pages
+  // DB 게시글(공지·관리자 칼럼)·사례·수가
+  let dbPosts: any[] = []
+  let dbCases: any[] = []
+  let feesUpdated = ''
+  let dbOk = false
   try {
     if (c.env?.DB) {
-      const res = await c.env.DB.prepare("SELECT DISTINCT category FROM posts WHERE type = 'column' AND status = 'published'").all()
-      for (const r of (res.results || []) as any[]) dbColumnCats.add(String(r.category))
+      const [posts, cases, fees] = await Promise.all([
+        c.env.DB.prepare("SELECT type, slug, category, published_at, updated_at FROM posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 500").all(),
+        c.env.DB.prepare("SELECT id, created_at, updated_at FROM cases WHERE status = 'published' ORDER BY created_at DESC LIMIT 500").all(),
+        c.env.DB.prepare('SELECT MAX(updated_at) AS m FROM fees WHERE is_published = 1').first().catch(() => null),
+      ])
+      dbPosts = (posts.results || []) as any[]
+      dbCases = (cases.results || []) as any[]
+      feesUpdated = latestDate((fees as any)?.m)
+      dbOk = true
     }
-  } catch (e) { dbColumnCats = null }
+  } catch (e) {}
+  const postDate = (p: any) => latestDate(p.updated_at, p.published_at)
+  const caseDate = (x: any) => latestDate(x.updated_at, x.created_at)
+  const staticPostDate = (p: any) => latestDate(p.updated, p.date)
+  const dbColumns = dbPosts.filter((p) => p.type !== 'notice')
+  const dbNotices = dbPosts.filter((p) => p.type === 'notice')
+  const columnsNewest = (catName?: string) => latestDate(
+    BLOG_POSTS.filter((p) => !catName || p.category === catName).map(staticPostDate),
+    dbColumns.filter((p) => !catName || String(p.category) === catName).map(postDate),
+  )
+
+  const urls: { loc: string; pri: string; mod?: string; freq?: string }[] = [
+    { loc: '/', pri: '1.0', freq: 'weekly', mod: latestDate(P.home, dbCases.map(caseDate)) }, // 홈에 최근 사례 노출
+    { loc: '/about', pri: '0.8', freq: 'monthly', mod: P.about },
+    { loc: '/notice', pri: '0.6', freq: 'weekly', mod: latestDate(dbNotices.map(postDate)) },
+    { loc: '/mission', pri: '0.8', freq: 'monthly', mod: P.mission },
+    { loc: '/doctors', pri: '0.8', freq: 'monthly', mod: P.doctorsList },
+    { loc: '/story', pri: '0.8', freq: 'monthly', mod: P.story },
+    { loc: '/treatments', pri: '0.9', freq: 'monthly', mod: latestDate(Object.values(TX_LAST_REVIEWED)) },
+    { loc: '/cases', pri: '0.7', freq: 'weekly', mod: latestDate(dbCases.map(caseDate)) },
+    { loc: '/blog', pri: '0.8', freq: 'weekly', mod: columnsNewest() },
+    { loc: '/faq', pri: '0.7', freq: 'monthly', mod: latestDate(P.faq, Object.values(TX_LAST_REVIEWED)) }, // 진료별 FAQ 포함
+    { loc: '/directions', pri: '0.7', freq: 'yearly', mod: P.directions },
+    { loc: '/pricing', pri: '0.6', freq: 'monthly', mod: feesUpdated || P.pricing },
+    { loc: '/facility', pri: '0.6', freq: 'yearly', mod: P.facility },
+    { loc: '/reservation', pri: '0.6', freq: 'yearly', mod: P.reservation }
+  ]
+  DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly', mod: latestDate(CONTENT_DATES.doctors[d.slug], P.doctorTemplate) }))
+  TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7', freq: 'monthly', mod: txLastReviewed(t.slug) }))
+  // 칼럼이 0건인 분류는 noindex라 사이트맵에서 뺀다 (DB 조회 실패 시엔 모두 유지)
+  const dbColumnCats = dbOk ? new Set(dbColumns.map((p) => String(p.category))) : null
   BLOG_CATEGORIES.forEach((bc) => {
     const hasPosts = !dbColumnCats || dbColumnCats.has(bc.name) || BLOG_POSTS.some((p) => p.category === bc.name)
-    if (hasPosts) urls.push({ loc: `/blog/category/${bc.slug}`, pri: '0.6', freq: 'weekly' })
+    if (hasPosts) urls.push({ loc: `/blog/category/${bc.slug}`, pri: '0.6', freq: 'weekly', mod: columnsNewest(bc.name) })
   })
-  BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: p.updated || p.date, freq: 'monthly' }))
-  AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({ loc: `/area/${a.slug}-${ts}`, pri: '0.6', freq: 'monthly' })))
-
+  BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: staticPostDate(p), freq: 'monthly' }))
+  // 지역 = 지역 템플릿·지역 공통 데이터·지역×진료 고유 본문·진료 검토일 중 최신
+  AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({
+    loc: `/area/${a.slug}-${ts}`,
+    pri: '0.6',
+    freq: 'monthly',
+    mod: latestDate(P.areaTemplate, CONTENT_DATES.areas[a.slug], CONTENT_DATES.combos[`${a.slug}-${ts}`], txLastReviewed(ts)),
+  })))
   // DB 게시글 (공지·관리자 칼럼)
-  try {
-    if (c.env?.DB) {
-      const res = await c.env.DB.prepare("SELECT type, slug, published_at, updated_at FROM posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 500").all()
-      for (const p of (res.results || []) as any[]) {
-        const mod = String(p.updated_at || p.published_at || '').slice(0, 10) || undefined
-        urls.push({ loc: p.type === 'notice' ? `/notice/${p.slug}` : `/blog/${p.slug}`, pri: p.type === 'notice' ? '0.5' : '0.7', mod, freq: 'monthly' })
-      }
-    }
-  } catch (e) {}
-
+  for (const p of dbPosts) urls.push({ loc: p.type === 'notice' ? `/notice/${p.slug}` : `/blog/${p.slug}`, pri: p.type === 'notice' ? '0.5' : '0.7', mod: postDate(p), freq: 'monthly' })
   // DB 진료사례 — 사례별 고유 URL
-  try {
-    if (c.env?.DB) {
-      const res = await c.env.DB.prepare("SELECT id, created_at, updated_at FROM cases WHERE status = 'published' ORDER BY created_at DESC LIMIT 500").all()
-      for (const cs of (res.results || []) as any[]) {
-        const mod = String(cs.updated_at || cs.created_at || '').slice(0, 10) || undefined
-        urls.push({ loc: `/cases/${cs.id}`, pri: '0.6', mod, freq: 'monthly' })
-      }
-    }
-  } catch (e) {}
+  for (const cs of dbCases) urls.push({ loc: `/cases/${cs.id}`, pri: '0.6', mod: caseDate(cs), freq: 'monthly' })
 
-  const today = new Date().toISOString().split('T')[0]
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE_URL}${encodeURI(u.loc)}</loc><lastmod>${u.mod || today}</lastmod><changefreq>${u.freq || 'monthly'}</changefreq><priority>${u.pri}</priority></url>`).join('\n')}
+${urls.map((u) => `  <url><loc>${SITE_URL}${encodeURI(u.loc)}</loc>${u.mod ? `<lastmod>${u.mod}</lastmod>` : ''}<changefreq>${u.freq || 'monthly'}</changefreq><priority>${u.pri}</priority></url>`).join('\n')}
 </urlset>`
   return c.body(xml, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
 })
