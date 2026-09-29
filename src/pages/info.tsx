@@ -1,6 +1,8 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, GENERAL_FAQS, AREAS, AREA_TREATMENTS, getTreatment, DOCTORS } from '../data/clinic'
 import { srcset, SIZES } from '../components/img'
+import { TX_DETAIL } from '../data/tx-detail'
+import { AREA_ENTRIES, AREA_REGION_LOCAL } from '../data/area-local'
 
 // ============================================================
 // 소개 허브 (/about) — 소개 카테고리 진입점 (블랑쉬식 단순 위계)
@@ -710,42 +712,71 @@ export function CasesPage(isLoggedIn = false) {
 // 지역 SEO 페이지
 // ============================================================
 // 지역×진료 조합별 Q&A (AEO 핵심 — AI 검색엔진이 그대로 인용하는 문답)
+// 2026-09-29: 지역마다 다른 질문 세트 (src/data/area-local.ts). HTML 과 FAQPage 스키마가 같은 배열을 쓴다.
 export function areaFaqs(areaSlug: string, treatmentSlug: string) {
   const area = AREAS.find((a) => a.slug === areaSlug)
   const t = getTreatment(treatmentSlug)
-  if (!area || !t) return []
-  return [
-    {
-      q: `${area.name}에서 ${t.name} 잘하는 치과는 어디인가요?`,
-      a: `${area.full} 인근이라면 마곡나루역 1번 출구 도보 3분 거리의 마곡베스트치과의원에서 ${t.name} 상담을 받아보실 수 있습니다. 보건복지부 인증 통합치의학과 전문의인 김민 대표원장이 상담부터 치료, 사후 관리까지 직접 진료합니다.`
-    },
-    {
-      q: `${area.name}에서 마곡베스트치과의원까지 어떻게 가나요?`,
-      a: `마곡베스트치과의원은 서울 강서구 마곡중앙5로1길 20 보타닉비즈타워 310~312호에 있습니다. 지하철 9호선·공항철도 마곡나루역 1번 출구에서 도보 3분 거리이며, ${area.full}에서 대중교통과 자가용 모두 접근이 편리하고 건물 내 주차가 가능합니다.`
-    },
-    {
-      q: `${t.name} 상담만 받아봐도 되나요?`,
-      a: `네, 가능합니다. 정밀 검진과 구강 스캔 후 현재 상태와 치료가 필요한지 여부를 그대로 설명드리며, 치료를 서두르도록 권하지 않습니다. 상담 후 충분히 생각해 보고 결정하셔도 됩니다.`
-    },
-    {
-      q: `평일 저녁이나 토요일에도 ${t.name} 진료가 가능한가요?`,
-      a: `월요일과 목요일은 야간 20:30까지, 토요일은 09:30부터 14:30까지 진료하므로 ${area.name} 인근 직장인 분들도 퇴근 후나 주말에 내원하실 수 있습니다. 예약은 전화(02-2093-6545) 또는 홈페이지로 가능합니다.`
-    }
-  ]
+  const entry = AREA_ENTRIES[`${areaSlug}-${treatmentSlug}`]
+  if (!area || !t || !entry) return []
+  return entry.faqs
+}
+
+// 진료 본문(clinic.ts sections + tx-detail deepDive)에서 소제목으로 한 단락을 찾는다
+function areaFocusSection(treatmentSlug: string, heading: string) {
+  const t = getTreatment(treatmentSlug)
+  const pool = [...(t?.sections || []), ...(TX_DETAIL[treatmentSlug]?.deepDive || [])]
+  return pool.find((s) => s.h === heading) || null
 }
 
 export function AreaPage(areaSlug: string, treatmentSlug: string) {
   const area = AREAS.find((a) => a.slug === areaSlug)
   const t = getTreatment(treatmentSlug)
-  if (!area || !t) return null
-  const faqs = areaFaqs(areaSlug, treatmentSlug)
+  const entry = AREA_ENTRIES[`${areaSlug}-${treatmentSlug}`]
+  const local = AREA_REGION_LOCAL[areaSlug]
+  if (!area || !t || !entry || !local) return null
+  const faqs = entry.faqs
+  const focus = areaFocusSection(treatmentSlug, entry.focus)
+  const near = local.near.map((slug) => AREAS.find((a) => a.slug === slug)).filter(Boolean) as typeof AREAS
+
+  const blockContext = `
+            <div class="t-section reveal">
+              <h2>${entry.h}</h2>
+              <p>${entry.p}</p>
+            </div>`
+  const blockAccess = `
+            <div class="t-section reveal">
+              <h2>${local.access.h}</h2>
+              <p>${local.access.p}</p>
+            </div>`
+  const blockFocus = focus ? `
+            <div class="t-section reveal">
+              <h2>${focus.h}</h2>
+              <p>${focus.p}</p>
+              <p style="margin-top:12px"><a href="/treatments/${t.slug}" style="color:var(--brand);font-weight:700">${t.name} 진료 안내 전체 보기 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></p>
+            </div>` : ''
+  const blockFaq = `
+            <div class="t-section reveal">
+              <h2>${area.name} ${t.name}, 자주 묻는 질문</h2>
+              ${faqs.map((f) => `
+              <details class="faq-item" style="margin-bottom:10px">
+                <summary style="cursor:pointer;font-weight:700;color:var(--text);padding:14px 0">${f.q}</summary>
+                <p style="padding:0 0 14px;color:var(--ink-2);line-height:1.9">${f.a}</p>
+              </details>`).join('')}
+            </div>`
+  // 지역마다 섹션 배치를 달리한다
+  const order = [
+    [blockContext, blockAccess, blockFocus, blockFaq],
+    [blockContext, blockFaq, blockAccess, blockFocus],
+    [blockAccess, blockContext, blockFocus, blockFaq]
+  ][local.variant]
+
   return html`
     <section class="page-hero" data-ghost="${t.slug.toUpperCase()}">
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/treatments/${t.slug}">${t.name}</a><span class="sep">/</span><span>${area.name}</span></nav>
         <span class="eyebrow">${area.full}</span>
         <h1>${area.name} <span class="grad">${t.name}</span></h1>
-        <p class="ph-sub">${area.full} 인근에서 ${t.name}를 찾고 계신가요? 마곡나루역 도보 3분, 마곡베스트치과의원에서 정밀 진단 후 안내드립니다.</p>
+        <p class="ph-sub">${entry.lead}</p>
       </div>
     </section>
 
@@ -753,38 +784,26 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
       <div class="container">
         <div class="t-detail-grid">
           <article>
-            <div class="t-section reveal">
-              <h2>${area.name}에서 가까운 ${t.name} 치과</h2>
-              <p>마곡베스트치과의원은 ${CLINIC.addressFull}에 위치하여 ${area.full}에서 접근이 편리합니다. ${CLINIC.directions}로, ${area.name} 인근 거주자와 직장인 분들이 편하게 내원하실 수 있습니다. ${CLINIC.directorCredential} ${DOCTORS[0].name} 대표원장이 ${t.name}를 직접 진료합니다.</p>
+            <div class="t-section reveal" id="quick-answer" style="background:var(--pine-soft);border-left:3px solid var(--pine);border-radius:12px;padding:20px 22px">
+              <p style="margin:0"><strong>핵심 답변</strong> — ${entry.answer}</p>
             </div>
-            <div class="t-section reveal">
-              <h2>${t.name}란?</h2>
-              <p>${t.summary}</p>
-            </div>
-            ${raw((t.sections || []).slice(0, 2).map((s) => `<div class="t-section reveal"><h2>${s.h}</h2><p>${s.p}</p></div>`).join(''))}
-            <div class="t-section reveal">
-              <h2>${area.name} ${t.name}, 자주 묻는 질문</h2>
-              ${raw(faqs.map((f) => `
-              <details class="faq-item" style="margin-bottom:10px">
-                <summary style="cursor:pointer;font-weight:700;color:var(--text);padding:14px 0">${f.q}</summary>
-                <p style="padding:0 0 14px;color:var(--ink-2);line-height:1.9">${f.a}</p>
-              </details>`).join(''))}
-            </div>
+            ${raw(order.join(''))}
+            <p style="color:var(--ink-3);font-size:0.85rem;line-height:1.7">치료 방법·기간·결과는 구강 상태에 따라 개인차가 있으며, 정밀 진단 후 개별적으로 안내드립니다.</p>
           </article>
           <aside class="t-sidebar">
             <div class="side-card brand">
-              <h3 class="h4">${area.name} 인근 예약 문의</h3>
-              <p>${area.full}에서 ${t.name}가 필요하시다면 부담 없이 문의해 주세요.</p>
+              <h3 class="h4">${area.name}에서 ${t.name} 상담 예약</h3>
+              <p>전화 또는 홈페이지로 예약하실 수 있습니다.</p>
               <a href="/reservation" class="btn btn-white" style="width:100%">예약 문의</a>
               <a href="tel:${CLINIC.phoneRaw}" class="btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.12);color:#fff"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
             </div>
             <div class="side-card">
-              <h3 class="h4">${t.name} 자세히 보기</h3>
-              <div class="side-links"><a href="/treatments/${t.slug}">${t.name} 진료 안내 <i class="fa-solid fa-arrow-right"></i></a></div>
+              <h3 class="h4">함께 보면 좋은 안내</h3>
+              <div class="side-links"><a href="/treatments/${t.slug}">${t.name} 진료 안내 <i class="fa-solid fa-arrow-right"></i></a>${raw(entry.links.map((l) => `<a href="${l.href}">${l.label} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}</div>
             </div>
             <div class="side-card">
-              <h3 class="h4">인근 지역</h3>
-              <div class="side-links">${raw(AREAS.filter((a) => a.slug !== areaSlug).slice(0, 4).map((a) => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}</div>
+              <h3 class="h4">인근 지역 ${t.name}</h3>
+              <div class="side-links">${raw(near.map((a) => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}</div>
             </div>
           </aside>
         </div>
