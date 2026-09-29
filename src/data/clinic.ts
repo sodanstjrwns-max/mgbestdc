@@ -52,6 +52,7 @@ export const CLINIC = {
   social: {
     // Q36~38 기존 자산 (있으면 링크만)
     blog: 'https://blog.naver.com/magokbest0',
+    inblog: 'https://magokbest.inblog.io/', // 원장 운영 인블로그 (2026-09-15 원장 요청으로 메뉴 연결)
     instagram: 'https://www.instagram.com/magokbestdent/',
     youtube: '',
     // 카카오톡 채널 — 마곡베스트치과의원 공식 (pf.kakao.com/_xdjNsG), /chat 으로 바로 상담창

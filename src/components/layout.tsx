@@ -280,6 +280,7 @@ function Header(member: MemberInfo = null) {
               <div class="mega" style="min-width:250px">
                 <div class="mega-grid" style="grid-template-columns:1fr">
                   <a href="/blog" class="mega-item"><i class="fa-solid fa-pen-nib"></i><span><span class="mi-name">건강칼럼</span></span></a>
+                  ${CLINIC.social.inblog ? html`<a href="${CLINIC.social.inblog}" target="_blank" rel="noopener" class="mega-item"><i class="fa-solid fa-blog"></i><span><span class="mi-name">블로그</span><span class="mi-desc">원장 블로그 (새 창)</span></span></a>` : ''}
                   <a href="/notice" class="mega-item"><i class="fa-solid fa-bullhorn"></i><span><span class="mi-name">공지사항</span></span></a>
                 </div>
               </div>
@@ -331,6 +332,7 @@ function Header(member: MemberInfo = null) {
         <summary>칼럼</summary>
         <div class="sub">
           <a href="/blog">건강칼럼</a>
+          ${CLINIC.social.inblog ? html`<a href="${CLINIC.social.inblog}" target="_blank" rel="noopener">블로그 <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.75em"></i></a>` : ''}
           <a href="/notice">공지사항</a>
         </div>
       </details>
@@ -379,6 +381,7 @@ function Footer() {
             <a href="/doctors">의료진</a>
             <a href="/cases">치료사례</a>
             <a href="/blog">건강칼럼</a>
+            ${CLINIC.social.inblog ? html`<a href="${CLINIC.social.inblog}" target="_blank" rel="noopener">블로그</a>` : ''}
             <a href="/notice">공지사항</a>
             <a href="/faq">자주 묻는 질문</a>
             <a href="/reservation">예약 문의</a>
