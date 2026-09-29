@@ -170,9 +170,9 @@ export function MissionPage() {
 
     <section class="pad-sm">
       <div class="container"><div class="fact-strip reveal">
-        <div class="fact"><strong class="fact-num"><span data-countup="${CLINIC.openedYear}">0</span><em>년 개원</em></strong><span>마곡에서 꾸준히 진료합니다</span></div>
-        <div class="fact"><strong class="fact-num"><span data-countup="1">0</span><em>인 책임진료</em></strong><span>상담부터 치료 후 관리까지</span></div>
-        <div class="fact"><strong class="fact-num"><span data-countup="3">0</span><em>곳 자문위원</em></strong><span>국내 임플란트사 자문</span></div>
+        <div class="fact"><strong class="fact-num"><span data-countup="${CLINIC.openedYear}">${CLINIC.openedYear}</span><em>년 개원</em></strong><span>마곡에서 꾸준히 진료합니다</span></div>
+        <div class="fact"><strong class="fact-num"><span data-countup="1">1</span><em>인 책임진료</em></strong><span>상담부터 치료 후 관리까지</span></div>
+        <div class="fact"><strong class="fact-num"><span data-countup="3">3</span><em>곳 자문위원</em></strong><span>국내 임플란트사 자문</span></div>
         <div class="fact"><strong class="fact-num">CT<em>·스캐너</em></strong><span>정밀 디지털 장비 상시 운용</span></div>
       </div></div>
     </section>

@@ -3,7 +3,7 @@ import { html } from 'hono/html'
 import { Layout, breadcrumbSchema, SITE_URL } from './components/layout'
 import { CLINIC, TREATMENTS, getTreatment, DOCTORS, AREAS, AREA_TREATMENTS, CORE_TREATMENTS, GENERAL_TREATMENTS, GENERAL_FAQS } from './data/clinic'
 import { HomePage } from './pages/home'
-import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema } from './pages/treatments'
+import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema, treatmentWebPageSchema } from './pages/treatments'
 import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors'
 import { StoryPage, storySchema } from './pages/story'
 import {
@@ -387,7 +387,8 @@ app.get('/treatments/:slug', async (c) => {
         path: `/treatments/${slug}`,
         ogType: 'article',
         jsonLd: [
-          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${slug}` }]),
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${slug}` }], `${SITE_URL}/treatments/${slug}#breadcrumb`),
+          treatmentWebPageSchema(t, SITE_URL),
           procedureSchema(t, SITE_URL),
           ...(faqSchema ? [faqSchema] : [])
         ]

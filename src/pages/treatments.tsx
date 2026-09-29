@@ -8,6 +8,25 @@ import { esc, type DbPost, type DbCase } from './cms'
 const fmtD = (d: string) => (d || '').slice(0, 10).replace(/-/g, '.')
 
 // ============================================================
+// 진료 콘텐츠 최종 검토일 (고정값 — 오늘 날짜 자동 채움 금지)
+// 각 진료의 본문 데이터(src/data/clinic.ts TREATMENTS 블록 + src/data/tx-detail.ts TX_DETAIL 블록)를
+// 마지막으로 수정한 커밋 날짜(git blame 기준). 본문을 고치면 이 값도 함께 갱신합니다.
+// ============================================================
+export const TX_LAST_REVIEWED: Record<string, string> = {
+  implant: '2026-08-14',
+  cavity: '2026-08-14',
+  cosmetic: '2026-08-18',
+  ortho: '2026-08-14',
+  tmj: '2026-08-14',
+  gum: '2026-08-18',
+  prosthesis: '2026-08-18',
+  extraction: '2026-08-14',
+  preventive: '2026-08-10'
+}
+const TX_REVIEWED_FALLBACK = '2026-08-18'
+export const txLastReviewed = (slug: string) => TX_LAST_REVIEWED[slug] || TX_REVIEWED_FALLBACK
+
+// ============================================================
 // 진료 전체 목록
 // ============================================================
 const TX_PREVIEW: Record<string, string> = {
@@ -134,7 +153,7 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
         </nav>
         <span class="eyebrow">${t.category === 'core' ? '중점 진료' : '일반 진료'}</span>
         <h1><span class="grad">${t.name}</span></h1>
-        <p class="ph-sub">${t.tagline} — ${t.summary}</p>
+        <p class="ph-sub">${t.tagline}</p>
       </div>
     </section>
 
@@ -143,6 +162,11 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
         ${heroImg ? html`<div class="t-hero-img reveal"><img src="${heroImg.src}" srcset="${srcset(heroImg.src)}" sizes="${SIZES.card}" alt="${heroImg.alt}" loading="lazy" decoding="async" /></div>` : ''}
         <div class="t-detail-grid">
           <article>
+            <div class="t-section reveal" id="quick-answer" style="background:var(--pine-soft);border-left:3px solid var(--pine);border-radius:12px;padding:20px 22px">
+              <p id="tx-answer" style="margin:0"><strong>핵심 답변</strong> — ${t.summary}</p>
+              <p class="t-reviewed" style="margin:10px 0 0;font-size:0.82rem;color:var(--ink-3)">감수: <a href="/doctors/${doctor.slug}" style="color:inherit;text-decoration:underline">${doctor.name} ${doctor.title}</a> · 최종 검토 <time datetime="${txLastReviewed(t.slug)}">${txLastReviewed(t.slug)}</time></p>
+            </div>
+
             ${
               t.checklist
                 ? raw(`
@@ -482,6 +506,34 @@ export function procedureSchema(t: Treatment, siteUrl: string) {
     }))
   }
   return schema
+}
+
+// MedicalWebPage 스키마 — 감수자(대표원장 Physician)·최종 검토일(고정)·speakable
+export function treatmentWebPageSchema(t: Treatment, siteUrl: string) {
+  const url = `${siteUrl}/treatments/${t.slug}`
+  const doctor = DOCTORS[0]
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalWebPage',
+    '@id': `${url}#webpage`,
+    url,
+    name: `${t.name} | ${CLINIC.name}`,
+    description: t.summary,
+    inLanguage: 'ko',
+    publisher: { '@id': `${siteUrl}/#organization` },
+    about: { '@id': `${url}#procedure` },
+    mainEntity: { '@id': `${url}#procedure` },
+    breadcrumb: { '@id': `${url}#breadcrumb` },
+    lastReviewed: txLastReviewed(t.slug),
+    reviewedBy: {
+      '@type': 'Physician',
+      '@id': `${siteUrl}/doctors/${doctor.slug}/#physician`,
+      name: doctor.name,
+      jobTitle: doctor.title,
+      url: `${siteUrl}/doctors/${doctor.slug}`
+    },
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '#tx-answer'] }
+  }
 }
 
 // FAQPage 스키마 (진료별)

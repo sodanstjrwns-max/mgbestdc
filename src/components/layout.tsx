@@ -218,10 +218,11 @@ export function organizationSchema() {
 
 
 
-export function breadcrumbSchema(items: { name: string; path: string }[]) {
+export function breadcrumbSchema(items: { name: string; path: string }[], id?: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
+    ...(id ? { '@id': id } : {}),
     itemListElement: items.map((it, i) => ({
       '@type': 'ListItem',
       position: i + 1,
