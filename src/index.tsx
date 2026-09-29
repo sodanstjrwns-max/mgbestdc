@@ -904,18 +904,22 @@ app.get('/blog/category/:cat', async (c) => {
   const cat = BLOG_CATEGORIES.find((x) => x.slug === catSlug)
   if (!cat) return c.notFound()
   let dbPosts: DbPost[] = []
+  let dbOk = true
   try {
     if (c.env?.DB) {
       const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' AND category = ? ORDER BY published_at DESC LIMIT 60").bind(cat.name).all()
       dbPosts = (res.results || []) as any
     }
-  } catch (e) {}
+  } catch (e) { dbOk = false }
+  // 칼럼이 하나도 없는 분류는 얇은 페이지 — 글이 생길 때까지 noindex, follow (사이트맵에서도 제외)
+  const isEmptyCat = dbOk && dbPosts.length === 0 && !BLOG_POSTS.some((p) => p.category === cat.name)
   return c.html(
     Layout(
       {
         title: `${cat.name} 칼럼 | ${CLINIC.name}`,
         description: `${cat.name} 관련 건강 칼럼 모음 — 마곡나루역 도보 3분 ${CLINIC.name} 대표원장이 직접 쓰는 ${cat.name} 정보와 관리 가이드입니다.`,
         path: `/blog/category/${catSlug}`,
+        noindexFollow: isEmptyCat,
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: cat.name, path: `/blog/category/${catSlug}` }])]
       },
       BlogListPage(cat.name, dbPosts)
@@ -924,8 +928,12 @@ app.get('/blog/category/:cat', async (c) => {
 })
 
 // 칼럼 상세 (정적 데이터 우선 → 없으면 DB 칼럼 조회)
+// 칼럼 본문(DB)에 남은 없는 주소 → 관련 기존 페이지로 301 (2026-09 크롤 감사: no-prep-veneer 본문의 '이갈이' 링크)
+const BLOG_SLUG_REDIRECT: Record<string, string> = { 'bruxism-botox': '/treatments/tmj' }
+
 app.get('/blog/:slug', async (c) => {
   const slug = c.req.param('slug')
+  if (BLOG_SLUG_REDIRECT[slug]) return c.redirect(BLOG_SLUG_REDIRECT[slug], 301)
   const post = getPost(slug)
   if (!post) {
     // DB 칼럼 (관리자 작성)
@@ -1600,7 +1608,18 @@ app.get('/sitemap.xml', async (c) => {
   ]
   DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly' }))
   TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7', freq: 'monthly' }))
-  BLOG_CATEGORIES.forEach((c) => urls.push({ loc: `/blog/category/${c.slug}`, pri: '0.6', freq: 'weekly' }))
+  // 칼럼이 0건인 분류는 noindex라 사이트맵에서 뺀다 (DB 조회 실패 시엔 모두 유지)
+  let dbColumnCats: Set<string> | null = new Set()
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare("SELECT DISTINCT category FROM posts WHERE type = 'column' AND status = 'published'").all()
+      for (const r of (res.results || []) as any[]) dbColumnCats.add(String(r.category))
+    }
+  } catch (e) { dbColumnCats = null }
+  BLOG_CATEGORIES.forEach((bc) => {
+    const hasPosts = !dbColumnCats || dbColumnCats.has(bc.name) || BLOG_POSTS.some((p) => p.category === bc.name)
+    if (hasPosts) urls.push({ loc: `/blog/category/${bc.slug}`, pri: '0.6', freq: 'weekly' })
+  })
   BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: p.updated || p.date, freq: 'monthly' }))
   AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({ loc: `/area/${a.slug}-${ts}`, pri: '0.6', freq: 'monthly' })))
 

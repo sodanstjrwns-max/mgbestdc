@@ -9,6 +9,7 @@ type SeoMeta = {
   ogImage?: string
   jsonLd?: object[]
   noindex?: boolean
+  noindexFollow?: boolean // 빈 목록 등: noindex, follow (링크는 따라감)
   article?: { published: string; modified?: string; tags?: string[] }
 }
 
@@ -33,7 +34,7 @@ export function Head(meta: SeoMeta) {
       <link rel="alternate" hreflang="ko" href="${canonical}" />
       <link rel="alternate" hreflang="x-default" href="${canonical}" />
       <link rel="alternate" type="application/rss+xml" title="${CLINIC.shortName} 건강칼럼 RSS" href="${SITE_URL}/rss.xml" />
-      <meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'}" />
+      <meta name="robots" content="${meta.noindex ? 'noindex, nofollow' : meta.noindexFollow ? 'noindex, follow' : 'index, follow, max-image-preview:large'}" />
       <meta name="author" content="${CLINIC.name}" />
       <meta name="theme-color" content="#F7F9FC" />
 
