@@ -1,6 +1,7 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, getTreatment, DOCTORS } from '../data/clinic'
 import { BLOG_POSTS, BLOG_CATEGORIES, catByName, sortedPosts, getPost, type BlogPost } from '../data/blog'
+import { postAuthorBox } from './cms'
 
 // 날짜 표기: 2026-05-28 → 2026.05.28
 const fmtDate = (d: string) => d.replace(/-/g, '.')
@@ -159,7 +160,7 @@ export function BlogDetailPage(post: BlogPost) {
         <div class="container">
           <div class="t-detail-grid">
             <div class="post-body">
-              <p class="post-lead">${post.lead}</p>
+              <p class="post-lead answer-summary">${post.lead}</p>
 
               ${raw(
                 post.sections
@@ -206,6 +207,7 @@ export function BlogDetailPage(post: BlogPost) {
 
               <!-- 의료광고법 안내 -->
               <p class="post-disclaimer">본 칼럼은 일반적인 정보 제공을 위한 것으로, 진단·치료 효과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. 정확한 진단과 치료 계획은 반드시 내원하여 전문의와 상담하시기 바랍니다.</p>
+              ${raw(postAuthorBox(post.updated || post.date))}
             </div>
 
             <aside class="t-sidebar">
@@ -257,9 +259,9 @@ export function blogPostingSchema(post: BlogPost, siteUrl: string) {
     image: `${siteUrl}/static/img/og.png`,
     datePublished: post.date,
     dateModified: post.updated || post.date,
-    inLanguage: 'ko',
+    inLanguage: 'ko-KR',
     keywords: post.tags.join(', '),
-    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.post-lead'] },
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.answer-summary'] },
     author: {
       '@type': 'Physician',
       '@id': `${siteUrl}/doctors/${DOCTORS[0].slug}/#physician`,
@@ -268,9 +270,14 @@ export function blogPostingSchema(post: BlogPost, siteUrl: string) {
       url: `${siteUrl}/doctors/${DOCTORS[0].slug}`,
       worksFor: { '@type': 'Dentist', name: CLINIC.name, '@id': `${siteUrl}/#organization` }
     },
+    reviewedBy: { '@id': `${siteUrl}/doctors/${DOCTORS[0].slug}/#physician` },
     publisher: { '@id': `${siteUrl}/#organization` },
-    about: { '@type': 'MedicalCondition', name: post.category },
-    isPartOf: { '@type': 'Blog', name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` }
+    isPartOf: [{ '@id': `${siteUrl}/#website` }, { '@type': 'Blog', '@id': `${siteUrl}/blog#blog`, name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` }],
+    // 관련 진료 페이지의 MedicalProcedure @id (없으면 분류명)
+    about: post.related && post.related[0]
+      ? { '@type': 'MedicalProcedure', '@id': `${siteUrl}/treatments/${post.related[0]}#procedure`, name: getTreatment(post.related[0])?.name || post.category, url: `${siteUrl}/treatments/${post.related[0]}` }
+      : { '@type': 'MedicalCondition', name: post.category },
+    medicalAudience: { '@type': 'MedicalAudience', audienceType: 'Patient' }
   }
 }
 
@@ -280,6 +287,7 @@ export function blogFaqSchema(post: BlogPost) {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
+    '@id': `https://mgbestdc.kr/blog/${post.slug}#faq`,
     mainEntity: post.faqs.map((f) => ({
       '@type': 'Question',
       name: f.q,
@@ -289,20 +297,27 @@ export function blogFaqSchema(post: BlogPost) {
 }
 
 // JSON-LD: 블로그 목록 (Blog)
-export function blogListSchema(siteUrl: string) {
+export function blogListSchema(siteUrl: string, dbPosts: { slug: string; title: string; published_at?: string; created_at?: string }[] = [], activeCat?: string) {
+  // 목록 화면과 같은 순서·같은 글(정적 칼럼 + 관리자 작성 DB 칼럼) — CollectionPage + ItemList
+  const items = [
+    ...dbPosts.map((p) => ({ url: `${siteUrl}/blog/${p.slug}`, name: p.title, d: String(p.published_at || p.created_at || '').slice(0, 10) })),
+    ...sortedPosts().filter((p) => !activeCat || p.category === activeCat).map((p) => ({ url: `${siteUrl}/blog/${p.slug}`, name: p.title, d: p.date }))
+  ].sort((a, b) => (b.d || '').localeCompare(a.d || ''))
+  const catDef = activeCat ? catByName(activeCat) : undefined
+  const pageUrl = catDef ? `${siteUrl}/blog/category/${catDef.slug}` : `${siteUrl}/blog`
   return {
     '@context': 'https://schema.org',
-    '@type': 'Blog',
-    name: `${CLINIC.shortName} 건강칼럼`,
-    description: `${DOCTORS[0].name} 대표원장이 전하는 치아 건강 칼럼`,
-    url: `${siteUrl}/blog`,
+    '@type': 'CollectionPage',
+    '@id': `${pageUrl}#collection`,
+    url: pageUrl,
+    name: activeCat ? `${activeCat} 칼럼` : `${CLINIC.shortName} 건강칼럼`,
+    inLanguage: 'ko-KR',
+    isPartOf: { '@id': `${siteUrl}/#website` },
     publisher: { '@id': `${siteUrl}/#organization` },
-    blogPost: sortedPosts().map((p) => ({
-      '@type': 'BlogPosting',
-      headline: p.title,
-      url: `${siteUrl}/blog/${p.slug}`,
-      datePublished: p.date,
-      description: p.excerpt
-    }))
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, url: it.url, name: it.name }))
+    }
   }
 }

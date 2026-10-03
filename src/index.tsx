@@ -11,9 +11,9 @@ import {
   ReservationPage, AreaPage, areaSchema, areaFaqSchema, buildPricingSections, type DbFee
 } from './pages/info'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
-import { BLOG_POSTS, BLOG_CATEGORIES, getPost } from './data/blog'
+import { BLOG_POSTS, BLOG_CATEGORIES, getPost, catByName } from './data/blog'
 import { CONTENT_DATES, latestDate } from './data/content-dates'
-import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, type DbPost, type DbCase } from './pages/cms'
+import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, txSlugOfCategory, kstIso, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations, AdminFees } from './pages/admin'
 import { AdminStats, fetchSiteStats, STATS_TOKEN, MASTER_KEY } from './pages/stats'
 import { SignupPage, LoginPage } from './pages/member'
@@ -42,7 +42,7 @@ app.use('*', async (c, next) => {
 
 // SEO: 메타 디스크립션 최적화 — 짧으면(40자 미만) 병원 소개 문구를 덧붙여 50~160자 확보
 function seoDesc(base: string, suffix: string): string {
-  const t = (base || '').trim()
+  const t = (base || '').replace(/\s+/g, ' ').trim()
   if (t.length >= 40) return t.length > 160 ? t.slice(0, 157) + '…' : t
   const merged = `${t} ${suffix}`.trim()
   return merged.length > 160 ? merged.slice(0, 157) + '…' : merged
@@ -748,6 +748,7 @@ app.get('/cases/:id', async (c) => {
   if (!Number.isInteger(id) || id <= 0) return c.notFound()
   let row: DbCase | null = null
   let others: DbCase[] = []
+  let caseColumns: { slug: string; title: string }[] = []
   try {
     if (c.env?.DB) {
       const res = await c.env.DB.prepare("SELECT * FROM cases WHERE id = ? AND status = 'published'").bind(id).first()
@@ -755,6 +756,8 @@ app.get('/cases/:id', async (c) => {
       if (row) {
         const o = await c.env.DB.prepare("SELECT * FROM cases WHERE id != ? AND status = 'published' ORDER BY (category = ?) DESC, created_at DESC LIMIT 3").bind(id, row.category).all()
         others = (o.results || []) as any
+        const rp = await c.env.DB.prepare("SELECT slug, title FROM posts WHERE type = 'column' AND status = 'published' AND category = ? ORDER BY published_at DESC LIMIT 3").bind(row.category).all()
+        caseColumns = (rp.results || []) as any
       }
     }
   } catch (e) {}
@@ -763,36 +766,38 @@ app.get('/cases/:id', async (c) => {
   return c.html(
     Layout(
       {
-        title: `${row.title} | ${row.category} 진료사례 | ${CLINIC.name}`,
-        description: `${row.category} 진료 사례 — ${(row.description || row.title).slice(0, 140)}`,
+        title: `${row.title} | ${row.category} 진료사례 | ${CLINIC.shortName}`,
+        description: seoDesc(row.description || `${row.category} 진료사례입니다.`, `${row.category} 진료사례 — ${CLINIC.name}. 치료 결과는 개인에 따라 다를 수 있습니다.`),
         path: `/cases/${id}`,
         ogType: 'article',
-        ogImage: row.before_img ? `${SITE_URL}/media/${row.before_img}` : undefined,
+        // 치료 후 사진이 회원 전용(게이트)이라 og:image 는 사이트 기본 이미지 (2026-10-03 표준 B)
         jsonLd: [
-          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }, { name: row.title, path: `/cases/${id}` }]),
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료사례', path: '/cases' }, ...(row.category ? [{ name: row.category, path: `/cases?cat=${encodeURIComponent(row.category)}` }] : []), { name: row.title, path: `/cases/${id}` }]),
           {
             '@context': 'https://schema.org',
             '@type': 'MedicalWebPage',
             '@id': `${SITE_URL}/cases/${id}#page`,
             name: row.title,
             url: `${SITE_URL}/cases/${id}`,
-            description: (row.description || row.title).slice(0, 200),
-            inLanguage: 'ko',
+            description: (row.description || `${row.category} 진료사례`).slice(0, 200),
+            inLanguage: 'ko-KR',
+            isPartOf: { '@id': `${SITE_URL}/#website` },
+            publisher: { '@id': `${SITE_URL}/#organization` },
             datePublished: (row.created_at || '').slice(0, 10),
-            about: { '@id': `${SITE_URL}/#organization` },
+            dateModified: ((row as any).updated_at || row.created_at || '').slice(0, 10),
+            lastReviewed: ((row as any).updated_at || row.created_at || '').slice(0, 10),
+            reviewedBy: { '@type': 'Physician', '@id': `${SITE_URL}/doctors/${DOCTORS[0].slug}/#physician`, name: `${DOCTORS[0].name} ${DOCTORS[0].title}`, url: `${SITE_URL}/doctors/${DOCTORS[0].slug}` },
+            ...(txSlugOfCategory(row.category)
+              ? { about: { '@type': 'MedicalProcedure', '@id': `${SITE_URL}/treatments/${txSlugOfCategory(row.category)}#procedure`, name: row.category, url: `${SITE_URL}/treatments/${txSlugOfCategory(row.category)}` } }
+              : {}),
+            speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.case-summary'] },
             ...(row.before_img
-              ? {
-                  primaryImageOfPage: {
-                    '@type': 'ImageObject',
-                    url: `${SITE_URL}/media/${row.before_img}`,
-                    name: `${row.title} 치료 전`
-                  }
-                }
+              ? { primaryImageOfPage: { '@type': 'ImageObject', contentUrl: `${SITE_URL}/media/${row.before_img}`, name: `${row.category} 치료 전` } }
               : {})
           }
         ]
       },
-      DbCaseDetailPage(row, others, !!member),
+      DbCaseDetailPage(row, others, !!member, caseColumns),
       { member }
     )
   )
@@ -876,7 +881,7 @@ app.get('/blog', async (c) => {
   let dbPosts: DbPost[] = []
   try {
     if (c.env?.DB) {
-      const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' ORDER BY published_at DESC LIMIT 60").all()
+      const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' ORDER BY published_at DESC LIMIT 200").all()
       dbPosts = (res.results || []) as any
     }
   } catch (e) {}
@@ -888,7 +893,7 @@ app.get('/blog', async (c) => {
         path: '/blog',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }]),
-          blogListSchema(SITE_URL)
+          blogListSchema(SITE_URL, dbPosts)
         ]
       },
       BlogListPage(undefined, dbPosts)
@@ -922,7 +927,7 @@ app.get('/blog/category/:cat', async (c) => {
         description: `${cat.name} 관련 건강 칼럼 모음 — 마곡나루역 도보 3분 ${CLINIC.name} 대표원장이 직접 쓰는 ${cat.name} 정보와 관리 가이드입니다.`,
         path: `/blog/category/${catSlug}`,
         noindexFollow: isEmptyCat,
-        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: cat.name, path: `/blog/category/${catSlug}` }])]
+        jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: cat.name, path: `/blog/category/${catSlug}` }]), blogListSchema(SITE_URL, dbPosts, cat.name)]
       },
       BlogListPage(cat.name, dbPosts)
     )
@@ -941,13 +946,17 @@ app.get('/blog/:slug', async (c) => {
     // DB 칼럼 (관리자 작성)
     let dbPost: DbPost | null = null
     let others: DbPost[] = []
+    let colCases: DbCase[] = []
     try {
       if (c.env?.DB) {
         dbPost = (await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND slug = ? AND status = 'published'").bind(slug).first()) as any
         if (dbPost) {
           c.executionCtx.waitUntil(c.env.DB.prepare('UPDATE posts SET views = views + 1 WHERE id = ?').bind(dbPost.id).run())
-          const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' AND id != ? ORDER BY published_at DESC LIMIT 3").bind(dbPost.id).all()
+          // 같은 분류(진료) 칼럼 우선 → 최신 (관련 칼럼 내부 링크)
+          const res = await c.env.DB.prepare("SELECT * FROM posts WHERE type = 'column' AND status = 'published' AND id != ? ORDER BY (category = ?) DESC, published_at DESC LIMIT 3").bind(dbPost.id, dbPost.category || '').all()
           others = (res.results || []) as any
+          const rc = await c.env.DB.prepare("SELECT id, title, category FROM cases WHERE status = 'published' AND category = ? ORDER BY created_at DESC LIMIT 2").bind(dbPost.category || '').all()
+          colCases = (rc.results || []) as any
         }
       }
     } catch (e) {}
@@ -955,17 +964,18 @@ app.get('/blog/:slug', async (c) => {
     return c.html(
       Layout(
         {
-          title: `${dbPost.title} | ${CLINIC.shortName} 건강칼럼`,
+          // 표준: '{글 제목} | {병원명}' (제목 안에 병원명이 이미 있으면 중복 제거)
+          title: `${dbPost.title.replace(/\s*[|｜]\s*마곡베스트치과\s*$/, '')} | ${CLINIC.shortName}`,
           description: seoDesc(dbPost.excerpt || dbPost.title, `${CLINIC.name} 건강칼럼. 마곡나루역 1번 출구 앞, 서울대 출신 대표원장 직접 진료.`),
           path: `/blog/${slug}`,
           ogType: 'article',
-          article: { published: (dbPost.published_at || dbPost.created_at || '').slice(0, 10), tags: [dbPost.category].filter(Boolean) },
+          article: { published: kstIso(dbPost.published_at || dbPost.created_at) || '', modified: kstIso((dbPost as any).updated_at || dbPost.published_at), tags: [dbPost.category].filter(Boolean) },
           jsonLd: [
-            breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: dbPost.title, path: `/blog/${slug}` }]),
-            dbBlogPostingSchema(dbPost, SITE_URL) // 발행 시 BlogPosting 자동 생성
+            breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, ...(dbPost.category && catByName(dbPost.category) ? [{ name: dbPost.category, path: `/blog/category/${catByName(dbPost.category)!.slug}` }] : []), { name: dbPost.title, path: `/blog/${slug}` }]),
+            dbBlogPostingSchema(dbPost, SITE_URL) // @graph: MedicalWebPage + BlogPosting + FAQPage(질문형 H3)
           ]
         },
-        DbColumnDetailPage(dbPost, others)
+        DbColumnDetailPage(dbPost, others, colCases)
       )
     )
   }
@@ -973,7 +983,7 @@ app.get('/blog/:slug', async (c) => {
   return c.html(
     Layout(
       {
-        title: `${post.title} | ${CLINIC.shortName} 건강칼럼`,
+        title: `${post.title} | ${CLINIC.shortName}`,
         description: post.excerpt,
         path: `/blog/${slug}`,
         ogType: 'article',
@@ -1308,6 +1318,7 @@ app.post('/api/admin/posts', async (c) => {
          updated_at = datetime('now','+9 hours') WHERE id = ?`
       ).bind(title, slug, excerpt, contentHtml, category, pinned, status, status, Number(b.id)).run()
       const url = `${SITE_URL}${type === 'notice' ? '/notice/' : '/blog/'}${slug}`
+      if (status === 'published') pingIndexNow(c, [url])
       return c.json({ ok: true, id: Number(b.id), slug, status, url: status === 'published' ? url : null })
     } else {
       const dup: any = await c.env.DB.prepare('SELECT id FROM posts WHERE slug = ?').bind(slug).first()
@@ -1317,6 +1328,7 @@ app.post('/api/admin/posts', async (c) => {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN datetime('now','+9 hours') ELSE NULL END)`
       ).bind(type, slug, title, excerpt, contentHtml, category, pinned, status, status).run()
       const url = `${SITE_URL}${type === 'notice' ? '/notice/' : '/blog/'}${slug}`
+      if (status === 'published') pingIndexNow(c, [url, `${SITE_URL}${type === 'notice' ? '/notice' : '/blog'}`])
       return c.json({ ok: true, id: res.meta.last_row_id, slug, status, url: status === 'published' ? url : null })
     }
   } catch (e) {
@@ -1413,11 +1425,13 @@ app.post('/api/admin/cases', async (c) => {
       await c.env.DB.prepare(
         "UPDATE cases SET title=?, category=?, age_group=?, gender=?, area=?, description=?, before_img=?, after_img=?, status=?, updated_at=datetime('now','+9 hours') WHERE id=?"
       ).bind(...vals, Number(b.id)).run()
+      if (status === 'published') pingIndexNow(c, [`${SITE_URL}/cases/${Number(b.id)}`])
       return c.json({ ok: true, id: Number(b.id) })
     } else {
       const res = await c.env.DB.prepare(
         'INSERT INTO cases (title, category, age_group, gender, area, description, before_img, after_img, status) VALUES (?,?,?,?,?,?,?,?,?)'
       ).bind(...vals).run()
+      if (status === 'published') pingIndexNow(c, [`${SITE_URL}/cases/${res.meta.last_row_id}`, `${SITE_URL}/cases`])
       return c.json({ ok: true, id: res.meta.last_row_id })
     }
   } catch (e) {
@@ -1674,6 +1688,13 @@ ${urls.map((u) => `  <url><loc>${SITE_URL}${encodeURI(u.loc)}</loc>${u.mod ? `<l
 // IndexNow 인증 키 파일 (네이버·빙 실시간 색인 프로토콜)
 const INDEXNOW_KEY = '55c48e0393a825b9c183da0bc857e257'
 app.get(`/${INDEXNOW_KEY}.txt`, (c) => c.body(INDEXNOW_KEY, 200, { 'Content-Type': 'text/plain; charset=utf-8' }))
+// 칼럼·공지·사례 발행/수정 시 IndexNow 알림 (Bing·Naver 등) — 응답 뒤 waitUntil (2026-10-03 표준 A1)
+function pingIndexNow(c: any, urls: string[]) {
+  const body = JSON.stringify({ host: new URL(SITE_URL).host, key: INDEXNOW_KEY, keyLocation: `${SITE_URL}/${INDEXNOW_KEY}.txt`, urlList: urls })
+  const send = Promise.allSettled(['https://api.indexnow.org/indexnow', 'https://searchadvisor.naver.com/indexnow'].map((u) =>
+    fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8' }, body })))
+  try { c.executionCtx.waitUntil(send) } catch { /* ctx 없음 */ }
+}
 
 app.get('/robots.txt', (c) => {
   const txt = `User-agent: *

@@ -1555,3 +1555,13 @@ a, button, summary { -webkit-tap-highlight-color: transparent; }
   .t-check-label { font-size: 0.75rem; }
   .ba-tag { font-size: 0.72rem; padding: 5px 13px; }
 }
+
+/* ===== 칼럼·사례 SEO 블록 (2026-10-03, PFWE-COLUMN-CASE-SEO) — 사이트 토큰 사용 ===== */
+.answer-summary .answer-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--pine); letter-spacing: 0.04em; margin-bottom: 6px; }
+.post-author { display: flex; gap: 18px; align-items: flex-start; margin-top: 36px; padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff; }
+.post-author img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; object-position: center top; flex-shrink: 0; }
+.post-author .pa-role { font-size: 0.78rem; color: var(--ink-4); margin-bottom: 2px; }
+.post-author .pa-name { font-weight: 700; color: var(--ink); }
+.post-author .pa-cred { font-size: 0.85rem; color: var(--ink-2); margin-top: 4px; }
+.post-author .pa-date { font-size: 0.78rem; color: var(--ink-4); margin-top: 6px; }
+.case-summary { font-size: 0.98rem; line-height: 1.85; color: var(--ink-2); }

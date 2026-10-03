@@ -93,13 +93,13 @@ export function Head(meta: SeoMeta) {
         onload="this.media='all'"
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
-      <link rel="stylesheet" href="/static/style.css?v=design14" />
+      <link rel="stylesheet" href="/static/style.css?v=design15" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->
       ${raw(
         ld
-          .map((obj) => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`)
+          .map((obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`)
           .join('\n')
       )}
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYKCDVQMQE"></script>

@@ -28,6 +28,79 @@ const CAT_TO_TX: Record<string, string> = {
 }
 export const txSlugOfCategory = (cat: string) => CAT_TO_TX[(cat || '').trim()] || null
 
+
+// ============================================================
+// 칼럼·사례 SEO/AEO 헬퍼 — PFWE-COLUMN-CASE-SEO.md (2026-10-03). 본문·DB 값만 사용, 새 문장 생성 없음
+// ============================================================
+const stripTags = (h: string) => String(h || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim()
+
+/** posts.published_at/updated_at 은 datetime('now','+9 hours') = KST 값 → ISO 8601(+09:00) */
+export const kstIso = (d?: string | null) => {
+  const s = String(d || '').trim()
+  if (!/^\d{4}-\d{2}-\d{2}/.test(s)) return undefined
+  return s.length >= 19 ? `${s.slice(0, 10)}T${s.slice(11, 19)}+09:00` : s.slice(0, 10)
+}
+
+/** 핵심 답변: 작성자 요약(excerpt) 우선, 없으면 본문 첫 문단 앞 2~3문장 */
+export function answerSummary(excerpt: string | null | undefined, html: string): string {
+  const ex = String(excerpt || '').trim()
+  if (ex.length >= 20) return ex
+  const re = /<p(?:\s[^>]*)?>((?:(?!<\/p>)[\s\S])*)<\/p>/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html || '')) !== null) {
+    const t = stripTags(m[1])
+    if (t.length < 40) continue
+    const parts = t.match(/[^.!?]+[.!?]+(\s|$)/g) || [t]
+    let out = ''
+    for (const x of parts.slice(0, 3)) { if (out && (out + x).length > 220) break; out += x }
+    return out.trim()
+  }
+  return ''
+}
+
+/** 질문형 H3 → FAQ. 'Q? 짧은 답' 형식 H3 는 '?'까지를 질문, 나머지 + 다음 문단을 답으로 (모두 화면 문장) */
+export function faqsFromArticleHtml(html: string): { q: string; a: string }[] {
+  const out: { q: string; a: string }[] = []
+  const re = /<h3[^>]*>((?:(?!<\/h3>)[\s\S])*)<\/h3>\s*(?:<p(?:\s[^>]*)?>((?:(?!<\/p>)[\s\S])*)<\/p>)?/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html || '')) !== null) {
+    const h = stripTags(m[1]).replace(/^Q[.:]?\s*/i, '')
+    const qi = h.search(/[?？]/)
+    if (qi < 5) continue
+    const q = h.slice(0, qi + 1).replace(/^["“'‘]+/, '').trim()
+    const a = [h.slice(qi + 1).replace(/^["”'’]+/, '').trim(), stripTags(m[2] || '')].filter(Boolean).join(' ').trim()
+    if (a.length >= 10 && !out.some((x) => x.q === q)) out.push({ q, a: a.length > 500 ? a.slice(0, 497) + '…' : a })
+  }
+  return out.slice(0, 10)
+}
+
+/** 본문 이미지: alt 없으면 제목 기반, 첫 이미지 제외 loading=lazy, decoding=async */
+export function enhanceContentImages(html: string, title: string): string {
+  let n = 0
+  return String(html || '').replace(/<img\b([^>]*)>/gi, (_m, attrs: string) => {
+    let a = attrs.replace(/\s*\/\s*$/, '')
+    n++
+    if (!/\salt\s*=\s*["'][^"']+["']/i.test(a)) a = a.replace(/\salt\s*=\s*["']\s*["']/i, '') + ` alt="${esc(title)} 관련 이미지 ${n}"`
+    if (n > 1 && !/\sloading\s*=/i.test(a)) a += ' loading="lazy"'
+    if (!/\sdecoding\s*=/i.test(a)) a += ' decoding="async"'
+    return `<img${a}>`
+  })
+}
+
+/** 작성자 박스 — 대표원장(칼럼 작성자) → /doctors/{slug}, 최종 업데이트일 */
+export function postAuthorBox(updated: string) {
+  const d = DOCTORS[0]
+  return `<aside class="post-author" aria-label="작성 의료진">
+    <a href="/doctors/${d.slug}"><img src="/static/img/dr-kim-stool-720.webp" alt="${esc(d.name)} ${esc(d.title)}" width="72" height="72" loading="lazy" decoding="async" /></a>
+    <div>
+      <div class="pa-role">작성·감수</div>
+      <a href="/doctors/${d.slug}" class="pa-name">${esc(d.name)} ${esc(d.title)}</a>
+      <div class="pa-cred">${esc(d.credential || '')}</div>
+      ${updated ? `<div class="pa-date">최종 업데이트 <time datetime="${esc(updated)}">${esc(updated.replace(/-/g, '.'))}</time></div>` : ''}
+    </div>
+  </aside>`
+}
+
 export type DbPost = {
   id: number
   type: string
@@ -57,6 +130,7 @@ export type DbCase = {
   after_img: string
   status: string
   created_at: string
+  updated_at?: string
 }
 
 // ============================================================
@@ -152,8 +226,12 @@ export function NoticeDetailPage(post: DbPost, others: DbPost[]) {
 // ============================================================
 // DB 칼럼 상세 (관리자 작성 글 — Toast UI HTML 렌더)
 // ============================================================
-export function DbColumnDetailPage(post: DbPost, others: DbPost[]) {
+export function DbColumnDetailPage(post: DbPost, others: DbPost[], relatedCases: DbCase[] = []) {
   const doctor = DOCTORS[0]
+  const summary = answerSummary(post.excerpt, post.content_html)
+  const body = enhanceContentImages(post.content_html, post.title)
+  const updated = String(post.updated_at || post.published_at || post.created_at || '').slice(0, 10)
+  const txSlug = txSlugOfCategory(post.category)
   return html`
     <article>
       <section class="page-hero" data-ghost="COLUMN">
@@ -173,8 +251,10 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[]) {
         <div class="container">
           <div class="t-detail-grid">
             <div class="post-body cms-body">
-              ${raw(post.content_html)}
+              ${summary ? html`<div class="post-lead answer-summary"><span class="answer-label">핵심 답변</span>${summary}</div>` : ''}
+              ${raw(body)}
               <p class="post-disclaimer">본 칼럼은 일반적인 정보 제공을 위한 것으로, 진단·치료 효과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. 정확한 진단과 치료 계획은 반드시 내원하여 전문의와 상담하시기 바랍니다.</p>
+              ${raw(postAuthorBox(updated))}
             </div>
 
             <aside class="t-sidebar">
@@ -190,14 +270,15 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[]) {
                   <h3 class="h4">관련 진료</h3>
                   <div class="side-links">
                     <a href="/treatments/${txSlugOfCategory(post.category)}"><i class="fa-solid fa-tooth"></i> ${esc(post.category)} 진료 안내 <i class="fa-solid fa-arrow-right" style="margin-left:auto"></i></a>
-                    <a href="/cases"><i class="fa-solid fa-images"></i> 치료사례 보기 <i class="fa-solid fa-arrow-right" style="margin-left:auto"></i></a>
+                    ${raw(relatedCases.map((cs) => `<a href="/cases/${cs.id}"><i class="fa-solid fa-images"></i> ${esc(cs.title)} <i class="fa-solid fa-arrow-right" style="margin-left:auto"></i></a>`).join(''))}
+                    <a href="/cases?cat=${encodeURIComponent(post.category)}"><i class="fa-solid fa-images"></i> ${esc(post.category)} 치료사례 보기 <i class="fa-solid fa-arrow-right" style="margin-left:auto"></i></a>
                   </div>
                 </div>`
                 : ''}
               ${others.length
                 ? html`
                 <div class="side-card">
-                  <h3 class="h4">다른 칼럼</h3>
+                  <h3 class="h4">${txSlug ? '관련 칼럼' : '다른 칼럼'}</h3>
                   <div class="side-links">
                     ${raw(others.map((o) => `<a href="/blog/${esc(o.slug)}">${esc(o.title)} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}
                   </div>
@@ -216,34 +297,58 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[]) {
 // ============================================================
 export function dbBlogPostingSchema(post: DbPost, siteUrl: string) {
   const doctor = DOCTORS[0]
-  const published = (post.published_at || post.created_at || '').slice(0, 10)
-  const modified = (post.updated_at || post.published_at || post.created_at || '').slice(0, 10)
-  // 본문 텍스트 요약 (HTML 태그 제거)
-  const plain = String(post.content_html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+  const url = `${siteUrl}/blog/${post.slug}`
+  const published = kstIso(post.published_at || post.created_at)
+  const modified = kstIso(post.updated_at || post.published_at || post.created_at) || published
+  const plain = stripTags(post.content_html)
+  const summary = answerSummary(post.excerpt, post.content_html)
+  const faqs = faqsFromArticleHtml(post.content_html)
+  const txSlug = txSlugOfCategory(post.category)
+  const firstImg = (post.content_html || '').match(/<img[^>]+src=["']([^"']+)["']/i)?.[1]
+  const image = post.thumbnail ? `${siteUrl}/media/${post.thumbnail}` : firstImg ? (firstImg.startsWith('http') ? firstImg : `${siteUrl}${firstImg}`) : `${siteUrl}/static/img/og.png`
+  const physician = { '@type': 'Physician', '@id': `${siteUrl}/doctors/${doctor.slug}/#physician`, name: `${doctor.name} ${doctor.title}`, jobTitle: CLINIC.directorCredential, url: `${siteUrl}/doctors/${doctor.slug}`, worksFor: { '@id': `${siteUrl}/#organization` } }
   return {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    '@id': `${siteUrl}/blog/${post.slug}#article`,
-    headline: post.title,
-    description: post.excerpt || plain.slice(0, 155),
-    articleBody: plain.slice(0, 2000),
-    url: `${siteUrl}/blog/${post.slug}`,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `${siteUrl}/blog/${post.slug}` },
-    image: post.thumbnail ? `${siteUrl}/media/${post.thumbnail}` : `${siteUrl}/static/img/og.png`,
-    datePublished: published,
-    dateModified: modified,
-    inLanguage: 'ko',
-    articleSection: post.category || '건강칼럼',
-    author: {
-      '@type': 'Physician',
-      '@id': `${siteUrl}/doctors/${doctor.slug}/#physician`,
-      name: `${doctor.name} ${doctor.title}`,
-      jobTitle: CLINIC.directorCredential,
-      url: `${siteUrl}/doctors/${doctor.slug}`,
-      worksFor: { '@id': `${siteUrl}/#organization` }
-    },
-    publisher: { '@id': `${siteUrl}/#organization` },
-    isPartOf: { '@type': 'Blog', name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` }
+    '@graph': [
+      {
+        '@type': 'MedicalWebPage',
+        '@id': `${url}#webpage`,
+        url,
+        name: post.title,
+        description: post.excerpt || summary || plain.slice(0, 155),
+        inLanguage: 'ko-KR',
+        isPartOf: { '@id': `${siteUrl}/#website` },
+        datePublished: published,
+        dateModified: modified,
+        reviewedBy: { '@id': physician['@id'] },
+        medicalAudience: { '@type': 'MedicalAudience', audienceType: 'Patient' },
+        ...(txSlug ? { about: { '@type': 'MedicalProcedure', '@id': `${siteUrl}/treatments/${txSlug}#procedure`, name: post.category, url: `${siteUrl}/treatments/${txSlug}` } } : {}),
+        primaryImageOfPage: { '@type': 'ImageObject', url: image },
+        speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', ...(summary ? ['.answer-summary'] : [])] }
+      },
+      {
+        '@type': 'BlogPosting',
+        '@id': `${url}#article`,
+        headline: post.title,
+        description: post.excerpt || summary || plain.slice(0, 155),
+        url,
+        mainEntityOfPage: { '@id': `${url}#webpage` },
+        image: { '@type': 'ImageObject', url: image },
+        datePublished: published,
+        dateModified: modified,
+        inLanguage: 'ko-KR',
+        articleSection: post.category || '건강칼럼',
+        wordCount: plain ? plain.split(' ').length : undefined,
+        author: physician,
+        reviewedBy: { '@id': physician['@id'] },
+        publisher: { '@id': `${siteUrl}/#organization` },
+        isPartOf: { '@type': 'Blog', '@id': `${siteUrl}/blog#blog`, name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` },
+        ...(txSlug ? { about: { '@id': `${siteUrl}/treatments/${txSlug}#procedure` } } : {})
+      },
+      ...(faqs.length
+        ? [{ '@type': 'FAQPage', '@id': `${url}#faq`, isPartOf: { '@id': `${url}#webpage` }, mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }]
+        : [])
+    ]
   }
 }
 
@@ -268,12 +373,13 @@ export function noticeSchema(post: DbPost, siteUrl: string) {
 
 // 비포·애프터 드래그 비교 슬라이더 — 로그인 시 After 원본, 비로그인 시 After 블러+잠금 배지
 // 주의: 카드 링크(<a class="ba-card">) 내부에 삽입되므로 앵커(<a>)를 절대 포함하지 않는다 (중첩 <a> = 레이아웃 파손)
-export function baSliderHtml(beforeImg: string, afterImg: string, title: string, isMember: boolean): string {
+export function baSliderHtml(beforeImg: string, afterImg: string, title: string, isMember: boolean, altBase?: string): string {
+  const alt = altBase || title
   const beforeEl = beforeImg
-    ? `<img src="/media/${esc(beforeImg)}" alt="${esc(title)} 치료 전" loading="lazy" draggable="false" />`
+    ? `<img src="/media/${esc(beforeImg)}" alt="${esc(alt)} 치료 전" loading="lazy" decoding="async" draggable="false" />`
     : `<span class="ba-slider-empty"><i class="fa-solid fa-image"></i></span>`
   const afterEl = afterImg
-    ? `<img src="/media/${esc(afterImg)}" alt="${esc(title)} 치료 후" loading="lazy" draggable="false"${isMember ? '' : ' style="filter:blur(14px);transform:scale(1.08)"'} />`
+    ? `<img src="/media/${esc(afterImg)}" alt="${esc(alt)} 치료 후" loading="lazy" decoding="async" draggable="false"${isMember ? '' : ' style="filter:blur(14px);transform:scale(1.08)"'} />`
     : isMember
       ? `<span class="ba-slider-empty"><i class="fa-solid fa-image"></i></span>`
       : ''
@@ -290,7 +396,7 @@ export function baSliderHtml(beforeImg: string, afterImg: string, title: string,
 // ============================================================
 // 비포·애프터 상세 (DB cases) — 개별 URL /cases/:id
 // ============================================================
-export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) {
+export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false, relatedPosts: { slug: string; title: string }[] = []) {
   const txSlug = txSlugOfCategory(c.category)
   const myPath = `/cases/${c.id}`
   return html`
@@ -322,7 +428,7 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) 
         </div>`}
 
         <div class="case-detail-slider reveal">
-          ${raw(baSliderHtml(c.before_img, c.after_img, c.title, isMember))}
+          ${raw(baSliderHtml(c.before_img, c.after_img, c.title, isMember, c.category))}
           ${isMember
             ? html`<p class="ba-slider-hint"><i class="fa-solid fa-arrows-left-right"></i> 가운데 손잡이를 좌우로 움직여 치료 전후를 비교해 보세요.</p>`
             : html`<p class="ba-slider-hint"><i class="fa-solid fa-lock"></i> 치료 후(After) 사진은 <a href="/login?redirect=${encodeURIComponent(myPath)}" style="color:var(--acc);font-weight:700">로그인</a> 후 선명하게 확인하실 수 있습니다.</p>`}
@@ -331,7 +437,17 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) 
         ${c.description
           ? html`
         <div class="post-body reveal" style="margin-top:32px">
-          <p style="font-size:0.98rem;line-height:1.9;color:var(--ink-2);white-space:pre-line">${esc(c.description)}</p>
+          <p class="case-summary" style="font-size:0.98rem;line-height:1.9;color:var(--ink-2);white-space:pre-line">${esc(c.description)}</p>
+        </div>`
+          : html`
+        <div class="post-body reveal" style="margin-top:32px">
+          <p class="case-summary">${esc(c.category)} 진료사례입니다. 담당 의료진은 ${DOCTORS[0].name} ${DOCTORS[0].title}이며, 치료 전 사진은 공개, 치료 후 사진은 로그인 후 확인하실 수 있습니다.</p>
+        </div>`}
+        ${relatedPosts.length
+          ? html`
+        <div class="reveal" style="margin-top:28px">
+          <h2 class="h4" style="margin-bottom:10px">${esc(c.category)} 관련 칼럼</h2>
+          <div class="side-links">${raw(relatedPosts.map((p) => `<a href="/blog/${esc(p.slug)}">${esc(p.title)} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}</div>
         </div>`
           : ''}
 
@@ -356,7 +472,7 @@ export function DbCaseDetailPage(c: DbCase, others: DbCase[], isMember = false) 
                 .map(
                   (o) => `
             <a href="/cases/${o.id}" class="ba-card">
-              ${baSliderHtml(o.before_img, o.after_img, o.title, isMember)}
+              ${baSliderHtml(o.before_img, o.after_img, o.title, isMember, o.category)}
               <div class="ba-body">
                 <h3 class="h4">${esc(o.title)}</h3>
                 <div class="ba-meta"><span>${esc(o.category)}</span>${o.age_group ? `<span>${esc(o.age_group)}</span>` : ''}</div>
@@ -440,7 +556,7 @@ export function DbCasesPage(rows: DbCase[], activeCat?: string, isMember = false
               .map(
                 (c) => `
             <a href="/cases/${c.id}" class="ba-card reveal" aria-label="${esc(c.title)} 사례 자세히 보기">
-              ${baSliderHtml(c.before_img, c.after_img, c.title, isMember)}
+              ${baSliderHtml(c.before_img, c.after_img, c.title, isMember, c.category)}
               <div class="ba-body">
                 <h2 class="h4">${esc(c.title)}</h2>
                 <div class="ba-meta">
