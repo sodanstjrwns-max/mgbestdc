@@ -378,8 +378,8 @@ export function baSliderHtml(beforeImg: string, afterImg: string, title: string,
   const beforeEl = beforeImg
     ? `<img src="/media/${esc(beforeImg)}" alt="${esc(alt)} 치료 전" loading="lazy" decoding="async" draggable="false" />`
     : `<span class="ba-slider-empty"><i class="fa-solid fa-image"></i></span>`
-  const afterEl = afterImg
-    ? `<img src="/media/${esc(afterImg)}" alt="${esc(alt)} 치료 후" loading="lazy" decoding="async" draggable="false"${isMember ? '' : ' style="filter:blur(14px);transform:scale(1.08)"'} />`
+  const afterEl = isMember && afterImg
+    ? `<img src="/media/${esc(afterImg)}" alt="${esc(alt)} 치료 후" loading="lazy" decoding="async" draggable="false" />`
     : isMember
       ? `<span class="ba-slider-empty"><i class="fa-solid fa-image"></i></span>`
       : ''
