@@ -14,6 +14,7 @@ import {
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost, catByName } from './data/blog'
 import { CONTENT_DATES, latestDate } from './data/content-dates'
+import { isClinicPublishedDbPost, isClinicPublishedStaticPost } from './data/authorship'
 import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, txSlugOfCategory, kstIso, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations, AdminFees } from './pages/admin'
 import { AdminStats, fetchSiteStats, STATS_TOKEN, MASTER_KEY } from './pages/stats'
@@ -891,7 +892,7 @@ app.get('/blog', async (c) => {
     Layout(
       {
         title: `건강칼럼 | ${CLINIC.name} (${CLINIC.station} 도보 3분)`,
-        description: `${DOCTORS[0].name} 대표원장이 직접 쓰는 치아 건강 칼럼 — 임플란트·충치치료·심미치료·구강관리 정보를 전해드립니다.`,
+        description: `${CLINIC.shortName} 건강칼럼 — 임플란트·충치치료·심미치료·구강관리 정보를 전해드립니다.`,
         path: '/blog',
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }]),
@@ -926,7 +927,7 @@ app.get('/blog/category/:cat', async (c) => {
     Layout(
       {
         title: `${cat.name} 칼럼 | ${CLINIC.name}`,
-        description: `${cat.name} 관련 건강 칼럼 모음 — 마곡나루역 도보 3분 ${CLINIC.name} 대표원장이 직접 쓰는 ${cat.name} 정보와 관리 가이드입니다.`,
+        description: `${cat.name} 관련 건강 칼럼 모음 — 마곡나루역 도보 3분 ${CLINIC.name}이 전하는 ${cat.name} 정보와 관리 가이드입니다.`,
         path: `/blog/category/${catSlug}`,
         noindexFollow: isEmptyCat,
         jsonLd: [breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: cat.name, path: `/blog/category/${catSlug}` }]), blogListSchema(SITE_URL, dbPosts, cat.name)]
@@ -971,7 +972,7 @@ app.get('/blog/:slug', async (c) => {
           description: seoDesc(dbPost.excerpt || dbPost.title, `${CLINIC.name} 건강칼럼. 마곡나루역 1번 출구 앞, 서울대 출신 대표원장 직접 진료.`),
           path: `/blog/${slug}`,
           ogType: 'article',
-          article: { published: kstIso(dbPost.published_at || dbPost.created_at) || '', modified: kstIso((dbPost as any).updated_at || dbPost.published_at), tags: [dbPost.category].filter(Boolean) },
+          article: { published: kstIso(dbPost.published_at || dbPost.created_at) || '', modified: kstIso((dbPost as any).updated_at || dbPost.published_at), tags: [dbPost.category].filter(Boolean), ...(isClinicPublishedDbPost(dbPost) ? { author: `${SITE_URL}/about` } : {}) },
           jsonLd: [
             breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, ...(dbPost.category && catByName(dbPost.category) ? [{ name: dbPost.category, path: `/blog/category/${catByName(dbPost.category)!.slug}` }] : []), { name: dbPost.title, path: `/blog/${slug}` }]),
             dbBlogPostingSchema(dbPost, SITE_URL) // @graph: MedicalWebPage + BlogPosting + FAQPage(질문형 H3)
@@ -989,7 +990,7 @@ app.get('/blog/:slug', async (c) => {
         description: post.excerpt,
         path: `/blog/${slug}`,
         ogType: 'article',
-        article: { published: post.date, modified: post.updated, tags: post.tags },
+        article: { published: post.date, modified: post.updated, tags: post.tags, ...(isClinicPublishedStaticPost(post.slug) ? { author: `${SITE_URL}/about` } : {}) },
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, { name: post.title, path: `/blog/${slug}` }]),
           blogPostingSchema(post, SITE_URL),
@@ -1571,7 +1572,7 @@ const escXml = (s: string) => String(s || '').replace(/&/g, '&amp;').replace(/</
 const stripTags = (s: string) => String(s || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
 app.get('/rss.xml', async (c) => {
-  type FeedItem = { title: string; url: string; desc: string; date: Date | null; category?: string }
+  type FeedItem = { title: string; url: string; desc: string; date: Date | null; category?: string; clinic: boolean }
   const toDate = (s: string) => {
     const d = new Date(String(s || '').includes('T') ? s : String(s || '').replace(' ', 'T') + (String(s || '').length <= 10 ? 'T09:00:00+09:00' : 'Z'))
     return isNaN(d.getTime()) ? null : d // 날짜 없음 → pubDate 생략 (오늘로 채우지 않음)
@@ -1581,19 +1582,21 @@ app.get('/rss.xml', async (c) => {
     url: `${SITE_URL}/blog/${p.slug}`,
     desc: p.excerpt,
     date: toDate(p.updated || p.date),
-    category: p.category
+    category: p.category,
+    clinic: isClinicPublishedStaticPost(p.slug)
   }))
   // DB 칼럼 (관리자 작성)
   try {
     if (c.env?.DB) {
-      const res = await c.env.DB.prepare("SELECT slug, title, excerpt, content_html, category, published_at, created_at FROM posts WHERE type = 'column' AND status = 'published' ORDER BY published_at DESC LIMIT 30").all()
+      const res = await c.env.DB.prepare("SELECT id, slug, title, excerpt, content_html, category, published_at, created_at FROM posts WHERE type = 'column' AND status = 'published' ORDER BY published_at DESC LIMIT 30").all()
       for (const p of (res.results || []) as any[]) {
         items.push({
           title: p.title,
           url: `${SITE_URL}/blog/${p.slug}`,
           desc: (p.excerpt || stripTags(p.content_html)).slice(0, 300),
           date: toDate(p.published_at || p.created_at),
-          category: p.category
+          category: p.category,
+          clinic: isClinicPublishedDbPost(p)
         })
       }
     }
@@ -1621,7 +1624,7 @@ ${top
       <description>${escXml(it.desc)}</description>
 ${it.date ? `      <pubDate>${it.date.toUTCString()}</pubDate>` : ''}${it.category ? `
       <category>${escXml(it.category)}</category>` : ''}
-      <dc:creator>${escXml(`${CLINIC.director} ${CLINIC.directorTitle} (${CLINIC.directorCredential})`)}</dc:creator>
+      <dc:creator>${escXml(it.clinic ? CLINIC.shortName : `${CLINIC.director} ${CLINIC.directorTitle} (${CLINIC.directorCredential})`)}</dc:creator>
     </item>`
   )
   .join('\n')}
@@ -1779,7 +1782,7 @@ ${GENERAL_TREATMENTS.map((t) => `- [${t.name}](${SITE_URL}/treatments/${t.slug})
 ## 보유 장비
 ${CLINIC.equipment.map((e) => `- ${e.name}: ${e.desc}`).join('\n')}
 
-## 건강칼럼 (꾸준히 업데이트)
+## 건강칼럼 (꾸준히 업데이트 · 아래 글은 ${CLINIC.shortName} 발행 일반 건강정보)
 ${BLOG_POSTS.map((p) => `- [${p.title}](${SITE_URL}/blog/${p.slug}): ${p.excerpt}`).join('\n')}
 
 ## 진료권 (지역 안내)
@@ -1828,7 +1831,7 @@ app.get('/llms-full.txt', (c) => {
   const blogDocs = BLOG_POSTS.map((p) => {
     const secs = p.sections.map((s) => `### ${s.h}\n${s.p}`).join('\n\n')
     const faqs = (p.faqs || []).length ? `\n\n**Q&A**\n${(p.faqs || []).map((f) => `Q. ${f.q}\nA. ${f.a}`).join('\n\n')}` : ''
-    return `## ${p.title} (${SITE_URL}/blog/${p.slug})\n발행 ${p.date}${p.updated ? ` · 수정 ${p.updated}` : ''} · ${p.category}\n\n${p.lead}\n\n${secs}\n\n**핵심 요약**: ${p.takeaway}${faqs}`
+    return `## ${p.title} (${SITE_URL}/blog/${p.slug})\n발행 ${p.date}${p.updated ? ` · 수정 ${p.updated}` : ''} · ${p.category} · ${isClinicPublishedStaticPost(p.slug) ? `${CLINIC.shortName} 발행 일반 건강정보` : `${DOCTORS[0].name} ${CLINIC.directorTitle} 작성`}\n\n${p.lead}\n\n${secs}\n\n**핵심 요약**: ${p.takeaway}${faqs}`
   }).join('\n\n---\n\n')
 
   const txt = `# ${CLINIC.name} — 전체 콘텐츠 (llms-full.txt)

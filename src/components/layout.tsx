@@ -10,7 +10,7 @@ type SeoMeta = {
   jsonLd?: object[]
   noindex?: boolean
   noindexFollow?: boolean // 빈 목록 등: noindex, follow (링크는 따라감)
-  article?: { published: string; modified?: string; tags?: string[] }
+  article?: { published: string; modified?: string; tags?: string[]; author?: string } // author: 생략 시 /doctors
 }
 
 const SITE_URL = 'https://mgbestdc.kr'
@@ -59,7 +59,7 @@ export function Head(meta: SeoMeta) {
         ? raw(
             `<meta property="article:published_time" content="${meta.article.published}" />
       <meta property="article:modified_time" content="${meta.article.modified || meta.article.published}" />
-      <meta property="article:author" content="${SITE_URL}/doctors" />` +
+      <meta property="article:author" content="${meta.article.author || SITE_URL + '/doctors'}" />` +
               (meta.article.tags || []).map((t) => `\n      <meta property="article:tag" content="${t}" />`).join('')
           )
         : ''}

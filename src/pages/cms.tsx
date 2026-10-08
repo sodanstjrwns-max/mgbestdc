@@ -4,6 +4,7 @@
 // ============================================================
 import { html, raw } from 'hono/html'
 import { CLINIC, DOCTORS } from '../data/clinic'
+import { isClinicPublishedDbPost, CLINIC_GENERAL_INFO_NOTE } from '../data/authorship'
 
 export const esc = (s: string) =>
   String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -87,9 +88,21 @@ export function enhanceContentImages(html: string, title: string): string {
   })
 }
 
-/** 작성자 박스 — 대표원장(칼럼 작성자) → /doctors/{slug}, 최종 업데이트일 */
-export function postAuthorBox(updated: string) {
+/** 작성자 박스 — 대표원장(칼럼 작성자) → /doctors/{slug}, 최종 업데이트일
+ *  clinic=true: 원장 작성 근거 없는 글(data/authorship.ts) → 병원 발행 + 일반 건강정보 안내 */
+export function postAuthorBox(updated: string, clinic = false) {
   const d = DOCTORS[0]
+  if (clinic) {
+    return `<aside class="post-author" aria-label="발행">
+    <a href="/about"><img src="/static/img/apple-touch-icon.png" alt="${esc(CLINIC.shortName)} 로고" width="72" height="72" loading="lazy" decoding="async" style="object-fit:contain;background:#fff" /></a>
+    <div>
+      <div class="pa-role">발행</div>
+      <a href="/about" class="pa-name">${esc(CLINIC.shortName)}</a>
+      <div class="pa-cred">${CLINIC_GENERAL_INFO_NOTE}</div>
+      ${updated ? `<div class="pa-date">최종 업데이트 <time datetime="${esc(updated)}">${esc(updated.replace(/-/g, '.'))}</time></div>` : ''}
+    </div>
+  </aside>`
+  }
   return `<aside class="post-author" aria-label="작성 의료진">
     <a href="/doctors/${d.slug}"><img src="/static/img/dr-kim-stool-720.webp" alt="${esc(d.name)} ${esc(d.title)}" width="72" height="72" loading="lazy" decoding="async" /></a>
     <div>
@@ -228,6 +241,7 @@ export function NoticeDetailPage(post: DbPost, others: DbPost[]) {
 // ============================================================
 export function DbColumnDetailPage(post: DbPost, others: DbPost[], relatedCases: DbCase[] = []) {
   const doctor = DOCTORS[0]
+  const clinic = isClinicPublishedDbPost(post) // 원장 작성 근거 없음 → 병원 발행 표시
   const summary = answerSummary(post.excerpt, post.content_html)
   const body = enhanceContentImages(post.content_html, post.title)
   const updated = String(post.updated_at || post.published_at || post.created_at || '').slice(0, 10)
@@ -240,7 +254,7 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[], relatedCases:
           <span class="eyebrow">${esc(post.category || '건강 칼럼')}</span>
           <h1 style="max-width:880px">${esc(post.title)}</h1>
           <div class="post-meta">
-            <span><i class="fa-solid fa-user-doctor"></i> ${doctor.name} ${doctor.title}</span>
+            ${clinic ? html`<span><i class="fa-solid fa-hospital"></i> ${CLINIC.shortName}</span>` : html`<span><i class="fa-solid fa-user-doctor"></i> ${doctor.name} ${doctor.title}</span>`}
             <span><i class="fa-regular fa-calendar"></i> ${fmtDate(post.published_at || post.created_at)}</span>
             <span><i class="fa-regular fa-eye"></i> ${post.views + 1}</span>
           </div>
@@ -254,7 +268,7 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[], relatedCases:
               ${summary ? html`<div class="post-lead answer-summary"><span class="answer-label">핵심 답변</span>${summary}</div>` : ''}
               ${raw(body)}
               <p class="post-disclaimer">본 칼럼은 일반적인 정보 제공을 위한 것으로, 진단·치료 효과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. 정확한 진단과 치료 계획은 반드시 내원하여 전문의와 상담하시기 바랍니다.</p>
-              ${raw(postAuthorBox(updated))}
+              ${raw(postAuthorBox(updated, clinic))}
             </div>
 
             <aside class="t-sidebar">
@@ -307,6 +321,8 @@ export function dbBlogPostingSchema(post: DbPost, siteUrl: string) {
   const firstImg = (post.content_html || '').match(/<img[^>]+src=["']([^"']+)["']/i)?.[1]
   const image = post.thumbnail ? `${siteUrl}/media/${post.thumbnail}` : firstImg ? (firstImg.startsWith('http') ? firstImg : `${siteUrl}${firstImg}`) : `${siteUrl}/static/img/og.png`
   const physician = { '@type': 'Physician', '@id': `${siteUrl}/doctors/${doctor.slug}/#physician`, name: `${doctor.name} ${doctor.title}`, jobTitle: CLINIC.directorCredential, url: `${siteUrl}/doctors/${doctor.slug}`, worksFor: { '@id': `${siteUrl}/#organization` } }
+  // 원장 작성 근거 없는 글(data/authorship.ts) → author = 병원(Organization @id), reviewedBy 없음
+  const clinic = isClinicPublishedDbPost(post)
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -320,7 +336,7 @@ export function dbBlogPostingSchema(post: DbPost, siteUrl: string) {
         isPartOf: { '@id': `${siteUrl}/#website` },
         datePublished: published,
         dateModified: modified,
-        reviewedBy: { '@id': physician['@id'] },
+        ...(clinic ? {} : { reviewedBy: { '@id': physician['@id'] } }),
         medicalAudience: { '@type': 'MedicalAudience', audienceType: 'Patient' },
         ...(txSlug ? { about: { '@type': 'MedicalProcedure', '@id': `${siteUrl}/treatments/${txSlug}#procedure`, name: post.category, url: `${siteUrl}/treatments/${txSlug}` } } : {}),
         primaryImageOfPage: { '@type': 'ImageObject', url: image },
@@ -339,8 +355,7 @@ export function dbBlogPostingSchema(post: DbPost, siteUrl: string) {
         inLanguage: 'ko-KR',
         articleSection: post.category || '건강칼럼',
         wordCount: plain ? plain.split(' ').length : undefined,
-        author: physician,
-        reviewedBy: { '@id': physician['@id'] },
+        ...(clinic ? { author: { '@id': `${siteUrl}/#organization` } } : { author: physician, reviewedBy: { '@id': physician['@id'] } }),
         publisher: { '@id': `${siteUrl}/#organization` },
         isPartOf: { '@type': 'Blog', '@id': `${siteUrl}/blog#blog`, name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` },
         ...(txSlug ? { about: { '@id': `${siteUrl}/treatments/${txSlug}#procedure` } } : {})

@@ -2,6 +2,7 @@ import { html, raw } from 'hono/html'
 import { CLINIC, getTreatment, DOCTORS } from '../data/clinic'
 import { BLOG_POSTS, BLOG_CATEGORIES, catByName, sortedPosts, getPost, type BlogPost } from '../data/blog'
 import { postAuthorBox } from './cms'
+import { isClinicPublishedStaticPost } from '../data/authorship'
 
 // 날짜 표기: 2026-05-28 → 2026.05.28
 const fmtDate = (d: string) => d.replace(/-/g, '.')
@@ -27,7 +28,7 @@ export function BlogListPage(activeCat?: string, dbPosts: DbPostLite[] = []) {
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><span>건강칼럼</span></nav>
         <span class="eyebrow">건강 칼럼</span>
         <h1>건강 <span class="grad">칼럼</span></h1>
-        <p class="ph-sub">${DOCTORS[0].name} 대표원장이 전하는 치아 건강 이야기. 임플란트·충치치료·심미치료부터 일상 속 구강 관리까지,<br />정확하고 도움이 되는 정보를 꾸준히 업데이트합니다.</p>
+        <p class="ph-sub">${CLINIC.shortName}가 전하는 치아 건강 이야기. 임플란트·충치치료·심미치료부터 일상 속 구강 관리까지,<br />정확하고 도움이 되는 정보를 꾸준히 업데이트합니다.</p>
       </div>
     </section>
 
@@ -140,6 +141,8 @@ export function BlogDetailPage(post: BlogPost) {
   const related = post.related.map((s) => getTreatment(s)).filter(Boolean)
   const others = sortedPosts().filter((p) => p.slug !== post.slug).slice(0, 3)
   const doctor = DOCTORS[0]
+  // 정적 칼럼은 대행사 작성 → 병원 발행 표시 (data/authorship.ts)
+  const clinic = isClinicPublishedStaticPost(post.slug)
 
   return html`
     <article>
@@ -149,7 +152,7 @@ export function BlogDetailPage(post: BlogPost) {
           <span class="eyebrow">${post.category}</span>
           <h1 style="max-width:880px">${post.title}</h1>
           <div class="post-meta">
-            <span><i class="fa-solid fa-user-doctor"></i> ${doctor.name} ${doctor.title}</span>
+            ${clinic ? html`<span><i class="fa-solid fa-hospital"></i> ${CLINIC.shortName}</span>` : html`<span><i class="fa-solid fa-user-doctor"></i> ${doctor.name} ${doctor.title}</span>`}
             <span><i class="fa-regular fa-calendar"></i> ${fmtDate(post.date)}</span>
             <span><i class="fa-regular fa-clock"></i> 약 ${post.readMin}분</span>
           </div>
@@ -207,7 +210,7 @@ export function BlogDetailPage(post: BlogPost) {
 
               <!-- 의료광고법 안내 -->
               <p class="post-disclaimer">본 칼럼은 일반적인 정보 제공을 위한 것으로, 진단·치료 효과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. 정확한 진단과 치료 계획은 반드시 내원하여 전문의와 상담하시기 바랍니다.</p>
-              ${raw(postAuthorBox(post.updated || post.date))}
+              ${raw(postAuthorBox(post.updated || post.date, clinic))}
             </div>
 
             <aside class="t-sidebar">
@@ -248,6 +251,7 @@ export function BlogDetailPage(post: BlogPost) {
 // JSON-LD: BlogPosting / Article (AI·검색 노출 핵심)
 // ============================================================
 export function blogPostingSchema(post: BlogPost, siteUrl: string) {
+  const clinic = isClinicPublishedStaticPost(post.slug)
   return {
     '@context': 'https://schema.org',
     '@type': ['BlogPosting', 'MedicalWebPage'],
@@ -262,15 +266,20 @@ export function blogPostingSchema(post: BlogPost, siteUrl: string) {
     inLanguage: 'ko-KR',
     keywords: post.tags.join(', '),
     speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '.answer-summary'] },
-    author: {
-      '@type': 'Physician',
-      '@id': `${siteUrl}/doctors/${DOCTORS[0].slug}/#physician`,
-      name: `${DOCTORS[0].name} ${DOCTORS[0].title}`,
-      jobTitle: CLINIC.directorCredential,
-      url: `${siteUrl}/doctors/${DOCTORS[0].slug}`,
-      worksFor: { '@type': 'Dentist', name: CLINIC.name, '@id': `${siteUrl}/#organization` }
-    },
-    reviewedBy: { '@id': `${siteUrl}/doctors/${DOCTORS[0].slug}/#physician` },
+    // 원장 작성 근거 없는 글 → author = 병원(Organization @id), reviewedBy 없음 (data/authorship.ts)
+    ...(clinic
+      ? { author: { '@id': `${siteUrl}/#organization` } }
+      : {
+          author: {
+            '@type': 'Physician',
+            '@id': `${siteUrl}/doctors/${DOCTORS[0].slug}/#physician`,
+            name: `${DOCTORS[0].name} ${DOCTORS[0].title}`,
+            jobTitle: CLINIC.directorCredential,
+            url: `${siteUrl}/doctors/${DOCTORS[0].slug}`,
+            worksFor: { '@type': 'Dentist', name: CLINIC.name, '@id': `${siteUrl}/#organization` }
+          },
+          reviewedBy: { '@id': `${siteUrl}/doctors/${DOCTORS[0].slug}/#physician` }
+        }),
     publisher: { '@id': `${siteUrl}/#organization` },
     isPartOf: [{ '@id': `${siteUrl}/#website` }, { '@type': 'Blog', '@id': `${siteUrl}/blog#blog`, name: `${CLINIC.shortName} 건강칼럼`, url: `${siteUrl}/blog` }],
     // 관련 진료 페이지의 MedicalProcedure @id (없으면 분류명)
