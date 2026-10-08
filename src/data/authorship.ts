@@ -21,9 +21,8 @@ export const CLINIC_GENERAL_INFO_NOTE = '일반 건강정보입니다. 진료 �
 /** 본문에 병원이 직접 넣은 원장 바이라인(이름 + 글쓴이/대표원장/전문의)이 있는가 */
 export function hasDoctorByline(contentHtml: string | null | undefined): boolean {
   const text = String(contentHtml || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ')
-  const name = DOCTORS[0].name
-  const nameRe = new RegExp(`${name}(?![가-힣])`)
-  return nameRe.test(text) && /(글쓴이|대표원장|전문의)/.test(text)
+  // 이름 뒤에 조사가 바로 붙는 바이라인('김민입니다')도 인정 — 단순 포함 검사
+  return text.includes(DOCTORS[0].name) && /(글쓴이|대표원장|전문의)/.test(text)
 }
 
 /** DB 칼럼이 병원 발행(원장 저자 근거 없음)인가 */
