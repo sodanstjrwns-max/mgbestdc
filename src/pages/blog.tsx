@@ -1,4 +1,5 @@
 import { html, raw } from 'hono/html'
+import { columnHubNote } from '../data/hub-link'
 import { CLINIC, getTreatment, DOCTORS } from '../data/clinic'
 import { BLOG_POSTS, BLOG_CATEGORIES, catByName, sortedPosts, getPost, type BlogPost } from '../data/blog'
 import { postAuthorBox } from './cms'
@@ -207,6 +208,9 @@ export function BlogDetailPage(post: BlogPost) {
               <div class="post-tags reveal">
                 ${raw(post.tags.map((t) => `<span class="ptag">#${t}</span>`).join(''))}
               </div>
+
+              <!-- 지역 안내: "마곡 치과" 허브 링크 (2026-10-08) -->
+              ${raw(columnHubNote(post.slug, related[0]?.name))}
 
               <!-- 의료광고법 안내 -->
               <p class="post-disclaimer">본 칼럼은 일반적인 정보 제공을 위한 것으로, 진단·치료 효과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. 정확한 진단과 치료 계획은 반드시 내원하여 전문의와 상담하시기 바랍니다.</p>

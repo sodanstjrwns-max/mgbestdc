@@ -360,7 +360,7 @@ function Header(member: MemberInfo = null) {
 // ============================================================
 // FOOTER (사업자정보 + SNS + 약관 + 의료광고법 고지)
 // ============================================================
-function Footer() {
+function Footer(path = '') {
   return html`
     <footer class="site-footer">
       <div class="container">
@@ -408,6 +408,7 @@ function Footer() {
         <nav class="footer-areas" aria-label="진료권 안내">
           <span class="fa-label">진료권 안내</span>
           <div class="fa-links">
+            ${path === '/area/magok' ? '' : raw('<a href="/area/magok">마곡 치과</a>')}
             ${raw(AREAS.map((a) => `<a href="/area/${a.slug}-implant">${a.name} 임플란트</a><a href="/area/${a.slug}-ortho">${a.name} 교정</a>`).join(''))}
           </div>
         </nav>
@@ -475,7 +476,7 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>, opts?: { me
         <div class="scroll-progress"></div>
         ${Header(opts?.member || null)}
         <main>${body}</main>
-        ${Footer()}
+        ${Footer(meta.path)}
         ${FloatingCta()}
         <script src="/static/app.js?v=design5" defer></script>
       </body>

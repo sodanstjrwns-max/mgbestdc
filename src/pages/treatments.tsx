@@ -1,4 +1,5 @@
 import { html, raw } from 'hono/html'
+import { hubA } from '../data/hub-link'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, type Treatment, DOCTORS, AREAS } from '../data/clinic'
 import { BLOG_POSTS, catByName } from '../data/blog'
 import { TX_DETAIL } from '../data/tx-detail'
@@ -476,6 +477,7 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
                 ${raw(AREAS.map((a) => `<a href="/area/${a.slug}-${areaSlug}" class="t-area-chip">${a.name}</a>`).join(''))}
               </div>
               <p style="font-size:0.78rem;color:var(--ink-4);margin:10px 0 0">마곡나루역 1번 출구 도보 3분 — 인근 지역 어디서든 편하게 찾으실 수 있습니다.</p>
+              <p style="font-size:0.86rem;color:var(--ink-2);margin:10px 0 0">${t.name} 진료 위치·주차·진료시간은 ${raw(hubA())} 안내에서 확인하실 수 있습니다.</p>
             </div>
           </aside>
         </div>

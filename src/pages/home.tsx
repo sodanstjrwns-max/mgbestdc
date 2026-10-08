@@ -360,8 +360,9 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
           ${raw(
             AREAS.map(
               // "마곡 치과 안내"는 마곡 치과 허브(/area/magok)로 (2026-10-08 — 예전엔 /area/magok-implant 로 가서 키워드와 어긋남)
+              // 2026-10-08: 페이지당 허브 링크 최대 2개 — 홈은 위 문단 "마곡 치과" + 푸터로 충분해 마곡 버튼은 생략
               (a) => a.slug === 'magok'
-                ? `<a href="/area/magok" class="btn btn-ghost" style="font-size:0.85rem;padding:9px 16px">마곡 치과 안내</a>`
+                ? ''
                 : `<a href="/area/${a.slug}-implant" class="btn btn-ghost" style="font-size:0.85rem;padding:9px 16px">${a.name} 치과 안내</a>`
             ).join('')
           )}

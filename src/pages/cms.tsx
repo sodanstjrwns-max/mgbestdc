@@ -3,6 +3,7 @@
 // D1 posts·cases 테이블 기반. 관리자 페이지에서 작성한 콘텐츠 렌더링.
 // ============================================================
 import { html, raw } from 'hono/html'
+import { columnHubNote } from '../data/hub-link'
 import { CLINIC, DOCTORS } from '../data/clinic'
 import { isClinicPublishedDbPost, CLINIC_GENERAL_INFO_NOTE } from '../data/authorship'
 
@@ -267,6 +268,7 @@ export function DbColumnDetailPage(post: DbPost, others: DbPost[], relatedCases:
             <div class="post-body cms-body">
               ${summary ? html`<div class="post-lead answer-summary"><span class="answer-label">핵심 답변</span>${summary}</div>` : ''}
               ${raw(body)}
+              ${raw(columnHubNote(String(post.slug || ''), txSlug ? post.category : null))}
               <p class="post-disclaimer">본 칼럼은 일반적인 정보 제공을 위한 것으로, 진단·치료 효과는 환자 개인의 상태에 따라 차이가 있을 수 있습니다. 정확한 진단과 치료 계획은 반드시 내원하여 전문의와 상담하시기 바랍니다.</p>
               ${raw(postAuthorBox(updated, clinic))}
             </div>

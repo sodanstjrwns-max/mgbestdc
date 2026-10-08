@@ -1,4 +1,5 @@
 import { html, raw } from 'hono/html'
+import { hubA } from '../data/hub-link'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, GENERAL_FAQS, AREAS, AREA_TREATMENTS, getTreatment, DOCTORS } from '../data/clinic'
 import { srcset, SIZES } from '../components/img'
 import { TX_DETAIL } from '../data/tx-detail'
@@ -777,6 +778,7 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
         <span class="eyebrow">${area.full}</span>
         <h1>${area.name} <span class="grad">${t.name}</span></h1>
         <p class="ph-sub">${entry.lead}</p>
+        <p class="ph-sub" style="font-size:0.92rem;margin-top:10px">병원 위치·진료시간·의료진 안내: ${raw(hubA('color:inherit;font-weight:700;text-decoration:underline'))}</p>
       </div>
     </section>
 
