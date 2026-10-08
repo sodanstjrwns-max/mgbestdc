@@ -349,7 +349,7 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
             <span class="label">지역 안내</span>
             <h2 class="section-title">마곡·발산에서<br /><span class="grad">가까운 치과</span></h2>
           </div>
-          <p class="section-lead reveal reveal-d2">${CLINIC.name}은 지하철 9호선·공항철도 ${CLINIC.station} 1번 출구에서 도보 3분, 보타닉비즈타워 310~312호에 있습니다.</p>
+          <p class="section-lead reveal reveal-d2">${CLINIC.name}은 지하철 9호선·공항철도 ${CLINIC.station} 1번 출구에서 도보 3분, 보타닉비즈타워 310~312호에 있는 <a href="/area/magok" style="color:inherit;text-decoration:underline">마곡 치과</a>입니다.</p>
         </div>
         <div class="reveal" style="max-width:760px">
           <p style="color:var(--ink-2);line-height:1.9;margin-bottom:16px">마곡동과 마곡나루역 일대는 물론, 발산·내발산·가양·등촌·염창 등 강서구 곳곳에서 대중교통과 자가용으로 방문하시기 편한 위치입니다. 건물 내 주차가 가능해 차량 이용 시에도 부담이 적고, 월·목요일은 야간 20:30까지, 토요일은 오전 09:30부터 14:30까지 진료해 평일 낮 시간을 내기 어려운 직장인 분들도 퇴근 후나 주말에 내원하실 수 있습니다.</p>
@@ -359,7 +359,10 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
         <div class="reveal reveal-d1" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">
           ${raw(
             AREAS.map(
-              (a) => `<a href="/area/${a.slug}-implant" class="btn btn-ghost" style="font-size:0.85rem;padding:9px 16px">${a.name} 치과 안내</a>`
+              // "마곡 치과 안내"는 마곡 치과 허브(/area/magok)로 (2026-10-08 — 예전엔 /area/magok-implant 로 가서 키워드와 어긋남)
+              (a) => a.slug === 'magok'
+                ? `<a href="/area/magok" class="btn btn-ghost" style="font-size:0.85rem;padding:9px 16px">마곡 치과 안내</a>`
+                : `<a href="/area/${a.slug}-implant" class="btn btn-ghost" style="font-size:0.85rem;padding:9px 16px">${a.name} 치과 안내</a>`
             ).join('')
           )}
           <a href="/directions" class="btn btn-primary" style="font-size:0.85rem;padding:9px 16px">오시는 길 <i class="fa-solid fa-arrow-right"></i></a>

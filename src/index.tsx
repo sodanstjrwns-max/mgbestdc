@@ -3,6 +3,7 @@ import { html } from 'hono/html'
 import { Layout, breadcrumbSchema, SITE_URL } from './components/layout'
 import { CLINIC, TREATMENTS, getTreatment, DOCTORS, AREAS, AREA_TREATMENTS, CORE_TREATMENTS, GENERAL_TREATMENTS, GENERAL_FAQS } from './data/clinic'
 import { HomePage } from './pages/home'
+import { MagokHubPage, magokHubSchemas, MAGOK_HUB_TITLE, MAGOK_HUB_DESC, MAGOK_HUB_PATH, MAGOK_HUB_DATE } from './pages/area-hub'
 import { TreatmentsListPage, TreatmentDetailPage, procedureSchema, treatmentFaqSchema, treatmentWebPageSchema, txLastReviewed, TX_LAST_REVIEWED } from './pages/treatments'
 import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors'
 import { StoryPage, storySchema } from './pages/story'
@@ -86,7 +87,8 @@ app.get('/', async (c) => {
   return c.html(
     Layout(
       {
-        title: `${CLINIC.name} | 마곡 치과, ${CLINIC.directions} — 임플란트·교정·심미치료`,
+        // 2026-10-08: 대표 키워드 "마곡 치과"를 title 맨 앞에 (지역 SEO 웨이브 §1)
+        title: `마곡 치과 | ${CLINIC.name} — ${CLINIC.directions}, 임플란트·교정·심미치료`,
         description: `마곡·마곡나루 치과를 찾으신다면 — ${CLINIC.directions}, ${CLINIC.directorCredential}가 상담부터 치료까지 책임지는 1인 책임 진료. 임플란트·충치치료·심미치료·투명교정. 월·목 야간 20:30, 토요일 진료.`,
         path: '/',
         jsonLd: [
@@ -1000,6 +1002,26 @@ app.get('/blog/:slug', async (c) => {
 })
 
 // ============================================================
+// "마곡 치과" 허브: /area/magok (2026-10-08) — /area/:combo 보다 먼저 등록
+// ============================================================
+app.get(MAGOK_HUB_PATH, (c) => {
+  return c.html(
+    Layout(
+      {
+        title: MAGOK_HUB_TITLE,
+        description: MAGOK_HUB_DESC,
+        path: MAGOK_HUB_PATH,
+        jsonLd: [
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: '마곡 치과', path: MAGOK_HUB_PATH }]),
+          ...magokHubSchemas(SITE_URL)
+        ]
+      },
+      MagokHubPage()
+    )
+  )
+})
+
+// ============================================================
 // 지역 SEO: /area/:areaSlug-:treatmentSlug
 // ============================================================
 app.get('/area/:combo', (c) => {
@@ -1018,7 +1040,10 @@ app.get('/area/:combo', (c) => {
   return c.html(
     Layout(
       {
-        title: `${area.name} ${t.name} 치과 | 마곡나루역 도보 3분 ${CLINIC.name}`,
+        // 마곡 지역 진료 페이지는 "마곡 치과" 허브(/area/magok)와 겹치지 않게 "마곡 임플란트"처럼 진료명으로 구체화 (2026-10-08)
+        title: areaSlug === 'magok'
+          ? `마곡 ${t.name} — ${t.name} 진료 안내 | ${CLINIC.name}`
+          : `${area.name} ${t.name} 치과 | 마곡나루역 도보 3분 ${CLINIC.name}`,
         description: `${area.full}에서 가까운 ${t.name} 치과를 찾으신다면 — ${CLINIC.directions}, ${CLINIC.directorCredential} 대표원장이 직접 진료하는 ${CLINIC.name}. 야간·토요일 진료.`,
         path: `/area/${combo}`,
         jsonLd: [
@@ -1666,6 +1691,8 @@ app.get('/sitemap.xml', async (c) => {
     if (hasPosts) urls.push({ loc: `/blog/category/${bc.slug}`, pri: '0.6', freq: 'weekly', mod: columnsNewest(bc.name) })
   })
   BLOG_POSTS.forEach((p) => urls.push({ loc: `/blog/${p.slug}`, pri: '0.7', mod: staticPostDate(p), freq: 'monthly' }))
+  // "마곡 치과" 허브 (2026-10-08 신설) — 고정 수정일
+  urls.push({ loc: MAGOK_HUB_PATH, pri: '0.9', freq: 'monthly', mod: MAGOK_HUB_DATE })
   // 지역 = 지역 템플릿·지역 공통 데이터·지역×진료 고유 본문·진료 검토일 중 최신
   AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({
     loc: `/area/${a.slug}-${ts}`,
@@ -1757,6 +1784,7 @@ ${BLOG_POSTS.map((p) => `- [${p.title}](${SITE_URL}/blog/${p.slug}): ${p.excerpt
 
 ## 진료권 (지역 안내)
 마곡베스트치과의원은 서울 강서구 마곡동에 위치하며, 다음 지역에서 내원하기 편리합니다:
+- [마곡 치과 — 위치·진료시간·의료진·진료 안내](${SITE_URL}${MAGOK_HUB_PATH})
 ${AREAS.map((a) => `- ${a.full} → [${a.name} 임플란트](${SITE_URL}/area/${a.slug}-implant) · [${a.name} 교정](${SITE_URL}/area/${a.slug}-ortho) · [${a.name} 충치치료](${SITE_URL}/area/${a.slug}-cavity)`).join('\n')}
 
 ## 자주 묻는 질문 (요약 답변)
