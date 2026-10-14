@@ -5,6 +5,7 @@ import { BLOG_POSTS, catByName } from '../data/blog'
 import { TX_DETAIL } from '../data/tx-detail'
 import { srcset, SIZES } from '../components/img'
 import { esc, type DbPost, type DbCase } from './cms'
+import { txOgImage, magokCard } from '../data/magok-cards'
 
 const fmtD = (d: string) => (d || '').slice(0, 10).replace(/-/g, '.')
 
@@ -160,7 +161,7 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
 
     <section class="pad">
       <div class="container">
-        ${heroImg ? html`<div class="t-hero-img reveal"><img src="${heroImg.src}" srcset="${srcset(heroImg.src)}" sizes="${SIZES.card}" alt="${heroImg.alt}" loading="lazy" decoding="async" /></div>` : ''}
+        ${heroImg ? html`<div class="t-hero-img reveal"><img src="${heroImg.src}" srcset="${srcset(heroImg.src)}" sizes="${SIZES.card}" alt="${heroImg.alt}" width="1400" height="1045" fetchpriority="high" decoding="async" /></div>` : ''}
         <div class="t-detail-grid">
           <article>
             <div class="t-section reveal" id="quick-answer" style="background:var(--pine-soft);border-left:3px solid var(--pine);border-radius:12px;padding:20px 22px">
@@ -474,7 +475,7 @@ export function TreatmentDetailPage(t: Treatment, topicCases: DbCase[] = [], top
             <div class="side-card">
               <h3 class="h4">지역별 안내</h3>
               <div class="t-area-chips">
-                ${raw(AREAS.map((a) => `<a href="/area/${a.slug}-${areaSlug}" class="t-area-chip">${a.name}</a>`).join(''))}
+                ${raw(AREAS.map((a) => `<a href="${a.slug === 'magok' && magokCard(t.slug) ? magokCard(t.slug)!.path : `/area/${a.slug}-${areaSlug}`}" class="t-area-chip">${a.name}</a>`).join(''))}
               </div>
               <p style="font-size:0.78rem;color:var(--ink-4);margin:10px 0 0">마곡나루역 1번 출구 도보 3분 — 인근 지역 어디서든 편하게 찾으실 수 있습니다.</p>
               <p style="font-size:0.86rem;color:var(--ink-2);margin:10px 0 0">${t.name} 진료 위치·주차·진료시간은 ${raw(hubA())} 안내에서 확인하실 수 있습니다.</p>
@@ -534,7 +535,9 @@ export function treatmentWebPageSchema(t: Treatment, siteUrl: string) {
       jobTitle: doctor.title,
       url: `${siteUrl}/doctors/${doctor.slug}`
     },
-    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '#tx-answer'] }
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: ['h1', '#tx-answer'] },
+    // og:image 와 같은 사진 (본문 히어로의 1200×630 파생본, 2026-10-14)
+    ...(txOgImage(t.slug) ? { primaryImageOfPage: { '@type': 'ImageObject', url: siteUrl + txOgImage(t.slug), width: 1200, height: 630 }, image: siteUrl + txOgImage(t.slug) } : {})
   }
 }
 

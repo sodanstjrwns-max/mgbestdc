@@ -1,5 +1,6 @@
 import { html, raw } from 'hono/html'
 import { CLINIC, DOCTORS, getTreatment } from '../data/clinic'
+import { MAGOK_CARDS, magokCardGridHtml, magokItemListSchema } from '../data/magok-cards'
 
 // ============================================================
 // /area/magok — "마곡 치과" 대표 키워드 허브 (2026-10-08, 지역 SEO 웨이브 §1)
@@ -10,7 +11,7 @@ import { CLINIC, DOCTORS, getTreatment } from '../data/clinic'
 // ============================================================
 
 export const MAGOK_HUB_PATH = '/area/magok'
-export const MAGOK_HUB_DATE = '2026-10-08'
+export const MAGOK_HUB_DATE = '2026-10-14' // 2026-10-14 진료별 사진 카드 6장 추가
 export const MAGOK_HUB_TITLE = `마곡 치과 | ${CLINIC.name}`
 export const MAGOK_HUB_DESC =
   `마곡 치과를 찾는 분께 — 서울 강서구 마곡동 보타닉비즈타워 310~312호, ${CLINIC.directions}. 월·목 20:30 야간·토요일 오전 진료, ${CLINIC.directorCredential} 김민 대표원장의 1인 책임 진료와 진료별 안내를 정리했습니다.`
@@ -61,6 +62,13 @@ export function MagokHubPage() {
         <span class="eyebrow">서울 강서구 마곡동 · ${CLINIC.station}</span>
         <h1>마곡 <span class="grad">치과</span></h1>
         <p class="ph-sub">${CLINIC.name}은 마곡중앙5로1길 20, 보타닉비즈타워 310~312호에 있는 동네 치과입니다. 마곡에서 치과를 고를 때 많이 물어보시는 위치·시간·의료진·진료 범위를 이 페이지에 모았습니다.</p>
+      </div>
+    </section>
+
+    <section class="pad-sm" aria-labelledby="hub-cards-h">
+      <div class="container">
+        <h2 class="area-cards-h" id="hub-cards-h">마곡 진료별 안내</h2>
+        ${raw(magokCardGridHtml(MAGOK_CARDS, { idPrefix: 'hub' }))}
       </div>
     </section>
 
@@ -129,10 +137,7 @@ export function MagokHubPage() {
             <div class="side-card">
               <h3 class="h4">마곡 진료별 안내</h3>
               <div class="side-links">
-                <a href="/area/magok-implant">마곡 임플란트 <i class="fa-solid fa-arrow-right"></i></a>
-                <a href="/area/magok-cavity">마곡 충치치료 <i class="fa-solid fa-arrow-right"></i></a>
-                <a href="/area/magok-cosmetic">마곡 심미치료 <i class="fa-solid fa-arrow-right"></i></a>
-                <a href="/area/magok-ortho">마곡 교정치료 <i class="fa-solid fa-arrow-right"></i></a>
+                ${raw(MAGOK_CARDS.map((m) => `<a href="${m.path}">${m.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}
               </div>
             </div>
             <div class="side-card">
@@ -171,6 +176,8 @@ export function magokHubSchemas(siteUrl: string) {
       ],
       dateModified: MAGOK_HUB_DATE,
     },
+    // 상단 사진 카드 6장과 1:1 (2026-10-14)
+    magokItemListSchema(siteUrl, url + '#magok-cards'),
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',

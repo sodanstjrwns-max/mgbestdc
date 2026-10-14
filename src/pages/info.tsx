@@ -4,6 +4,7 @@ import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, TREATMENTS, GENERAL_FAQS, 
 import { srcset, SIZES } from '../components/img'
 import { TX_DETAIL } from '../data/tx-detail'
 import { AREA_ENTRIES, AREA_REGION_LOCAL } from '../data/area-local'
+import { MAGOK_CARDS, magokCard, magokCardImg, magokCardGridHtml } from '../data/magok-cards'
 
 // ============================================================
 // 소개 허브 (/about) — 소개 카테고리 진입점 (블랑쉬식 단순 위계)
@@ -738,12 +739,22 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
   const faqs = entry.faqs
   const focus = areaFocusSection(treatmentSlug, entry.focus)
   const near = local.near.map((slug) => AREAS.find((a) => a.slug === slug)).filter(Boolean) as typeof AREAS
+  // 마곡 핵심 6장(홈 카드)이면 대표 사진·H1·형제 카드 (2026-10-14)
+  const card = areaSlug === 'magok' ? magokCard(treatmentSlug) : undefined
+  const siblings = card ? MAGOK_CARDS.filter((c) => c.treatment !== card.treatment) : []
+  // 인근 지역 링크는 지역×진료 페이지가 있는 진료(AREA_TREATMENTS)만 — 마곡 전용 진료(잇몸·사랑니)는 마곡 형제 페이지로 대신
+  const hasNear = AREA_TREATMENTS.includes(t.slug)
 
   const blockContext = `
             <div class="t-section reveal">
               <h2>${entry.h}</h2>
               <p>${entry.p}</p>
             </div>`
+  const blockMore = (entry.more || []).map((m) => `
+            <div class="t-section reveal">
+              <h2>${m.h}</h2>
+              <p>${m.p}</p>
+            </div>`).join('')
   const blockAccess = `
             <div class="t-section reveal">
               <h2>${local.access.h}</h2>
@@ -766,9 +777,9 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
             </div>`
   // 지역마다 섹션 배치를 달리한다
   const order = [
-    [blockContext, blockAccess, blockFocus, blockFaq],
-    [blockContext, blockFaq, blockAccess, blockFocus],
-    [blockAccess, blockContext, blockFocus, blockFaq]
+    [blockContext, blockMore, blockAccess, blockFocus, blockFaq],
+    [blockContext, blockMore, blockFaq, blockAccess, blockFocus],
+    [blockAccess, blockContext, blockMore, blockFocus, blockFaq]
   ][local.variant]
 
   return html`
@@ -776,7 +787,7 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
       <div class="container">
         <nav class="breadcrumb"><a href="/">홈</a><span class="sep">/</span><a href="/treatments/${t.slug}">${t.name}</a><span class="sep">/</span><span>${area.name}</span></nav>
         <span class="eyebrow">${area.full}</span>
-        <h1>${area.name} <span class="grad">${t.name}</span></h1>
+        <h1>${area.name} <span class="grad">${card ? card.h1Rest : t.name}</span></h1>
         <p class="ph-sub">${entry.lead}</p>
         <p class="ph-sub" style="font-size:0.92rem;margin-top:10px">병원 위치·진료시간·의료진 안내: ${raw(hubA('color:inherit;font-weight:700;text-decoration:underline'))}</p>
       </div>
@@ -786,6 +797,7 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
       <div class="container">
         <div class="t-detail-grid">
           <article>
+            ${card ? raw(`<figure class="area-hero-img"><img src="${magokCardImg(card.treatment).body}" width="1200" height="800" alt="${card.alt}" fetchpriority="high" decoding="async" /></figure>`) : ''}
             <div class="t-section reveal" id="quick-answer" style="background:var(--pine-soft);border-left:3px solid var(--pine);border-radius:12px;padding:20px 22px">
               <p style="margin:0"><strong>핵심 답변</strong> — ${entry.answer}</p>
             </div>
@@ -803,14 +815,21 @@ export function AreaPage(areaSlug: string, treatmentSlug: string) {
               <h3 class="h4">함께 보면 좋은 안내</h3>
               <div class="side-links"><a href="/treatments/${t.slug}">${t.name} 진료 안내 <i class="fa-solid fa-arrow-right"></i></a>${raw(entry.links.map((l) => `<a href="${l.href}">${l.label} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}</div>
             </div>
-            <div class="side-card">
+            ${hasNear ? raw(`<div class="side-card">
               <h3 class="h4">인근 지역 ${t.name}</h3>
-              <div class="side-links">${raw(near.map((a) => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name} <i class="fa-solid fa-arrow-right"></i></a>`).join(''))}</div>
-            </div>
+              <div class="side-links">${near.map((a) => `<a href="/area/${a.slug}-${t.slug}">${a.name} ${t.name} <i class="fa-solid fa-arrow-right"></i></a>`).join('')}</div>
+            </div>`) : ''}
           </aside>
         </div>
       </div>
     </section>
+    ${card ? raw(`
+    <section class="pad-sm" aria-label="마곡 다른 진료 안내">
+      <div class="container">
+        <h2 class="area-cards-h">마곡 다른 진료 안내</h2>
+        ${magokCardGridHtml(siblings, { compact: true, idPrefix: 'sib' })}
+      </div>
+    </section>`) : ''}
   `
 }
 
@@ -830,6 +849,30 @@ export function areaSchema(areaSlug: string, treatmentSlug: string, siteUrl: str
     address: { '@type': 'PostalAddress', streetAddress: CLINIC.addressShort, addressLocality: '강서구', addressRegion: '서울특별시', postalCode: CLINIC.postalCode, addressCountry: 'KR' },
     geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
     telephone: CLINIC.phone
+  }
+}
+
+// 마곡 핵심 6장: 대표 사진(og·본문 첫 이미지와 같은 사진)을 담은 MedicalWebPage (2026-10-14)
+export function areaWebPageSchema(areaSlug: string, treatmentSlug: string, siteUrl: string) {
+  const card = areaSlug === 'magok' ? magokCard(treatmentSlug) : undefined
+  const entry = AREA_ENTRIES[`${areaSlug}-${treatmentSlug}`]
+  if (!card || !entry) return null
+  const url = siteUrl + card.path
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalWebPage',
+    '@id': `${url}#webpage`,
+    url,
+    name: card.title,
+    headline: card.name,
+    description: entry.answer,
+    inLanguage: 'ko',
+    isPartOf: { '@id': `${siteUrl}/#website` },
+    about: { '@type': 'MedicalProcedure', name: getTreatment(treatmentSlug)?.name, url: `${siteUrl}/treatments/${treatmentSlug}` },
+    publisher: { '@id': `${siteUrl}/#organization` },
+    image: { '@type': 'ImageObject', url: siteUrl + magokCardImg(card.treatment).og, width: 1200, height: 630, caption: card.alt },
+    primaryImageOfPage: { '@type': 'ImageObject', url: siteUrl + magokCardImg(card.treatment).og, width: 1200, height: 630 },
+    areaServed: { '@type': 'AdministrativeArea', name: '서울 강서구 마곡동' }
   }
 }
 

@@ -6,7 +6,10 @@ type SeoMeta = {
   description: string
   path: string
   ogType?: string
-  ogImage?: string
+  ogImage?: string // 절대 URL 또는 / 로 시작하는 경로
+  ogImageWidth?: number
+  ogImageHeight?: number
+  ogImageAlt?: string
   jsonLd?: object[]
   noindex?: boolean
   noindexFollow?: boolean // 빈 목록 등: noindex, follow (링크는 따라감)
@@ -23,6 +26,11 @@ export function Head(meta: SeoMeta) {
   // 전 페이지 공통: Dentist 조직 스키마(@id 앵커)를 항상 먼저 출력 —
   // 개별 페이지 스키마는 { '@id': SITE_URL + '/#organization' } 참조로 연결 (블랑쉬 패턴)
   const ld = [organizationSchema(), ...(meta.jsonLd || [])]
+  // og 이미지: 페이지 대표 사진(있으면) — 없으면 로고 og.png (2026-10-14 하위 페이지 카드)
+  const ogImage = meta.ogImage ? (meta.ogImage.startsWith('http') ? meta.ogImage : SITE_URL + meta.ogImage) : SITE_URL + '/static/img/og.png?v=2'
+  const ogW = meta.ogImage ? meta.ogImageWidth : 1200
+  const ogH = meta.ogImage ? meta.ogImageHeight : 630
+  const ogAlt = (meta.ogImage && meta.ogImageAlt) || `${CLINIC.name} — ${CLINIC.directions}`
   return html`
     <head>
       <meta charset="UTF-8" />
@@ -51,9 +59,9 @@ export function Head(meta: SeoMeta) {
       <meta property="og:description" content="${meta.description}" />
       <meta property="og:url" content="${canonical}" />
       <meta property="og:locale" content="ko_KR" />
-      <meta property="og:image" content="${meta.ogImage || SITE_URL + '/static/img/og.png?v=2'}" />
-      ${meta.ogImage ? '' : raw('<meta property="og:image:width" content="1200" />\n      <meta property="og:image:height" content="630" />')}
-      <meta property="og:image:alt" content="${CLINIC.name} — ${CLINIC.directions}" />
+      <meta property="og:image" content="${ogImage}" />
+      ${ogW && ogH ? raw(`<meta property="og:image:width" content="${ogW}" />\n      <meta property="og:image:height" content="${ogH}" />`) : ''}
+      <meta property="og:image:alt" content="${ogAlt}" />
 
       ${meta.article
         ? raw(
@@ -68,7 +76,7 @@ export function Head(meta: SeoMeta) {
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="${meta.title}" />
       <meta name="twitter:description" content="${meta.description}" />
-      <meta name="twitter:image" content="${SITE_URL}/static/img/og.png?v=2" />
+      <meta name="twitter:image" content="${ogImage}" />
 
       <!-- Favicon -->
       <link rel="icon" type="image/png" href="/static/img/favicon.png" />
@@ -93,7 +101,7 @@ export function Head(meta: SeoMeta) {
         onload="this.media='all'"
       />
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
-      <link rel="stylesheet" href="/static/style.css?v=design15" />
+      <link rel="stylesheet" href="/static/style.css?v=design16" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
 
       <!-- JSON-LD -->

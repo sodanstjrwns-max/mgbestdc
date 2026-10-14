@@ -9,8 +9,9 @@ import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors
 import { StoryPage, storySchema } from './pages/story'
 import {
   AboutHubPage, MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
-  ReservationPage, AreaPage, areaSchema, areaFaqSchema, buildPricingSections, type DbFee
+  ReservationPage, AreaPage, areaSchema, areaFaqSchema, areaWebPageSchema, buildPricingSections, type DbFee
 } from './pages/info'
+import { MAGOK_CARDS, MAGOK_EXTRA_TREATMENTS, magokCard, magokCardImg, magokItemListSchema, txOgImage } from './data/magok-cards'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost, catByName } from './data/blog'
 import { CONTENT_DATES, latestDate } from './data/content-dates'
@@ -140,6 +141,8 @@ app.get('/', async (c) => {
               url: SITE_URL + '/treatments/' + t.slug
             }))
           },
+          // 홈 "마곡 치과 진료 안내" 사진 카드 6장과 1:1 (2026-10-14)
+          magokItemListSchema(SITE_URL, SITE_URL + '/#magok-cards'),
           // 홈 FAQ 섹션과 동일 내용 (GENERAL_FAQS) — AEO·리치결과용
           {
             '@context': 'https://schema.org',
@@ -386,10 +389,13 @@ app.get('/treatments/:slug', async (c) => {
   return c.html(
     Layout(
       {
-        title: `${t.name} | ${CLINIC.name} (${CLINIC.station} 도보 3분)`,
+        // 2026-10-14: 지역으로 시작("마곡 X 진료 안내") — /area/magok-* ("마곡 X | 선택 기준")과 겹치지 않게
+        title: `마곡 ${t.name} 진료 안내 | 과정·FAQ — ${CLINIC.name}`,
         description: `${t.tagline}. ${t.summary.slice(0, 130)}`,
         path: `/treatments/${slug}`,
         ogType: 'article',
+        // og = 본문 히어로 사진의 1200×630 파생본 (예전엔 로고 og.png)
+        ...(txOgImage(slug) ? { ogImage: txOgImage(slug), ogImageWidth: 1200, ogImageHeight: 630, ogImageAlt: `마곡 ${t.name} 진료 — ${CLINIC.name}` } : {}),
         jsonLd: [
           breadcrumbSchema([{ name: '홈', path: '/' }, { name: '진료안내', path: '/treatments' }, { name: t.name, path: `/treatments/${slug}` }], `${SITE_URL}/treatments/${slug}#breadcrumb`),
           treatmentWebPageSchema(t, SITE_URL),
@@ -941,6 +947,23 @@ app.get('/blog/category/:cat', async (c) => {
 // 칼럼 본문(DB)에 남은 없는 주소 → 관련 기존 페이지로 301 (2026-09 크롤 감사: no-prep-veneer 본문의 '이갈이' 링크)
 const BLOG_SLUG_REDIRECT: Record<string, string> = { 'bruxism-botox': '/treatments/tmj' }
 
+// DB 칼럼 og: 대표 이미지(thumbnail) → 본문 첫 이미지 → (없으면) 기본 로고 og (2026-10-14)
+// JSON-LD(dbBlogPostingSchema)의 image 와 같은 우선순위
+function dbPostOg(p: DbPost): { ogImage?: string; ogImageWidth?: number; ogImageHeight?: number; ogImageAlt?: string } {
+  if (p.thumbnail) return { ogImage: `/media/${p.thumbnail}` }
+  const tag = (p.content_html || '').match(/<img\b[^>]*>/i)?.[0]
+  const src = tag?.match(/\ssrc=["']([^"']+)["']/i)?.[1]
+  if (!tag || !src || src.startsWith('data:')) return {}
+  const num = (attr: string) => Number(tag.match(new RegExp(`\\s${attr}=["']?(\\d+)`, 'i'))?.[1]) || undefined
+  const alt = (tag.match(/\salt=["']([^"']*)["']/i)?.[1] || '').replace(/\.(png|jpe?g|webp|gif)$/i, '').trim()
+  return {
+    ogImage: src.startsWith('http') || src.startsWith('/') ? src : `/${src}`,
+    ogImageWidth: num('width'),
+    ogImageHeight: num('height'),
+    ...(alt ? { ogImageAlt: alt.slice(0, 120) } : {})
+  }
+}
+
 app.get('/blog/:slug', async (c) => {
   const slug = c.req.param('slug')
   if (BLOG_SLUG_REDIRECT[slug]) return c.redirect(BLOG_SLUG_REDIRECT[slug], 301)
@@ -972,6 +995,7 @@ app.get('/blog/:slug', async (c) => {
           description: seoDesc(dbPost.excerpt || dbPost.title, `${CLINIC.name} 건강칼럼. 마곡나루역 1번 출구 앞, 서울대 출신 대표원장 직접 진료.`),
           path: `/blog/${slug}`,
           ogType: 'article',
+          ...dbPostOg(dbPost),
           article: { published: kstIso(dbPost.published_at || dbPost.created_at) || '', modified: kstIso((dbPost as any).updated_at || dbPost.published_at), tags: [dbPost.category].filter(Boolean), ...(isClinicPublishedDbPost(dbPost) ? { author: `${SITE_URL}/about` } : {}) },
           jsonLd: [
             breadcrumbSchema([{ name: '홈', path: '/' }, { name: '건강칼럼', path: '/blog' }, ...(dbPost.category && catByName(dbPost.category) ? [{ name: dbPost.category, path: `/blog/category/${catByName(dbPost.category)!.slug}` }] : []), { name: dbPost.title, path: `/blog/${slug}` }]),
@@ -1038,17 +1062,27 @@ app.get('/area/:combo', (c) => {
   const t = getTreatment(treatmentSlug)!
   const schema = areaSchema(areaSlug, treatmentSlug, SITE_URL)
   const faqSchema = areaFaqSchema(areaSlug, treatmentSlug, SITE_URL)
+  // 마곡 핵심 6장(홈 카드): 고유 제목·대표 사진 og·MedicalWebPage (2026-10-14)
+  const card = areaSlug === 'magok' ? magokCard(treatmentSlug) : undefined
+  const pageSchema = areaWebPageSchema(areaSlug, treatmentSlug, SITE_URL)
   return c.html(
     Layout(
       {
         // 마곡 지역 진료 페이지는 "마곡 치과" 허브(/area/magok)와 겹치지 않게 "마곡 임플란트"처럼 진료명으로 구체화 (2026-10-08)
-        title: areaSlug === 'magok'
+        // 2026-10-14: 마곡 6장은 "{지역} {진료} | {선택 기준} — 병원명" (진료 페이지 제목 "마곡 X 진료 안내"와 구분)
+        title: card
+          ? card.title
+          : areaSlug === 'magok'
           ? `마곡 ${t.name} — ${t.name} 진료 안내 | ${CLINIC.name}`
           : `${area.name} ${t.name} 치과 | 마곡나루역 도보 3분 ${CLINIC.name}`,
-        description: `${area.full}에서 가까운 ${t.name} 치과를 찾으신다면 — ${CLINIC.directions}, ${CLINIC.directorCredential} 대표원장이 직접 진료하는 ${CLINIC.name}. 야간·토요일 진료.`,
+        description: card
+          ? `${card.name} — ${card.line}. ${CLINIC.directions}, ${CLINIC.directorCredential} 김민 대표원장이 직접 진료하는 ${CLINIC.name}. 월·목 20:30 야간·토요일 진료.`
+          : `${area.full}에서 가까운 ${t.name} 치과를 찾으신다면 — ${CLINIC.directions}, ${CLINIC.directorCredential} 대표원장이 직접 진료하는 ${CLINIC.name}. 야간·토요일 진료.`,
         path: `/area/${combo}`,
+        ...(card ? { ogImage: magokCardImg(card.treatment).og, ogImageWidth: 1200, ogImageHeight: 630, ogImageAlt: card.alt } : {}),
         jsonLd: [
-          breadcrumbSchema([{ name: '홈', path: '/' }, { name: t.name, path: `/treatments/${t.slug}` }, { name: area.name, path: `/area/${combo}` }]),
+          breadcrumbSchema([{ name: '홈', path: '/' }, { name: t.name, path: `/treatments/${t.slug}` }, { name: card ? card.name : area.name, path: `/area/${combo}` }]),
+          ...(pageSchema ? [pageSchema] : []),
           ...(schema ? [schema] : []),
           ...(faqSchema ? [faqSchema] : [])
         ]
@@ -1669,7 +1703,8 @@ app.get('/sitemap.xml', async (c) => {
     dbColumns.filter((p) => !catName || String(p.category) === catName).map(postDate),
   )
 
-  const urls: { loc: string; pri: string; mod?: string; freq?: string }[] = [
+  // img: 이미지 사이트맵(image:image) — 페이지 대표 사진 = og:image 와 같은 사진 (2026-10-14)
+  const urls: { loc: string; pri: string; mod?: string; freq?: string; img?: { loc: string; title: string } }[] = [
     { loc: '/', pri: '1.0', freq: 'weekly', mod: latestDate(P.home, dbCases.map(caseDate)) }, // 홈에 최근 사례 노출
     { loc: '/about', pri: '0.8', freq: 'monthly', mod: P.about },
     { loc: '/notice', pri: '0.6', freq: 'weekly', mod: latestDate(dbNotices.map(postDate)) },
@@ -1686,7 +1721,10 @@ app.get('/sitemap.xml', async (c) => {
     { loc: '/reservation', pri: '0.6', freq: 'yearly', mod: P.reservation }
   ]
   DOCTORS.forEach((d) => urls.push({ loc: `/doctors/${d.slug}`, pri: '0.7', freq: 'monthly', mod: latestDate(CONTENT_DATES.doctors[d.slug], P.doctorTemplate) }))
-  TREATMENTS.forEach((t) => urls.push({ loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7', freq: 'monthly', mod: txLastReviewed(t.slug) }))
+  TREATMENTS.forEach((t) => urls.push({
+    loc: `/treatments/${t.slug}`, pri: t.category === 'core' ? '0.9' : '0.7', freq: 'monthly', mod: txLastReviewed(t.slug),
+    ...(txOgImage(t.slug) ? { img: { loc: txOgImage(t.slug), title: `마곡 ${t.name} 진료 — ${CLINIC.name}` } } : {}),
+  }))
   // 칼럼이 0건인 분류는 noindex라 사이트맵에서 뺀다 (DB 조회 실패 시엔 모두 유지)
   const dbColumnCats = dbOk ? new Set(dbColumns.map((p) => String(p.category))) : null
   BLOG_CATEGORIES.forEach((bc) => {
@@ -1697,20 +1735,27 @@ app.get('/sitemap.xml', async (c) => {
   // "마곡 치과" 허브 (2026-10-08 신설) — 고정 수정일
   urls.push({ loc: MAGOK_HUB_PATH, pri: '0.9', freq: 'monthly', mod: MAGOK_HUB_DATE })
   // 지역 = 지역 템플릿·지역 공통 데이터·지역×진료 고유 본문·진료 검토일 중 최신
-  AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push({
-    loc: `/area/${a.slug}-${ts}`,
-    pri: '0.6',
-    freq: 'monthly',
-    mod: latestDate(P.areaTemplate, CONTENT_DATES.areas[a.slug], CONTENT_DATES.combos[`${a.slug}-${ts}`], txLastReviewed(ts)),
-  })))
+  // 마곡 핵심 6장(홈 카드)은 대표 사진 image:image 포함, 잇몸·사랑니는 마곡에만 있는 페이지 (2026-10-14)
+  const areaUrl = (a: { slug: string }, ts: string) => {
+    const card = a.slug === 'magok' ? magokCard(ts) : undefined
+    return {
+      loc: `/area/${a.slug}-${ts}`,
+      pri: card ? '0.8' : '0.6',
+      freq: 'monthly',
+      mod: latestDate(P.areaTemplate, CONTENT_DATES.areas[a.slug], CONTENT_DATES.combos[`${a.slug}-${ts}`], txLastReviewed(ts)),
+      ...(card ? { img: { loc: magokCardImg(card.treatment).og, title: card.name } } : {}),
+    }
+  }
+  AREAS.forEach((a) => AREA_TREATMENTS.forEach((ts) => urls.push(areaUrl(a, ts))))
+  MAGOK_EXTRA_TREATMENTS.forEach((ts) => urls.push(areaUrl({ slug: 'magok' }, ts)))
   // DB 게시글 (공지·관리자 칼럼)
   for (const p of dbPosts) urls.push({ loc: p.type === 'notice' ? `/notice/${p.slug}` : `/blog/${p.slug}`, pri: p.type === 'notice' ? '0.5' : '0.7', mod: postDate(p), freq: 'monthly' })
   // DB 진료사례 — 사례별 고유 URL
   for (const cs of dbCases) urls.push({ loc: `/cases/${cs.id}`, pri: '0.6', mod: caseDate(cs), freq: 'monthly' })
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE_URL}${encodeURI(u.loc)}</loc>${u.mod ? `<lastmod>${u.mod}</lastmod>` : ''}<changefreq>${u.freq || 'monthly'}</changefreq><priority>${u.pri}</priority></url>`).join('\n')}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${urls.map((u) => `  <url><loc>${SITE_URL}${encodeURI(u.loc)}</loc>${u.mod ? `<lastmod>${u.mod}</lastmod>` : ''}<changefreq>${u.freq || 'monthly'}</changefreq><priority>${u.pri}</priority>${u.img ? `<image:image><image:loc>${SITE_URL}${u.img.loc}</image:loc><image:title>${u.img.title.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</image:title></image:image>` : ''}</url>`).join('\n')}
 </urlset>`
   return c.body(xml, 200, { 'Content-Type': 'application/xml; charset=utf-8' })
 })
@@ -1788,6 +1833,7 @@ ${BLOG_POSTS.map((p) => `- [${p.title}](${SITE_URL}/blog/${p.slug}): ${p.excerpt
 ## 진료권 (지역 안내)
 마곡베스트치과의원은 서울 강서구 마곡동에 위치하며, 다음 지역에서 내원하기 편리합니다:
 - [마곡 치과 — 위치·진료시간·의료진·진료 안내](${SITE_URL}${MAGOK_HUB_PATH})
+- 마곡 진료별 안내 → ${MAGOK_CARDS.map((m) => `[${m.name}](${SITE_URL}${m.path})`).join(' · ')}
 ${AREAS.map((a) => `- ${a.full} → [${a.name} 임플란트](${SITE_URL}/area/${a.slug}-implant) · [${a.name} 교정](${SITE_URL}/area/${a.slug}-ortho) · [${a.name} 충치치료](${SITE_URL}/area/${a.slug}-cavity)`).join('\n')}
 
 ## 자주 묻는 질문 (요약 답변)

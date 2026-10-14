@@ -2,6 +2,7 @@ import { html, raw } from 'hono/html'
 import { CLINIC, CORE_TREATMENTS, GENERAL_TREATMENTS, DOCTORS, CARE_CREED, CARE_PRINCIPLES, GENERAL_FAQS, AREAS } from '../data/clinic'
 import { srcset, SIZES } from '../components/img'
 import { baSliderHtml, esc, type DbCase } from './cms'
+import { magokCardGridHtml } from '../data/magok-cards'
 
 const FUNNEL = [
   { n: '01', t: '예약', d: '전화·온라인으로 편하게 예약하세요. 뭐부터 해야 할지 모르셔도 괜찮습니다.' },
@@ -108,6 +109,20 @@ export function HomePage(cases: DbCase[] = [], isMember = false) {
             )}
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ 마곡 진료 안내 — 하위 페이지 사진 카드 6장 (2026-10-14, ItemList #magok-cards 와 1:1) ============ -->
+    <section class="pad" aria-labelledby="magok-cards-h" id="magok-cards">
+      <div class="container">
+        <div class="sec-head">
+          <div class="reveal">
+            <span class="label">마곡 진료 안내</span>
+            <h2 class="section-title" id="magok-cards-h">마곡 치과,<br /><span class="grad">진료별로 먼저 살펴보세요</span></h2>
+          </div>
+          <p class="section-lead reveal reveal-d2">임플란트부터 사랑니 발치까지, 마곡에서 많이 찾으시는 진료 여섯 가지를 진료마다 따로 정리했습니다. 일정 잡는 법과 상담 전에 확인할 점을 담았습니다.</p>
+        </div>
+        ${raw(magokCardGridHtml())}
       </div>
     </section>
 
