@@ -1591,10 +1591,8 @@ app.get('/media/*', async (c) => {
   })
 })
 
-// 루트 파비콘 (브라우저 자동 요청 — 워커가 루트를 점유하므로 명시 라우트 필요)
-app.get('/favicon.ico', (c) => c.redirect('/static/img/favicon.png', 301))
-app.get('/apple-touch-icon.png', (c) => c.redirect('/static/img/apple-touch-icon.png', 301))
-app.get('/apple-touch-icon-precomposed.png', (c) => c.redirect('/static/img/apple-touch-icon.png', 301))
+// 루트 파비콘: /favicon.ico·/favicon-*.png·/apple-touch-icon.png 는 public/ 루트 정적 파일(_routes.json exclude)로 직접 200 응답
+app.get('/apple-touch-icon-precomposed.png', (c) => c.redirect('/apple-touch-icon.png', 301))
 
 // ============================================================
 // SEO 기술 파일

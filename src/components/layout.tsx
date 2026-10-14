@@ -79,8 +79,11 @@ export function Head(meta: SeoMeta) {
       <meta name="twitter:image" content="${ogImage}" />
 
       <!-- Favicon -->
-      <link rel="icon" type="image/png" href="/static/img/favicon.png" />
-      <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png" />
+      <link rel="icon" href="/favicon.ico?v=fav20261014" sizes="any" />
+      <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=fav20261014" />
+      <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png?v=fav20261014" />
+      <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=fav20261014" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=fav20261014" />
 
       <!-- Fonts (Pretendard 본문 + Noto Serif KR 디스플레이 — 블랑쉬 감성 30%) -->
       <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
