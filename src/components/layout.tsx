@@ -18,6 +18,17 @@ type SeoMeta = {
 
 const SITE_URL = 'https://mgbestdc.kr'
 
+// 메인 스크롤 몰입 연출 (2026-10-30) — 홈에서만, app.js 뒤에 defer 로 (실행 순서 보장)
+// 파일 해시는 vite.config.ts 가 빌드 시 주입 (dev 서버 등 미주입 시 'dev')
+declare const __PM_VER__: { js: string; css: string } | undefined
+const PM_VER = typeof __PM_VER__ !== 'undefined' ? __PM_VER__ : { js: 'dev', css: 'dev' }
+const IMMERSIVE_SCRIPTS = [
+  '<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>',
+  '<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>',
+  '<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>',
+  `<script src="/static/immersive.js?v=${PM_VER.js}" defer></script>`
+].join('')
+
 // ============================================================
 // <head> — 페이지별 SEO 메타 + OG + 스키마
 // ============================================================
@@ -106,6 +117,7 @@ export function Head(meta: SeoMeta) {
       <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" /></noscript>
       <link rel="stylesheet" href="/static/style.css?v=design16" />
       ${meta.path === '/' ? raw('<link rel="preload" as="image" href="/static/img/hero-lobby.webp" imagesrcset="/static/img/hero-lobby-720.webp 720w, /static/img/hero-lobby.webp 1920w" imagesizes="100vw" fetchpriority="high" />') : ''}
+      ${meta.path === '/' ? raw(`<link rel="stylesheet" href="/static/immersive.css?v=${PM_VER.css}" />`) : ''}
 
       <!-- JSON-LD -->
       ${raw(
@@ -490,6 +502,7 @@ export function Layout(meta: SeoMeta, body: ReturnType<typeof html>, opts?: { me
         ${Footer(meta.path)}
         ${FloatingCta()}
         <script src="/static/app.js?v=design5" defer></script>
+        ${meta.path === '/' ? raw(IMMERSIVE_SCRIPTS) : ''}
       </body>
     </html>`
 }

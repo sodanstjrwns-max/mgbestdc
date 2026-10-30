@@ -1,0 +1,74 @@
+/* ============================================================
+   마곡베스트치과 메인 — 스크롤 몰입 연출 (PORCELAIN MOTION)
+   immersive.js 가 html.pm 을 붙였을 때만 작동 — JS 꺼짐·동작 줄이기·CDN 실패 시 원래 화면 그대로
+   ============================================================ */
+
+/* Lenis 권장 스타일 (관성 스크롤은 pointer: fine 에서만 켜짐) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* 주소의 #앵커로 들어올 때 브라우저의 부드러운 이동이 ScrollTrigger 첫 계산과 겹쳐 엉뚱한 자리에 서는 것 방지
+   (앱 안의 앵커 이동은 app.js·Lenis 가 부드럽게 처리) */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: auto; } }
+
+/* 옆에서 들어오는 요소가 가로 스크롤을 만들지 않게 (clip 은 스크롤 영역을 만들지 않음) */
+html.pm main { overflow-x: clip; }
+
+/* 등장 중인 카드 링크: style.css 모바일 규칙 `section div > a[style]` 이 걸려도 원래 상자 그대로 (immersive.js pinBox) */
+@media (max-width: 720px) {
+  html.pm section div > a[data-pm-a][style] { padding: var(--pm-p); margin: var(--pm-m); display: var(--pm-d); }
+}
+
+/* 제목 줄 마스크 — 히어로 h1 의 줄 올림과 같은 언어 */
+.pm-ln { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+.pm-li { display: inline-block; will-change: transform; }
+
+/* 사진이 열리기 전 액자 바탕 — 포슬린 / 남색 */
+html.pm .pf-photo, html.pm .doctor-photo { background: var(--bg-2); }
+html.pm .life-band { background: var(--dark); }
+html.pm .lb-img { will-change: clip-path, transform; }
+
+/* 핵심 지표 위 사파이어 선이 왼쪽부터 그어짐 */
+html.pm .fact-strip::before { transform: scaleX(var(--pm-bar, 1)); transform-origin: 0 50%; }
+
+/* 전체 진료 색인 위 굵은 선 (테두리 자리는 그대로 두고 그 위에 그린다 — 높이 변화 없음) */
+html.pm .tx-index { border-top-color: transparent; }
+html.pm .tx-index::before {
+  content: ''; position: absolute; left: 0; right: 0; top: -2px; height: 2px; z-index: 1;
+  background: linear-gradient(90deg, var(--dark) 0%, var(--dark) 62%, var(--pine) 88%, var(--bronze) 100%);
+  transform: scaleX(var(--pm-rule, 1)); transform-origin: 0 50%;
+}
+
+/* 중점 진료 카드 사진: 스크롤 시차 (CSS 개별 속성 — 호버 확대 transform 과 합쳐짐) */
+html.pm .cpc-img img { scale: var(--pm-s, 1); translate: 0 var(--pm-ty, 0); }
+
+/* 대표원장 인용: 큰 따옴표가 천천히 떠오름, 강조어에 시안 형광펜 */
+html.pm .doctor-quote::before { translate: 0 var(--pm-q, 0px); }
+html.pm .doctor-quote em {
+  background-image: linear-gradient(transparent 62%, rgba(0, 180, 229, 0.2) 62%, rgba(0, 180, 229, 0.2) 94%, transparent 94%);
+  background-repeat: no-repeat; background-position: 0 0; background-size: 100% 100%;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+
+/* 진료 과정: 지금 단계는 사파이어, 지난 단계엔 아래 선이 그어짐 (transform 만 — 레이아웃 이동 없음) */
+html.pm .journey-row::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: linear-gradient(90deg, var(--pine), var(--bronze));
+  transform: scaleX(0); transform-origin: 0 50%; transition: transform 0.9s var(--ease);
+}
+html.pm .journey-row.pm-on::after, html.pm .journey-row.pm-done::after { transform: scaleX(1); }
+html.pm .journey-row .jt { transition: color 0.45s var(--ease), translate 0.6s var(--ease); }
+html.pm .journey-row .jt::before { transition: color 0.45s var(--ease); }
+html.pm .journey-row.pm-on .jt { color: var(--pine-2); translate: 10px 0; }
+html.pm .journey-row.pm-on .jt::before, html.pm .journey-row.pm-done .jt::before { color: var(--pine); }
+
+/* 예약 밴드 뒤 빛 번짐이 스크롤 따라 흐름 */
+html.pm .cta-band::before { translate: var(--pm-g1, 0px) calc(var(--pm-g1, 0px) * -0.5); }
+html.pm .cta-band::after { translate: calc(var(--pm-g2, 0px) * -1) var(--pm-g2, 0px); }
+
+@media (max-width: 720px) {
+  html.pm .journey-row.pm-on .jt { translate: 6px 0; }
+}
