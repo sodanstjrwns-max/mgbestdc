@@ -138,7 +138,9 @@ body::before {
 /* ============================================================
    타이포 시스템 — 세리프 디스플레이 (에디토리얼 프리미엄)
    ============================================================ */
-h1, h2, h3, h4 { color: var(--ink); font-weight: 750; letter-spacing: -0.03em; line-height: 1.22; text-wrap: balance; }
+h1, h2, h3, h4 { color: var(--ink); font-weight: 750; letter-spacing: -0.03em; line-height: 1.22; text-wrap: balance; word-break: keep-all; overflow-wrap: break-word; }
+/* 제목은 어절(띄어쓰기) 단위로만 줄바꿈 — '살펴보세/요'처럼 단어 중간에서 끊기지 않게 (2026-10-31) */
+.creed-headline, .doctor-quote, .story-quote { word-break: keep-all; overflow-wrap: break-word; }
 p { text-wrap: pretty; }
 
 /* 대형 헤드라인 = 명조 — 병원이 아닌 '브랜드'의 목소리 */
