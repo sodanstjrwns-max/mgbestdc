@@ -173,7 +173,18 @@
       ln.remove();
     });
   }
+  // 그라데이션 글씨(background-clip:text) 안을 낱말로 쪼개면 글자가 투명해진다(대구 2026-11-01 사고)
+  // → 그 요소 자체를 낱말 하나처럼 통째로 감싸 움직인다(요소 자신의 clip:text 는 transform 이 있어도 정상).
+  function clipTextHost(node) {
+    for (var e = node.parentElement; e; e = e.parentElement) {
+      var cs = getComputedStyle(e);
+      if (cs.webkitBackgroundClip === 'text' || cs.backgroundClip === 'text') return e;
+    }
+    return null;
+  }
   function splitLines(h) {
+    // 제목 자체가 그라데이션 글씨(또는 그 안)면 줄 마스크를 끼우지 않고 통째 등장으로
+    for (var e = h; e; e = e.parentElement) { var c = getComputedStyle(e); if (c.webkitBackgroundClip === 'text' || c.backgroundClip === 'text') return null; }
     var before = h.getBoundingClientRect().height;
     var sigBefore = lineSig(h);
     var original = Array.prototype.slice.call(h.childNodes);
@@ -232,7 +243,16 @@
   function splitWordsInline(el) {
     var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     var nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
+    var hosts = [];
+    while (walker.nextNode()) {
+      var host = clipTextHost(walker.currentNode);
+      if (host) { if (hosts.indexOf(host) < 0) hosts.push(host); continue; }
+      nodes.push(walker.currentNode);
+    }
+    hosts.forEach(function (h) {
+      if (h === el || h.contains(el)) return; // 문장 전체가 그라데이션(또는 그 안)이면 쪼개지 않음
+      h.classList.add('pm-wd'); // 그 요소 자체가 낱말 하나
+    });
     nodes.forEach(function (node) {
       var parts = node.textContent.split(/(\s+)/);
       if (!node.textContent.trim()) return;
