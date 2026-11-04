@@ -144,7 +144,7 @@ export function orgRef() {
 export function organizationSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': ['Dentist', 'LocalBusiness'],
+    '@type': ['Dentist', 'MedicalClinic', 'LocalBusiness'],
     '@id': SITE_URL + '/#organization',
     name: CLINIC.name,
     alternateName: [CLINIC.nameEn, '마곡베스트치과', '마곡 베스트치과'],
@@ -201,7 +201,7 @@ export function organizationSchema() {
       addressCountry: 'KR'
     },
     geo: { '@type': 'GeoCoordinates', latitude: CLINIC.geo.lat, longitude: CLINIC.geo.lng },
-    hasMap: `https://map.naver.com/p/search/${encodeURIComponent(CLINIC.name)}`,
+    hasMap: CLINIC.social.naverPlace, // 네이버 플레이스 entry(1160976549) — 검색 URL 대신 고정 장소 URL
     openingHoursSpecification: CLINIC.hoursSchema.map((h) => ({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: h.days,
