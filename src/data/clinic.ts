@@ -22,8 +22,8 @@ export const CLINIC = {
   directions: '마곡나루역 1번 출구에서 도보 3분',
   station: '마곡나루역',
   openedYear: '2023',
-  // 좌표 (마곡나루 인근, 지역SEO·LocalBusiness 스키마용)
-  geo: { lat: 37.5670, lng: 126.8295 },
+  // 좌표 (네이버 플레이스 값과 일치, 지역SEO·LocalBusiness 스키마용)
+  geo: { lat: 37.56849, lng: 126.8265436 },
   hours: [
     { day: '월요일', time: '10:00 ~ 20:30', note: '야간진료' },
     { day: '화요일', time: '10:00 ~ 19:00' },
