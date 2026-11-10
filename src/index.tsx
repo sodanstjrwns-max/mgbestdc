@@ -17,6 +17,7 @@ import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogLis
 import { BLOG_POSTS, BLOG_CATEGORIES, getPost, catByName } from './data/blog'
 import { CONTENT_DATES, latestDate } from './data/content-dates'
 import { isClinicPublishedDbPost, isClinicPublishedStaticPost } from './data/authorship'
+import { isGoogleCrawler, isGoogleHiddenPath, GOOGLE_HIDE_HEADER } from './google-hide'
 import { NoticeListPage, NoticeDetailPage, DbColumnDetailPage, DbCasesPage, DbCaseDetailPage, dbBlogPostingSchema, noticeSchema, txSlugOfCategory, kstIso, type DbPost, type DbCase } from './pages/cms'
 import { AdminShell, AdminPostList, AdminPostEditor, AdminCases, AdminReservations, AdminFees } from './pages/admin'
 import { AdminStats, fetchSiteStats, STATS_TOKEN, MASTER_KEY } from './pages/stats'
@@ -33,6 +34,18 @@ type Bindings = {
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
+
+// 구글 전용 검색 제외 (2026-11-10) — 맨 바깥 미들웨어. 구글 크롤러 + 대상 경로 + 200 HTML 일 때만
+// 응답 헤더 X-Robots-Tag: googlebot: noindex. 그 밖의 요청(네이버·일반 방문자)은 아무것도 바꾸지 않는다.
+// 대상 경로·배경·되돌리는 방법: src/google-hide.ts
+app.use('*', async (c, next) => {
+  await next()
+  if (!isGoogleCrawler(c.req.header('User-Agent'))) return
+  if (c.res.status !== 200) return
+  if (!(c.res.headers.get('Content-Type') || '').includes('text/html')) return
+  if (!isGoogleHiddenPath(new URL(c.req.url).pathname)) return
+  c.header('X-Robots-Tag', GOOGLE_HIDE_HEADER)
+})
 
 // 끝 슬래시 URL(/area/xxx/, /reservation/)은 404가 나서 GSC에 오류로 잡힘 → 슬래시 없는 정규 URL로 301
 app.use('*', async (c, next) => {
