@@ -12,19 +12,22 @@
 //       HTML 메타, robots.txt, sitemap, canonical, 스키마는 건드리지 않는다. 301·404 에는 붙이지 않는다.
 //
 // 가리는 구역 (구글에만):
-//   - 지역×진료 조합  /area/{지역}-{진료}  (주 지역 허브 /area/magok 은 남긴다)
+//   - 지역×진료 조합  /area/{지역}-{진료}  — 마곡 밖 7개 지역(마곡나루·가양·발산·내발산·등촌·염창·강서구) × 진료 4
+//     (주 지역 허브 /area/magok 과 마곡 핵심 6장 /area/magok-{진료} 은 남긴다)
 //   - 칼럼 분류 목록  /blog/category/{분류}
 //   - 일괄 생성 칼럼  /blog/{slug} 중
 //       · 코드로 넣은 정적 칼럼(src/data/blog.ts BLOG_POSTS — 제작 대행사 작성)
 //       · D1 일괄 시드 예시 글 3편(posts id 1·2·3, 2026-08-09 18:40:57 같은 시각 등록 — src/data/authorship.ts 참고)
 // 남기는 구역: 홈, 진료 목록·상세, 의료진, 비용, 병원 소개·이야기·원칙, 오시는 길, 시설, 예약, FAQ,
 //   공지(/notice), 진료사례(/cases, /cases/:id), 칼럼 목록(/blog),
-//   병원이 관리자 화면에서 직접 올린 칼럼(D1 posts id 7 이상), 주 지역 허브(/area/magok)
+//   병원이 관리자 화면에서 직접 올린 칼럼(D1 posts id 7 이상), 주 지역 허브(/area/magok),
+//   마곡 핵심 6장(/area/magok-implant 등 — 홈 카드로 연결되는 병원 소재 지역×진료, 목표 검색어의 착지 페이지)
 //
 // 되돌리기: isGoogleHiddenPath 가 항상 false 를 돌려주게 하면 끝 (또는 index.tsx 의 미들웨어 삭제).
 // ============================================================
 import { BLOG_POSTS } from './data/blog'
 import { MAGOK_HUB } from './data/hub-link'
+import { MAGOK_CARDS } from './data/magok-cards'
 
 export const GOOGLE_HIDE_HEADER = 'googlebot: noindex'
 
@@ -33,8 +36,10 @@ export function isGoogleCrawler(userAgent: string | null | undefined): boolean {
   return /googlebot|google-inspectiontool/i.test(String(userAgent || ''))
 }
 
-// 남기는 지역 페이지(주 허브) — '/area/' 뒤 한 토막
-const KEEP_AREA_SLUGS = new Set([MAGOK_HUB.replace(/^\/area\//, '')])
+// 남기는 지역 페이지 — '/area/' 뒤 한 토막
+//  · 주 허브 /area/magok
+//  · 마곡 핵심 6장(홈 카드, src/data/magok-cards.ts MAGOK_CARDS): magok-implant·ortho·cosmetic·cavity·gum·extraction
+const KEEP_AREA_SLUGS = new Set([MAGOK_HUB, ...MAGOK_CARDS.map((c) => c.path)].map((p) => p.replace(/^\/area\//, '')))
 // 코드로 넣은 정적 칼럼
 const STATIC_COLUMN_SLUGS = new Set(BLOG_POSTS.map((p) => p.slug))
 // D1 일괄 시드 예시 칼럼 (posts id 1·2·3)
@@ -45,7 +50,7 @@ export function isGoogleHiddenPath(pathname: string): boolean {
   let p = pathname
   try { p = decodeURIComponent(pathname) } catch { /* 깨진 인코딩은 원문 그대로 판정 */ }
 
-  // 지역: 주 허브만 남기고 /area/{지역}-{진료} 전부
+  // 지역: 주 허브·마곡 핵심 6장만 남기고 /area/{지역}-{진료} 전부
   const area = /^\/area\/([^/]+)$/.exec(p)
   if (area) return !KEEP_AREA_SLUGS.has(area[1])
 
