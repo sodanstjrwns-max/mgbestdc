@@ -1546,9 +1546,10 @@ a, button, summary { -webkit-tap-highlight-color: transparent; }
   .footer-links a { padding: 8px 4px; margin: -8px -4px; }
 
   /* 본문 인라인 링크(전화 문의·진료보기·사례 보기 등) */
+  /* 하단 고정 바 전화 칸(.sb-call)·상담 카드 버튼(.side-card .btn)은 버튼이라 제외 — 인라인 링크용 여백이 덮어쓰면 칸이 깨짐 (2026-11-10) */
   .notice-box a, .t-note-link, .post-cross a, .section-title a,
-  a[href^="tel:"]:not(.btn):not(.btn-call):not(.fc-btn):not(.sb-item),
-  .ba-note a, section p > a, section div > a[style] { padding: 12px 6px; margin: -12px -6px; display: inline-block; }
+  a[href^="tel:"]:not(.btn):not(.btn-call):not(.fc-btn):not(.sb-item):not(.sb-call),
+  .ba-note a, section p > a, section div:not(.side-card) > a[style] { padding: 12px 6px; margin: -12px -6px; display: inline-block; }
 
   /* 칩·필터: 실제 높이 확보 */
   .t-area-chip { min-height: 38px; display: inline-flex; align-items: center; }

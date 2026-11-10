@@ -221,8 +221,8 @@ export function BlogDetailPage(post: BlogPost) {
               <div class="side-card brand">
                 <h3 class="h4">상담 예약</h3>
                 <p>칼럼 내용에 대해 더 궁금한 점이 있으신가요? 정확한 진단을 통해 안내드립니다.</p>
-                <a href="/reservation" class="btn btn-white" style="width:100%"><i class="fa-solid fa-calendar-check"></i> 예약 문의</a>
-                <a href="tel:${CLINIC.phoneRaw}" class="btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.12);color:#fff"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
+                <a href="/reservation" class="btn btn-white" style="width:100%" data-cta="article-end"><i class="fa-solid fa-calendar-check"></i> 예약 문의</a>
+                <a href="tel:${CLINIC.phoneRaw}" class="btn" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.12);color:#fff" data-cta="article-end"><i class="fa-solid fa-phone"></i> ${CLINIC.phone}</a>
               </div>
 
               ${
