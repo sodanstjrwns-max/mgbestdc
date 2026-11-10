@@ -782,6 +782,8 @@ main { padding-top: var(--header-h); position: relative; z-index: 1; }
    진료 상세
    ============================================================ */
 .t-detail-grid { display: grid; grid-template-columns: 1fr 340px; gap: clamp(32px, 5vw, 64px); align-items: start; }
+/* 비교표(min-width 520px) 때문에 모바일에서 본문 칸이 522px로 늘어나 글이 오른쪽에서 잘리던 문제 — 칸이 화면 폭을 넘지 않게 (2026-11-10) */
+.t-detail-grid > * { min-width: 0; }
 .t-section { margin-bottom: clamp(36px, 5vw, 52px); }
 .t-section h2 {
   font-size: clamp(1.3rem, 2.4vw, 1.7rem); margin-bottom: 16px; padding-bottom: 14px;
