@@ -133,9 +133,13 @@ export function DoctorDetailPage(slug: string) {
   `
 }
 
-export function personSchema(slug: string, siteUrl: string) {
+// Physician 스키마 — 화면에 있는 정보만. compact=목록(/doctors): 이름·직함·자격·진료 분야·목록 사진까지
+// (학력 = 졸업 학교 데이터가 레포에 없어 alumniOf 는 넣지 않는다. '연수'는 졸업이 아님)
+export function personSchema(slug: string, siteUrl: string, opts: { compact?: boolean } = {}) {
   const d = DOCTORS.find((x) => x.slug === slug)
   if (!d) return null
+  // 경력의 "…학회 정회원" → memberOf (2026-11-10)
+  const societies = d.career.filter((c) => /학회\s*정회원$/.test(c)).map((c) => c.replace(/\s*정회원$/, ''))
   return {
     '@context': 'https://schema.org',
     '@type': 'Physician',
@@ -143,16 +147,21 @@ export function personSchema(slug: string, siteUrl: string) {
     name: d.name,
     jobTitle: d.title,
     description: d.credential,
-    image: `${siteUrl}/static/img/dr-kim-standing.webp`,
+    image: `${siteUrl}/static/img/${opts.compact ? 'dr-kim-stool.webp' : 'dr-kim-standing.webp'}`,
     url: `${siteUrl}/doctors/${d.slug}`,
     medicalSpecialty: 'Dentistry',
     worksFor: { '@id': `${siteUrl}/#organization` },
-    workLocation: {
-      '@type': 'Place',
-      name: CLINIC.name,
-      address: { '@type': 'PostalAddress', streetAddress: CLINIC.addressShort, addressLocality: '강서구', addressRegion: '서울특별시', addressCountry: 'KR' }
-    },
     knowsAbout: d.specialties.map((s) => getTreatment(s)?.name).filter(Boolean),
-    hasCredential: d.career.map((c) => ({ '@type': 'EducationalOccupationalCredential', name: c }))
+    ...(opts.compact
+      ? {}
+      : {
+          workLocation: {
+            '@type': 'Place',
+            name: CLINIC.name,
+            address: { '@type': 'PostalAddress', streetAddress: CLINIC.addressShort, addressLocality: '강서구', addressRegion: '서울특별시', addressCountry: 'KR' }
+          },
+          ...(societies.length ? { memberOf: societies.map((name) => ({ '@type': 'Organization', name })) } : {}),
+          hasCredential: d.career.map((c) => ({ '@type': 'EducationalOccupationalCredential', name: c }))
+        })
   }
 }

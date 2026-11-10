@@ -9,7 +9,8 @@ import { DoctorsListPage, DoctorDetailPage, personSchema } from './pages/doctors
 import { StoryPage, storySchema } from './pages/story'
 import {
   AboutHubPage, MissionPage, DirectionsPage, PricingPage, FacilityPage, FaqPage, faqPageSchema,
-  ReservationPage, AreaPage, areaSchema, areaFaqSchema, areaWebPageSchema, buildPricingSections, type DbFee
+  ReservationPage, AreaPage, areaSchema, areaFaqSchema, areaWebPageSchema, buildPricingSections, type DbFee,
+  PRICING_SECTIONS, PRICING_FAQS, type FeeSection
 } from './pages/info'
 import { MAGOK_CARDS, MAGOK_EXTRA_TREATMENTS, magokCard, magokCardImg, magokItemListSchema, txOgImage } from './data/magok-cards'
 import { BlogListPage, BlogDetailPage, blogPostingSchema, blogFaqSchema, blogListSchema } from './pages/blog'
@@ -283,7 +284,9 @@ app.get('/doctors', (c) =>
                 item: { '@id': `${SITE_URL}/doctors/${d.slug}/#physician` }
               }))
             }
-          }
+          },
+          // 목록 화면에 보이는 정보(이름·직함·자격·소개·진료 분야·사진)만으로 Physician (2026-11-10)
+          ...DOCTORS.map((d) => personSchema(d.slug, SITE_URL, { compact: true })).filter(Boolean) as object[]
         ]
       },
       DoctorsListPage()
@@ -458,7 +461,8 @@ app.get('/pricing', async (c) => {
   return c.html(
     Layout(
       {
-        title: `비용 안내 (비급여 진료비용 고지) | ${CLINIC.name}`,
+        // 2026-11-10: 지역 키워드를 맨 앞에 (진료 페이지 제목 "마곡 X 진료 안내"와 같은 관례)
+        title: `마곡 치과 비용 안내 (비급여 진료비용 고지) | ${CLINIC.name}`,
         description: `마곡베스트치과의원 비급여 진료비용 고지. 인레이 30만원·온레이 35만원·크라운 45만원, 레진 충치치료 7~20만원, 앞니 파절·심미 레진 10~40만원, 투명교정 부분 100~150만원·전체 350~400만원. 정확한 비용은 진단 후 안내드립니다.`,
         path: '/pricing',
         jsonLd: [
@@ -506,32 +510,8 @@ app.get('/pricing', async (c) => {
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
             '@id': SITE_URL + '/pricing/#faq',
-            mainEntity: [
-              {
-                '@type': 'Question',
-                name: '왜 투명교정은 범위로 안내되나요?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: '교정은 치아 이동량과 교정 범위에 따라 장치 개수와 기간이 달라지기 때문입니다. 정밀 진단 후에는 범위가 아닌 확정 비용과 예상 기간을 함께 안내드립니다.'
-                }
-              },
-              {
-                '@type': 'Question',
-                name: '건강보험이 적용되는 치료는 무엇인가요?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: '신경치료, 스케일링(연 1회), 충치치료 일부, 발치, 잇몸치료 등은 건강보험이 적용됩니다. 본원은 보험 적용 가능 여부를 진료 전에 먼저 확인해 안내드립니다.'
-                }
-              },
-              {
-                '@type': 'Question',
-                name: '상담을 예약하면 무엇을 안내받나요?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: '김민 원장이 직접 진단한 뒤, 치료가 필요한 이유와 가능한 대안, 항목별 비용을 함께 설명드립니다. 당일 치료를 강요하지 않습니다.'
-                }
-              }
-            ]
+            // 화면 FAQ(PRICING_FAQS)와 1:1
+            mainEntity: PRICING_FAQS.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } }))
           }
         ]
       },
@@ -1804,18 +1784,53 @@ Sitemap: ${SITE_URL}/sitemap.xml
   return c.body(txt, 200, { 'Content-Type': 'text/plain; charset=utf-8' })
 })
 
-app.get('/llms.txt', (c) => {
+// ============================================================
+// llms.txt 표준 사실 블록 (2026-11-10 SEO·AEO 정비 1차)
+// - 값은 전부 CLINIC·DOCTORS·TREATMENTS 와 비용 페이지에 실제 공개된 수가(D1 fees 공개분, 없으면 기본 수가표)
+// - 점심시간·최종 확인일은 레포에 데이터가 없어 넣지 않는다 (추측 금지)
+// ============================================================
+const LLMS_FEE_PICK = ['인레이', '온레이', '크라운', '어금니 씹는면 (좁은 부위)', '투명교정 (부분)', '투명교정 (전체)']
+async function publishedFeeSections(c: any): Promise<{ sections: FeeSection[]; updated: string }> {
+  // /pricing 과 같은 규칙: 공개(is_published=1) 항목만, DB 없거나 비어 있으면 화면과 똑같이 기본 수가표
+  try {
+    if (c.env?.DB) {
+      const res = await c.env.DB.prepare('SELECT * FROM fees WHERE is_published = 1 ORDER BY sort, id').all()
+      const rows = (res.results || []) as unknown as (DbFee & { updated_at?: string })[]
+      if (rows.length) return { sections: buildPricingSections(rows), updated: latestDate(rows.map((r) => r.updated_at)) }
+    }
+  } catch (e) {}
+  return { sections: PRICING_SECTIONS, updated: '' }
+}
+async function llmsFactBlock(c: any): Promise<string> {
+  const d = DOCTORS[0]
+  const { sections, updated } = await publishedFeeSections(c)
+  const all = sections.flatMap((s) => s.rows.map((r) => ({ sec: s.title, ...r })))
+  let picks = LLMS_FEE_PICK.map((n) => all.find((r) => r.name === n)).filter(Boolean) as typeof all
+  if (picks.length < 3) picks = all.slice(0, 6)
+  const feeLines = picks.map((r) => `- ${r.sec} › ${r.name}: ${r.price}${r.unit ? ` (${r.unit})` : ''}`)
+  const hours = CLINIC.hours.map((h: any) => (h.closed ? `${h.day} 휴진` : `${h.day} ${h.time}${h.note ? `(${h.note})` : ''}`)).join(', ')
+  return `## 병원 정보
+- 이름: ${CLINIC.name} (${CLINIC.nameEn})
+- 진료 분야: ${TREATMENTS.map((t) => t.name).join(', ')}
+- 주소: ${CLINIC.addressFull} / 가까운 역·출구: ${CLINIC.directions}
+- 전화: ${CLINIC.phone}
+- 진료 시간: ${hours}
+- 의료진: ${d.name}(${d.title}·${d.credential})
+- 예약: ${SITE_URL}/reservation · 네이버 예약 ${CLINIC.social.naverBooking}
+- 진료 안내: ${SITE_URL}/treatments / 비용 안내: ${SITE_URL}/pricing / 의료진: ${SITE_URL}/doctors / 지역 안내(허브): ${SITE_URL}${MAGOK_HUB_PATH} / 자주 묻는 질문: ${SITE_URL}/faq
+${feeLines.length ? `
+## 주요 비급여 진료비 (비용 안내 페이지 공개 항목${updated ? `, 수가표 최종 수정 ${updated}` : ''})
+${feeLines.join('\n')}
+- 임플란트 등 그 외 비급여 항목은 내원 상담 시 고지합니다. 전체 표: ${SITE_URL}/pricing
+` : ''}`
+}
+
+app.get('/llms.txt', async (c) => {
   const txt = `# ${CLINIC.name} (${CLINIC.nameEn})
 
 > ${CLINIC.mission} | ${CLINIC.directions}에 위치한 서울 강서구 마곡 지역 치과.
 
-## 병원 정보
-- 대표원장: ${DOCTORS[0].name} (${CLINIC.directorCredential})
-- 주소: ${CLINIC.addressFull}
-- 전화: ${CLINIC.phone}
-- 진료시간: 월·목 10:00-20:30(야간), 화·금 10:00-19:00, 수 13:00-19:00, 토 09:30-14:30, 일·공휴일 휴진
-- 교통: ${CLINIC.directions}
-
+${await llmsFactBlock(c)}
 ## 핵심 진료
 ${CORE_TREATMENTS.map((t) => `- [${t.name}](${SITE_URL}/treatments/${t.slug}): ${t.tagline}`).join('\n')}
 
@@ -1864,7 +1879,7 @@ ${GENERAL_FAQS.map((f) => `Q. ${f.q}\nA. ${f.a}`).join('\n\n')}
 // llms-full.txt — AI 크롤러용 전체 콘텐츠 원문 (AEO 심화)
 // 진료 상세 + 건강칼럼 전문을 마크다운으로 통째 제공
 // ============================================================
-app.get('/llms-full.txt', (c) => {
+app.get('/llms-full.txt', async (c) => {
   const treatmentDocs = TREATMENTS.map((t) => {
     const secs = (t.sections || []).map((s) => `### ${s.h}\n${s.p}`).join('\n\n')
     const procs = (t.procedures || []).length ? `\n\n**진행 과정**\n${(t.procedures || []).map((p, i) => `${i + 1}. ${p.name}: ${p.desc}`).join('\n')}` : ''
@@ -1883,6 +1898,7 @@ app.get('/llms-full.txt', (c) => {
 > 이 문서는 AI 어시스턴트가 ${CLINIC.name}에 관한 질문에 정확히 답할 수 있도록 사이트 전체 콘텐츠 원문을 제공합니다.
 > 요약본은 ${SITE_URL}/llms.txt 를 참고하세요.
 
+${await llmsFactBlock(c)}
 ## 병원 핵심 정보
 - 병원명: ${CLINIC.name} (${CLINIC.nameEn})
 - 대표원장: ${DOCTORS[0].name} (${CLINIC.directorCredential})

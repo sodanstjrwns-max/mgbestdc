@@ -309,6 +309,13 @@ export const PRICING_SECTIONS: FeeSection[] = [
   }
 ]
 
+// 비용 FAQ — 화면과 FAQPage 스키마가 같은 문장을 쓰도록 한 곳에서 관리 (2026-11-10)
+export const PRICING_FAQS: { q: string; a: string }[] = [
+  { q: '왜 투명교정은 범위로 안내되나요?', a: '교정은 치아 이동량과 교정 범위에 따라 장치 개수와 기간이 달라지기 때문입니다. 진단 전에 확정 금액을 말씀드리는 것이 오히려 부정확한 안내가 됩니다. 정밀 진단 후에는 범위가 아닌 확정 비용과 예상 기간을 함께 안내드립니다.' },
+  { q: '건강보험이 적용되는 치료는 무엇인가요?', a: '신경치료, 스케일링(연 1회), 충치치료 일부, 발치, 잇몸치료 등은 건강보험이 적용됩니다. 같은 충치라도 위치와 재료에 따라 급여/비급여가 달라질 수 있어, 본원은 보험 적용 가능 여부를 진료 전에 먼저 확인해 안내드립니다.' },
+  { q: '상담을 예약하면 무엇을 안내받나요?', a: '김민 원장이 직접 진단한 뒤, 치료가 필요한 이유와 가능한 대안, 항목별 비용을 함께 설명드립니다. 충분히 이해하시고 결정하실 수 있도록 안내하며, 당일 치료를 강요하지 않습니다.' },
+]
+
 // 섹션(그룹)별 아이콘·설명 — 룩 보존을 위해 코드측에서 유지 (DB에는 항목만 저장)
 const SECTION_META: Record<string, { icon: string; note?: string }> = Object.fromEntries(
   PRICING_SECTIONS.map((s) => [s.title, { icon: s.icon, note: s.note }])
@@ -393,18 +400,11 @@ export function PricingPage(sections?: FeeSection[]) {
         <div class="reveal" style="margin-top:44px">
           <h2 class="section-title" style="font-size:1.5rem;margin-bottom:18px"><i class="fa-solid fa-circle-question" style="color:var(--brand);margin-right:8px"></i>비용에 대해 자주 묻는 질문</h2>
           <div class="faq-list">
+            ${raw(PRICING_FAQS.map((f) => `
             <details class="faq-item">
-              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>왜 투명교정은 범위로 안내되나요?</span></summary>
-              <div class="faq-a">교정은 치아 이동량과 교정 범위에 따라 장치 개수와 기간이 달라지기 때문입니다. 진단 전에 확정 금액을 말씀드리는 것이 오히려 부정확한 안내가 됩니다. 정밀 진단 후에는 범위가 아닌 확정 비용과 예상 기간을 함께 안내드립니다.</div>
-            </details>
-            <details class="faq-item">
-              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>건강보험이 적용되는 치료는 무엇인가요?</span></summary>
-              <div class="faq-a">신경치료, 스케일링(연 1회), 충치치료 일부, 발치, 잇몸치료 등은 건강보험이 적용됩니다. 같은 충치라도 위치와 재료에 따라 급여/비급여가 달라질 수 있어, 본원은 보험 적용 가능 여부를 진료 전에 먼저 확인해 안내드립니다.</div>
-            </details>
-            <details class="faq-item">
-              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>상담을 예약하면 무엇을 안내받나요?</span></summary>
-              <div class="faq-a">김민 원장이 직접 진단한 뒤, 치료가 필요한 이유와 가능한 대안, 항목별 비용을 함께 설명드립니다. 충분히 이해하시고 결정하실 수 있도록 안내하며, 당일 치료를 강요하지 않습니다.</div>
-            </details>
+              <summary><span style="display:flex;gap:12px;align-items:center"><span class="q-ico">Q</span>${f.q}</span></summary>
+              <div class="faq-a">${f.a}</div>
+            </details>`).join(''))}
           </div>
         </div>
 
